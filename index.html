@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FOOT BASE — World Cup 2026 Gacha Pack</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Inclusion d'Ethers.js v5 pour contrôler le Smart Contract facilement -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<!-- SDK Farcaster Frame v2 -->
 <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.1/dist/index.min.js"></script>
 <style>
 :root {
@@ -119,4 +121,226 @@ body {
 .leader-score { font-weight: 700; color: var(--base-blue); }
 
 .error-card { color: var(--red); font-size: 0.8rem; padding: 1rem; background: rgba(255,59,92,0.06); border: 1px solid rgba(255,59,92,0.2); border-radius: 10px; margin-bottom: 1.5rem; display: none; }
-.footer { margin-top: 3rem; display
+.footer { margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.7rem; color: var(--muted); }
+.footer a { color: var(--base-blue); text-decoration: none; }
+
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+</style>
+</head>
+<body>
+
+  <div class="hero-banner">
+    <div class="wrap">
+      <div class="header-flex">
+        <div class="brand-box">
+          <div class="base-logo"><div class="base-logo-circle"></div></div>
+          <div>
+            <div class="title">FOOT BASE</div>
+            <div class="subtitle">World Cup 2026 Edition — Édition Limitée 3 Jours</div>
+            <div class="author">✍ Rédigé par <a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></div>
+          </div>
+        </div>
+        <div class="badge-live"><div class="dot-blink"></div> Mint Actif</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="main-box">
+      
+      <div class="error-card" id="error-display"></div>
+
+      <!-- Context Bar Utilitaire -->
+      <div class="address-sub-bar" id="context-bar">
+        <div class="sub-bar-addr" id="sub-wallet-address">0x000...0000</div>
+        <div class="sub-bar-right">
+          <div class="eth-badge" id="sub-eth-bal">0.0000 ETH</div>
+          <a href="#" target="_blank" class="link-basescan" id="sub-basescan-link">Basescan ↗</a>
+        </div>
+      </div>
+
+      <!-- Navigation Onglets -->
+      <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab(0)">Pack Opener</div>
+        <div class="tab-item" onclick="switchTab(1)">Ma Collection</div>
+        <div class="tab-item" onclick="switchTab(2)">Leaderboard</div>
+      </div>
+
+      <!-- VUE 1 : PACK OPENER -->
+      <div class="view-content active" id="view-gacha">
+        <div class="pack-hero-container">
+          <div class="pack-mockup">
+            <div class="pack-title">Mondial</div>
+          </div>
+        </div>
+
+        <button class="btn-mint" id="btn-action-mint" onclick="connectOrMint()">Connecter le Wallet</button>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="section-label">Limite Journalière</div>
+            <div class="info-val" id="ui-daily-limit">0 / 2 Mints</div>
+          </div>
+          <div class="info-card">
+            <div class="section-label">Temps Restant</div>
+            <div class="info-val" id="ui-timer">--h --m --s</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VUE 2 : MA COLLECTION -->
+      <div class="view-content" id="view-collection">
+        <div class="section-label" style="margin-bottom:1rem;">Tes Pays Débloqués (Sur 48)</div>
+        <div class="collection-grid" id="ui-collection-grid">
+          <!-- Génré automatiquement par JS -->
+        </div>
+      </div>
+
+      <!-- VUE 3 : LEADERBOARD -->
+      <div class="view-content" id="view-leaderboard">
+        <div class="section-label" style="margin-bottom:1rem;">Classement des Meilleurs Collectionneurs</div>
+        <div id="ui-leaderboard-list">
+          <div class="leader-row">
+            <div class="leader-left"><div class="leader-rank">1</div><div class="leader-addr">ExempleWallet...48A1</div></div>
+            <div class="leader-score">12 Packs</div>
+          </div>
+          <div class="leader-row">
+            <div class="leader-left"><div class="leader-rank">2</div><div class="leader-addr">irezroifer.base.eth</div></div>
+            <div class="leader-score">8 Packs</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      <div>Réseau standard: Base Mainnet RPC</div>
+      <div>Engine Built by <strong><a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></strong></div>
+    </div>
+  </div>
+
+<script>
+// CONFIGURATION DE LA dAPP AVEC TON SMART CONTRACT LIVE
+const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+
+const CONTRACT_ABI = [
+  "function mintPack() external payable",
+  "function deadline() external view returns (uint256)",
+  "function totalMintedByAddress(address) external view returns (uint256)",
+  "function dailyMintCount(address) external view returns (uint256)",
+  "function lastMintTimestamp(address) external view returns (uint256)"
+];
+
+let provider;
+let signer;
+let contract;
+let userAddress = null;
+
+// Initialisation au chargement
+window.addEventListener('DOMContentLoaded', async () => {
+  // Init Farcaster SDK si ouvert dans Warpcast
+  if (window.farcaster && window.farcaster.FrameSDK) {
+    await window.farcaster.FrameSDK.actions.ready();
+  }
+  generateCollectionGrid();
+  startStaticTimer();
+});
+
+function generateCollectionGrid() {
+  const grid = document.getElementById('ui-collection-grid');
+  grid.innerHTML = "";
+  for (let i = 1; i <= 48; i++) {
+    grid.innerHTML += `<div class="slot-card" id="country-${i}">Pays #${i}</div>`;
+  }
+}
+
+function switchTab(index) {
+  const tabs = document.querySelectorAll('.tab-item');
+  const views = document.querySelectorAll('.view-content');
+  tabs.forEach((t, i) => i === index ? t.classList.add('active') : t.classList.remove('active'));
+  views.forEach((v, i) => i === index ? v.classList.add('active') : v.classList.remove('active'));
+}
+
+async function connectOrMint() {
+  const errBox = document.getElementById('error-display');
+  errBox.style.display = "none";
+
+  if (!window.ethereum) {
+    errBox.innerText = "⚠ Aucun injecteur Web3 trouvé (Installe Rabby Wallet ou utilise Warpcast).";
+    errBox.style.display = "block";
+    return;
+  }
+
+  try {
+    if (!userAddress) {
+      // Connexion initiale
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = provider.getSigner();
+      userAddress = await signer.getAddress();
+      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      // Changement d'état UI
+      document.getElementById('sub-wallet-address').innerText = userAddress.slice(0,6) + "..." + userAddress.slice(-4);
+      document.getElementById('sub-basescan-link').href = `https://basescan.org/address/${userAddress}`;
+      document.getElementById('context-bar').style.display = "flex";
+      document.getElementById('btn-action-mint').innerText = "Ouvrir un Pack (Gratuit) 🎲";
+      
+      await refreshOnChainData();
+    } else {
+      // Exécution de la transaction de Mint
+      const btn = document.getElementById('btn-action-mint');
+      btn.disabled = true;
+      btn.innerText = "Signature requise dans Rabby...";
+
+      const tx = await contract.mintPack();
+      btn.innerText = "Validation on-chain en cours...";
+      await tx.wait();
+
+      alert("🎉 Pack ouvert avec succès ! Regarde l'onglet Ma Collection.");
+      await refreshOnChainData();
+    }
+  } catch (e) {
+    errBox.innerText = "⚠ Échec opération : " + (e.reason || e.message);
+    errBox.style.display = "block";
+    document.getElementById('btn-action-mint').disabled = false;
+    document.getElementById('btn-action-mint').innerText = userAddress ? "Ouvrir un Pack (Gratuit) 🎲" : "Connecter le Wallet";
+  }
+}
+
+async function refreshOnChainData() {
+  if (!contract || !userAddress) return;
+
+  // 1. Solde ETH
+  const bal = await provider.getBalance(userAddress);
+  document.getElementById('sub-eth-bal').innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
+
+  // 2. Limite quotidienne de mints
+  const dailyCount = await contract.dailyMintCount(userAddress);
+  document.getElementById('ui-daily-limit').innerText = `${dailyCount.toString()} / 2 Mints`;
+
+  // 3. Lecture du score total pour simuler la collection
+  const totalScore = await contract.totalMintedByAddress(userAddress);
+  
+  // Simulation d'allumage des cartes possédées selon le score
+  for (let i = 1; i <= 48; i++) {
+    const card = document.getElementById(`country-${i}`);
+    if (i <= parseInt(totalScore.toString())) {
+      card.classList.add('unlocked');
+      card.innerText = `⚽ Débloqué #${i}`;
+    }
+  }
+}
+
+function startStaticTimer() {
+  let hours = 71, minutes = 59, seconds = 59;
+  setInterval(() => {
+    seconds--;
+    if (seconds < 0) { seconds = 59; minutes--; }
+    if (minutes < 0) { minutes = 59; hours--; }
+    document.getElementById('ui-timer').innerText = `${hours}h ${minutes}m ${seconds}s`;
+  }, 1000);
+}
+</script>
+</body>
+</html>
