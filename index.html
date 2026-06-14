@@ -119,7 +119,6 @@ body {
   width: 44px; height: auto; border-radius: 4px; margin-bottom: 8px; 
   filter: grayscale(1); opacity: 0.2; transition: all 0.3s ease; 
 }
-/* Style d'activation de carte gagnée on-chain */
 .slot-card.unlocked { 
   border-color: var(--base-blue); color: white; 
   background: linear-gradient(180deg, rgba(0,82,255,0.08) 0%, transparent 100%); 
@@ -231,7 +230,6 @@ body {
 
 <script>
 const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-const BLOCKSCOUT_API = "https://base.blockscout.com/api";
 
 const CONTRACT_ABI = [
   "function mintPack() external payable",
@@ -240,7 +238,6 @@ const CONTRACT_ABI = [
   "function dailyMintCount(address) external view returns (uint256)"
 ];
 
-// Liste ordonnée de tes 48 nations du mondial
 const countries = [
   { name: "États-Unis", code: "us" }, { name: "Mexique", code: "mx" }, { name: "Canada", code: "ca" },
   { name: "France", code: "fr" }, { name: "Brésil", code: "br" }, { name: "Argentine", code: "ar" },
@@ -261,6 +258,7 @@ const countries = [
 ];
 
 let provider, signer, contract, userAddress = null;
+let blockscoutApiUrl = "https://base.blockscout.com/api";
 
 window.addEventListener('DOMContentLoaded', async () => {
   if (window.farcaster?.FrameSDK) { await window.farcaster.FrameSDK.actions.ready(); }
@@ -298,8 +296,17 @@ async function connectOrMint() {
       userAddress = await signer.getAddress();
       contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
+      // Check Network Setup (Mainnet ID: 8453, Sepolia ID: 84532)
+      const network = await provider.getNetwork();
+      if (network.chainId === 84532) {
+        blockscoutApiUrl = "https://base-sepolia.blockscout.com/api";
+        document.getElementById('sub-basescan-link').href = `https://sepolia.basescan.org/address/${userAddress}`;
+      } else {
+        blockscoutApiUrl = "https://base.blockscout.com/api";
+        document.getElementById('sub-basescan-link').href = `https://basescan.org/address/${userAddress}`;
+      }
+
       document.getElementById('sub-wallet-address').innerText = userAddress.slice(0,6) + "..." + userAddress.slice(-4);
-      document.getElementById('sub-basescan-link').href = `https://basescan.org/address/${userAddress}`;
       document.getElementById('context-bar').style.display = "flex";
       document.getElementById('btn-action-mint').innerText = "Ouvrir un Pack (Gratuit) 🎲";
       
@@ -314,24 +321,24 @@ async function connectOrMint() {
       await refreshOnChainData();
     }
   } catch (e) {
-    errBox.innerText = "⚠ Erreur : " + (e.reason || e.message); errBox.style.display = "block";
-    document.getElementById('btn-action-mint').disabled = false;
-    document.getElementById('btn-action-mint').innerText = userAddress ? "Ouvrir un Pack (Gratuit) 🎲" : "Connecter le Wallet";
+    showErrorAlert(e);
   }
 }
 
 async function refreshOnChainData() {
   if (!contract || !userAddress) return;
 
-  const bal = await provider.getBalance(userAddress);
-  document.getElementById('sub-eth-bal').innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
-
-  const dailyCount = await contract.dailyMintCount(userAddress);
-  document.getElementById('ui-daily-limit').innerText = `${dailyCount.toString()} / 2 Mints`;
-
-  // Scan d'historique de transfert via Blockscout pour allumer ton album
   try {
-    const res = await fetch(`${BLOCKSCOUT_API}?module=account&action=tokennfttx&address=${userAddress}&contractaddress=${CONTRACT_ADDRESS}`);
+    const bal = await provider.getBalance(userAddress);
+    document.getElementById('sub-eth-bal').innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
+  } catch(e) { console.error(e); }
+
+  // Encapsulation sécurisée pour intercepter le "missing revert data"
+  try {
+    const dailyCount = await contract.dailyMintCount(userAddress);
+    document.getElementById('ui-daily-limit').innerText = `${dailyCount.toString()} / 2 Mints`;
+
+    const res = await fetch(`${blockscoutApiUrl}?module=account&action=tokennfttx&address=${userAddress}&contractaddress=${CONTRACT_ADDRESS}`);
     const data = await res.json();
     if (data.status === "1" && Array.isArray(data.result)) {
       const ownedTokenIds = [...new Set(data.result.filter(tx => tx.to.toLowerCase() === userAddress.toLowerCase()).map(tx => tx.tokenID))];
@@ -342,7 +349,20 @@ async function refreshOnChainData() {
         if (card) { card.classList.add('unlocked'); }
       }
     }
-  } catch(e) { console.error("Erreur de synchronisation", e); }
+  } catch(e) {
+    console.error("Erreur d'appel contrat:", e);
+    const errBox = document.getElementById('error-display');
+    errBox.innerHTML = "⚠ <strong>Erreur de synchronisation :</strong> Le smart contract est introuvable sur ton réseau actuel. Vérifie si tu as déployé sur <strong>Base Sepolia (Testnet)</strong> ou <strong>Base Mainnet</strong> et ajuste ton portefeuille.";
+    errBox.style.display = "block";
+  }
+}
+
+function showErrorAlert(e) {
+  const errBox = document.getElementById('error-display');
+  errBox.innerText = "⚠ Erreur : " + (e.reason || e.message);
+  errBox.style.display = "block";
+  document.getElementById('btn-action-mint').disabled = false;
+  document.getElementById('btn-action-mint').innerText = userAddress ? "Ouvrir un Pack (Gratuit) 🎲" : "Connecter le Wallet";
 }
 
 function startStaticTimer() {
