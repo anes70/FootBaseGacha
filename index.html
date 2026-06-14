@@ -324,15 +324,14 @@ async function refreshOnChainData() {
   } catch(e) {}
 
   try {
+    // Tentative d'appel direct
     const dailyCount = await contract.dailyMintCount(userAddress);
     document.getElementById('ui-daily-limit').innerText = `${dailyCount.toString()} / 2 Mints`;
 
-    // Reset visuel
     countries.forEach((_, i) => {
       document.getElementById(`country-${i + 1}`).classList.remove('unlocked');
     });
 
-    // SCAN DIRECT RPC (100% à l'abri des blocages Cloudflare/Blockscout)
     const nextId = await contract.nextTokenId();
     const maxId = parseInt(nextId.toString());
     
@@ -358,10 +357,18 @@ async function refreshOnChainData() {
       }
     });
 
+    // Si tout réussit, on cache l'ancienne boîte d'erreur si elle était restée active
+    document.getElementById('error-display').style.display = "none";
+
   } catch(e) {
     console.error(e);
+    const network = await provider.getNetwork();
+    let netName = "Réseau Inconnu";
+    if (network.chainId === 8453) netName = "Base Mainnet (Réseau Réel)";
+    if (network.chainId === 84532) netName = "Base Sepolia (Testnet)";
+    
     const errBox = document.getElementById('error-display');
-    errBox.innerHTML = "⚠ <strong>Erreur de synchronisation :</strong> Le contrat est introuvable sur ce réseau. Vérifie que ton Rabby Wallet est bien configuré sur le réseau où tu as déployé ton contrat.";
+    errBox.innerHTML = `⚠ <strong>Erreur de synchronisation :</strong> Ton portefeuille est actuellement sur <strong>${netName}</strong>, mais ton smart contract n'existe pas ou n'a pas été trouvé à l'adresse renseignée.<br><br>👉 <strong>Comment régler ça :</strong> Vérifie sur quel réseau Remix était branché lors du déploiement (Base Mainnet ou Sepolia) et assure-toi d'aligner ton Rabby Wallet sur ce même réseau !`;
     errBox.style.display = "block";
   }
 }
