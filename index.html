@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FOOT BASE — World Cup 2026 Gacha Pack</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<!-- Inclusion d'Ethers.js v5 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-<!-- SDK Farcaster Frame v2 -->
 <script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.1/dist/index.min.js"></script>
 <style>
 :root {
@@ -163,7 +161,6 @@ body {
       
       <div class="error-card" id="error-display"></div>
 
-      <!-- Context Bar -->
       <div class="address-sub-bar" id="context-bar">
         <div class="sub-bar-addr" id="sub-wallet-address">0x000...0000</div>
         <div class="sub-bar-right">
@@ -172,14 +169,12 @@ body {
         </div>
       </div>
 
-      <!-- Navigation tabs -->
       <div class="tab-bar">
         <div class="tab-item active" onclick="switchTab(0)">Pack Opener</div>
         <div class="tab-item" onclick="switchTab(1)">Ma Collection</div>
         <div class="tab-item" onclick="switchTab(2)">Leaderboard</div>
       </div>
 
-      <!-- VUE 1 : PACK OPENER -->
       <div class="view-content active" id="view-gacha">
         <div class="pack-hero-container">
           <div class="pack-mockup">
@@ -201,15 +196,12 @@ body {
         </div>
       </div>
 
-      <!-- VUE 2 : MA COLLECTION -->
       <div class="view-content" id="view-collection">
         <div class="section-label" style="margin-bottom:1rem;">Album National (48 Pays à débloquer)</div>
         <div class="collection-grid" id="ui-collection-grid">
-          <!-- Injecté dynamiquement par le JS -->
-        </div>
+          </div>
       </div>
 
-      <!-- VUE 3 : LEADERBOARD -->
       <div class="view-content" id="view-leaderboard">
         <div class="section-label" style="margin-bottom:1rem;">Top Collectionneurs</div>
         <div id="ui-leaderboard-list">
@@ -223,7 +215,7 @@ body {
     </div>
 
     <div class="footer">
-      <div>Data source: Base Node RPC & Blockscout API</div>
+      <div>Data source: Base Node RPC (Direct Scan)</div>
       <div>Engine Built by <strong><a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></strong></div>
     </div>
   </div>
@@ -235,7 +227,9 @@ const CONTRACT_ABI = [
   "function mintPack() external payable",
   "function tokenToCountry(uint256) external view returns (uint256)",
   "function totalMintedByAddress(address) external view returns (uint256)",
-  "function dailyMintCount(address) external view returns (uint256)"
+  "function dailyMintCount(address) external view returns (uint256)",
+  "function nextTokenId() external view returns (uint256)",
+  "function ownerOf(uint256) external view returns (address)"
 ];
 
 const countries = [
@@ -258,7 +252,6 @@ const countries = [
 ];
 
 let provider, signer, contract, userAddress = null;
-let blockscoutApiUrl = "https://base.blockscout.com/api";
 
 window.addEventListener('DOMContentLoaded', async () => {
   if (window.farcaster?.FrameSDK) { await window.farcaster.FrameSDK.actions.ready(); }
@@ -296,13 +289,10 @@ async function connectOrMint() {
       userAddress = await signer.getAddress();
       contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      // Check Network Setup (Mainnet ID: 8453, Sepolia ID: 84532)
       const network = await provider.getNetwork();
       if (network.chainId === 84532) {
-        blockscoutApiUrl = "https://base-sepolia.blockscout.com/api";
         document.getElementById('sub-basescan-link').href = `https://sepolia.basescan.org/address/${userAddress}`;
       } else {
-        blockscoutApiUrl = "https://base.blockscout.com/api";
         document.getElementById('sub-basescan-link').href = `https://basescan.org/address/${userAddress}`;
       }
 
@@ -331,28 +321,47 @@ async function refreshOnChainData() {
   try {
     const bal = await provider.getBalance(userAddress);
     document.getElementById('sub-eth-bal').innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
-  } catch(e) { console.error(e); }
+  } catch(e) {}
 
-  // Encapsulation sécurisée pour intercepter le "missing revert data"
   try {
     const dailyCount = await contract.dailyMintCount(userAddress);
     document.getElementById('ui-daily-limit').innerText = `${dailyCount.toString()} / 2 Mints`;
 
-    const res = await fetch(`${blockscoutApiUrl}?module=account&action=tokennfttx&address=${userAddress}&contractaddress=${CONTRACT_ADDRESS}`);
-    const data = await res.json();
-    if (data.status === "1" && Array.isArray(data.result)) {
-      const ownedTokenIds = [...new Set(data.result.filter(tx => tx.to.toLowerCase() === userAddress.toLowerCase()).map(tx => tx.tokenID))];
-      
-      for (let tokenId of ownedTokenIds) {
-        const countryId = await contract.tokenToCountry(tokenId);
-        const card = document.getElementById(`country-${countryId.toString()}`);
+    // Reset visuel
+    countries.forEach((_, i) => {
+      document.getElementById(`country-${i + 1}`).classList.remove('unlocked');
+    });
+
+    // SCAN DIRECT RPC (100% à l'abri des blocages Cloudflare/Blockscout)
+    const nextId = await contract.nextTokenId();
+    const maxId = parseInt(nextId.toString());
+    
+    const promises = [];
+    for (let id = 1; id < maxId; id++) {
+      promises.push((async (tokenId) => {
+        try {
+          const owner = await contract.ownerOf(tokenId);
+          if (owner.toLowerCase() === userAddress.toLowerCase()) {
+            const countryId = await contract.tokenToCountry(tokenId);
+            return parseInt(countryId.toString());
+          }
+        } catch(e) {}
+        return null;
+      })(id));
+    }
+    
+    const results = await Promise.all(promises);
+    results.forEach(countryId => {
+      if (countryId) {
+        const card = document.getElementById(`country-${countryId}`);
         if (card) { card.classList.add('unlocked'); }
       }
-    }
+    });
+
   } catch(e) {
-    console.error("Erreur d'appel contrat:", e);
+    console.error(e);
     const errBox = document.getElementById('error-display');
-    errBox.innerHTML = "⚠ <strong>Erreur de synchronisation :</strong> Le smart contract est introuvable sur ton réseau actuel. Vérifie si tu as déployé sur <strong>Base Sepolia (Testnet)</strong> ou <strong>Base Mainnet</strong> et ajuste ton portefeuille.";
+    errBox.innerHTML = "⚠ <strong>Erreur de synchronisation :</strong> Le contrat est introuvable sur ce réseau. Vérifie que ton Rabby Wallet est bien configuré sur le réseau où tu as déployé ton contrat.";
     errBox.style.display = "block";
   }
 }
