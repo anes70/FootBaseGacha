@@ -3,235 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FOOT BASE — World Cup 2026 Gacha Pack</title>
+<title>FOOT BASE 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@farcaster/frame-sdk@0.0.1/dist/index.min.js"></script>
 <style>
 :root {
-  --bg: #0a0b0d;
-  --card: #14161b;
-  --card-sub: #1b1e24;
-  --border: #222630;
-  --base-blue: #0052ff;
-  --base-blue-hover: #0046d5;
-  --text: #ffffff;
-  --muted: #8a93a6;
-  --amber: #f5a623;
-  --green: #00e87a;
-  --red: #ff3b5c;
-  --font: 'Inter', sans-serif;
+  --bg: #0a0b0d; --card: #14161b; --card-sub: #1b1e24; --border: #222630;
+  --base-blue: #0052ff; --text: #ffffff; --muted: #8a93a6; --font: 'Inter', sans-serif;
 }
-
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  min-height: 100vh;
-  padding-bottom: 3rem;
-}
-
-.hero-banner {
-  background: linear-gradient(180deg, rgba(0, 82, 255, 0.15) 0%, transparent 100%), #0a0b0d;
-  position: relative;
-  border-bottom: 1px solid var(--border);
-  padding: 3rem 0;
-  overflow: hidden;
-}
-.hero-banner::before {
-  content: ''; position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(0, 82, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 82, 255, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
-  pointer-events: none;
-}
-
-.wrap { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
-.header-flex { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-.brand-box { display: flex; align-items: center; gap: 1rem; }
-.base-logo {
-  width: 48px; height: 48px; background: var(--base-blue); border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 20px rgba(0, 82, 255, 0.3);
-}
-.base-logo-circle { width: 22px; height: 22px; border: 4px solid white; border-radius: 50%; }
-
-.title { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
-.subtitle { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
-.author { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
-.author a { color: var(--base-blue); text-decoration: none; font-weight: 500; }
-
-.badge-live {
-  background: rgba(0, 232, 122, 0.1); border: 1px solid rgba(0, 232, 122, 0.3);
-  color: var(--green); font-size: 0.7rem; font-weight: 600; padding: 6px 12px; border-radius: 20px;
-  display: flex; align-items: center; gap: 6px;
-}
-.dot-blink { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: blink 1.5s infinite; }
-
-.main-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-top: -1.5rem; position: relative; z-index: 10; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.section-label { font-size: 0.65rem; color: var(--muted); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.5rem; }
-
-.address-sub-bar {
-  display: none; background: var(--card-sub); border: 1px solid var(--border); border-radius: 10px;
-  padding: 0.75rem 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.8rem;
-}
-.sub-bar-addr { color: var(--muted); font-family: monospace; }
-.sub-bar-right { display: flex; align-items: center; gap: 1rem; }
-.eth-badge { background: #222630; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
-.link-basescan { color: var(--base-blue); text-decoration: none; font-weight: 500; }
-
+body { background: var(--bg); color: var(--text); font-family: var(--font); padding-bottom: 3rem; }
+.wrap { max-width: 860px; margin: 0 auto; padding: 1.5rem; }
+.main-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .tab-bar { display: flex; background: var(--card-sub); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 1.5rem; }
-.tab-item { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.tab-item { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); border-radius: 8px; cursor: pointer; }
 .tab-item.active { background: var(--base-blue); color: white; }
-
-/* Views Framework */
 .view-content { display: none; }
 .view-content.active { display: block; }
-
-/* Pack Opener Style */
-.pack-hero-container { background: radial-gradient(circle at center, rgba(0,82,255,0.08) 0%, transparent 70%); padding: 2rem 0; text-align: center; }
-.pack-mockup { width: 140px; height: 200px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid var(--base-blue); border-radius: 12px; margin: 0 auto 1.5rem; box-shadow: 0 15px 35px rgba(0,82,255,0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-.pack-mockup::after { content: '48'; font-size: 3rem; font-weight: 800; color: rgba(0,82,255,0.15); position: absolute; }
-.pack-title { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.1em; color: var(--base-blue); text-transform: uppercase; }
-
-.btn-mint {
-  width: 100%; background: var(--base-blue); color: white; border: none; border-radius: 12px;
-  padding: 1.1rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
-  display: block; text-align: center; box-shadow: 0 4px 12px rgba(0, 82, 255, 0.2);
-}
-.btn-mint:hover { background: var(--base-blue-hover); }
-.btn-mint:disabled { background: var(--card-sub); border: 1px solid var(--border); color: var(--muted); cursor: not-allowed; box-shadow: none; }
-
-.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.5rem; }
-.info-card { background: var(--card-sub); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
-.info-val { font-size: 1.25rem; font-weight: 700; margin-top: 0.25rem; }
-
-/* Collection Grid with Flags */
-.collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; }
-.slot-card { 
-  background: var(--card-sub); border: 1px solid var(--border); border-radius: 10px; 
-  padding: 1.25rem 0.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); 
-  font-weight: 600; transition: all 0.3s ease; 
-}
-.slot-card img { 
-  width: 44px; height: auto; border-radius: 4px; margin-bottom: 8px; 
-  filter: grayscale(1); opacity: 0.2; transition: all 0.3s ease; 
-}
-.slot-card.unlocked { 
-  border-color: var(--base-blue); color: white; 
-  background: linear-gradient(180deg, rgba(0,82,255,0.08) 0%, transparent 100%); 
-  box-shadow: 0 4px 15px rgba(0,82,255,0.15);
-}
+.btn-mint { width: 100%; background: var(--base-blue); color: white; border: none; border-radius: 12px; padding: 1.1rem; font-weight: 600; cursor: pointer; }
+.btn-mint:disabled { opacity: 0.5; }
+.collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
+.slot-card { background: var(--card-sub); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 0.5rem; text-align: center; font-size: 0.7rem; color: var(--muted); }
+.slot-card img { width: 40px; filter: grayscale(1); opacity: 0.2; margin-bottom: 8px; }
+.slot-card.unlocked { border-color: var(--base-blue); color: white; background: rgba(0,82,255,0.05); }
 .slot-card.unlocked img { filter: none; opacity: 1; }
-
-/* Leaderboard */
-.leader-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-sub); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: 10px; margin-bottom: 0.5rem; font-size: 0.85rem; }
-.leader-left { display: flex; align-items: center; gap: 0.75rem; }
-.leader-rank { font-weight: 800; color: var(--amber); width: 20px; }
-.leader-addr { font-family: monospace; color: var(--muted); }
-.leader-score { font-weight: 700; color: var(--base-blue); }
-
-.error-card { color: var(--red); font-size: 0.8rem; padding: 1rem; background: rgba(255,59,92,0.06); border: 1px solid rgba(255,59,92,0.2); border-radius: 10px; margin-bottom: 1.5rem; display: none; }
-.footer { margin-top: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.7rem; color: var(--muted); }
-.footer a { color: var(--base-blue); text-decoration: none; }
-
-@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.status-bar { display: flex; justify-content: space-between; margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); }
 </style>
 </head>
 <body>
-
-  <div class="hero-banner">
-    <div class="wrap">
-      <div class="header-flex">
-        <div class="brand-box">
-          <div class="base-logo"><div class="base-logo-circle"></div></div>
-          <div>
-            <div class="title">FOOT BASE</div>
-            <div class="subtitle">World Cup 2026 Album — Tracker On-Chain</div>
-            <div class="author">✍ Rédigé par <a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></div>
-          </div>
-        </div>
-        <div class="badge-live"><div class="dot-blink"></div> Live Album</div>
-      </div>
-    </div>
-  </div>
-
   <div class="wrap">
     <div class="main-box">
-      
-      <div class="error-card" id="error-display"></div>
-
-      <div class="address-sub-bar" id="context-bar">
-        <div class="sub-bar-addr" id="sub-wallet-address">0x000...0000</div>
-        <div class="sub-bar-right">
-          <div class="eth-badge" id="sub-eth-bal">0.0000 ETH</div>
-          <a href="#" target="_blank" class="link-basescan" id="sub-basescan-link">Basescan ↗</a>
-        </div>
-      </div>
-
       <div class="tab-bar">
-        <div class="tab-item active" onclick="switchTab(0)">Pack Opener</div>
-        <div class="tab-item" onclick="switchTab(1)">Ma Collection</div>
-        <div class="tab-item" onclick="switchTab(2)">Leaderboard</div>
+        <div class="tab-item active" onclick="switchTab(0)">Pack</div>
+        <div class="tab-item" onclick="switchTab(1)">Collection</div>
       </div>
-
-      <div class="view-content active" id="view-gacha">
-        <div class="pack-hero-container">
-          <div class="pack-mockup">
-            <div class="pack-title">Mondial</div>
-          </div>
+      <div id="view-mint" class="view-content active">
+        <div style="text-align:center; padding: 2rem 0;">
+          <div style="font-size:4rem; margin-bottom:1rem;">⚽</div>
+          <button class="btn-mint" id="mint-btn" onclick="handleMint()">Ouvrir un Pack (Gratuit)</button>
         </div>
-
-        <button class="btn-mint" id="btn-action-mint" onclick="connectOrMint()">Connecter le Wallet</button>
-
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="section-label">Limite Journalière</div>
-            <div class="info-val" id="ui-daily-limit">0 / 2 Mints</div>
-          </div>
-          <div class="info-card">
-            <div class="section-label">Temps Restant</div>
-            <div class="info-val" id="ui-timer">--h --m --s</div>
-          </div>
+        <div class="status-bar">
+          <span id="daily-count">Mints: -- / 2</span>
+          <span id="wallet-addr">--</span>
         </div>
       </div>
-
-      <div class="view-content" id="view-collection">
-        <div class="section-label" style="margin-bottom:1rem;">Album National (48 Pays à débloquer)</div>
-        <div class="collection-grid" id="ui-collection-grid">
-          </div>
+      <div id="view-collection" class="view-content">
+        <div class="collection-grid" id="grid"></div>
       </div>
-
-      <div class="view-content" id="view-leaderboard">
-        <div class="section-label" style="margin-bottom:1rem;">Top Collectionneurs</div>
-        <div id="ui-leaderboard-list">
-          <div class="leader-row">
-            <div class="leader-left"><div class="leader-rank">1</div><div class="leader-addr">irezroifer.base.eth</div></div>
-            <div class="leader-score">Créateur principal</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="footer">
-      <div>Data source: Base Node RPC (Direct Scan)</div>
-      <div>Engine Built by <strong><a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></strong></div>
     </div>
   </div>
-
 <script>
-const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-
-const CONTRACT_ABI = [
-  "function mintPack() external payable",
-  "function tokenToCountry(uint256) external view returns (uint256)",
-  "function totalMintedByAddress(address) external view returns (uint256)",
-  "function dailyMintCount(address) external view returns (uint256)",
-  "function nextTokenId() external view returns (uint256)",
-  "function ownerOf(uint256) external view returns (address)"
-];
-
 const countries = [
   { name: "États-Unis", code: "us" }, { name: "Mexique", code: "mx" }, { name: "Canada", code: "ca" },
   { name: "France", code: "fr" }, { name: "Brésil", code: "br" }, { name: "Argentine", code: "ar" },
@@ -251,145 +71,91 @@ const countries = [
   { name: "Autriche", code: "at" }, { name: "Écosse", code: "gb-sct" }, { name: "Pays de Galles", code: "gb-wls" }
 ];
 
-let provider, signer, contract, userAddress = null;
+function switchTab(idx) {
+  document.querySelectorAll('.tab-item').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.view-content').forEach((v, i) => v.classList.toggle('active', i === idx));
+}
 
-window.addEventListener('DOMContentLoaded', async () => {
-  if (window.farcaster?.FrameSDK) { await window.farcaster.FrameSDK.actions.ready(); }
-  generateCollectionGrid();
-  startStaticTimer();
-});
+async function refresh() {
+  const snap = await bankr.appKV.get('user_snapshot');
+  if (snap) {
+    document.getElementById('daily-count').innerText = `Mints: ${snap.dailyCount} / 2`;
+    renderGrid(snap.unlockedCountries || []);
+  }
+  const addr = bankr.ctx.walletAddress;
+  document.getElementById('wallet-addr').innerText = addr ? addr.substring(0,6) + '...' : 'Connecter';
+}
 
-function generateCollectionGrid() {
-  const grid = document.getElementById('ui-collection-grid');
-  grid.innerHTML = countries.map((country, i) => `
-    <div class="slot-card" id="country-${i + 1}">
-      <img src="https://flagcdn.com/w80/${country.code}.png" alt="${country.name}">
-      <div>${country.name}</div>
+function renderGrid(unlocked) {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = countries.map((c, i) => `
+    <div class="slot-card ${unlocked.includes(i + 1) ? 'unlocked' : ''}">
+      <img src="https://flagcdn.com/w80/${c.code}.png">
+      <div>${c.name}</div>
     </div>
   `).join('');
 }
 
-function switchTab(index) {
-  const tabs = document.querySelectorAll('.tab-item');
-  const views = document.querySelectorAll('.view-content');
-  tabs.forEach((t, i) => i === index ? t.classList.add('active') : t.classList.remove('active'));
-  views.forEach((v, i) => i === index ? v.classList.add('active') : v.classList.remove('active'));
-}
-
-async function connectOrMint() {
-  const errBox = document.getElementById('error-display');
-  errBox.style.display = "none";
-  if (!window.ethereum) { errBox.innerText = "⚠ Aucun injecteur Web3 trouvé."; errBox.style.display = "block"; return; }
-
+async function handleMint() {
+  const btn = document.getElementById('mint-btn');
+  btn.disabled = true; btn.innerText = "Signature...";
   try {
-    if (!userAddress) {
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
-      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-
-      const network = await provider.getNetwork();
-      if (network.chainId === 84532) {
-        document.getElementById('sub-basescan-link').href = `https://sepolia.basescan.org/address/${userAddress}`;
-      } else {
-        document.getElementById('sub-basescan-link').href = `https://basescan.org/address/${userAddress}`;
-      }
-
-      document.getElementById('sub-wallet-address').innerText = userAddress.slice(0,6) + "..." + userAddress.slice(-4);
-      document.getElementById('context-bar').style.display = "flex";
-      document.getElementById('btn-action-mint').innerText = "Ouvrir un Pack (Gratuit) 🎲";
-      
-      await refreshOnChainData();
-    } else {
-      const btn = document.getElementById('btn-action-mint');
-      btn.disabled = true; btn.innerText = "Signature requise...";
-      const tx = await contract.mintPack();
-      btn.innerText = "Validation on-chain...";
-      await tx.wait();
-      alert("🎉 Pack ouvert ! Découvre ton pays dans l'onglet Ma Collection.");
-      await refreshOnChainData();
+    const res = await bankr.invokeScript('prepareMint');
+    if (res?.txBlob) {
+      await bankr.confirmTransaction(res.txBlob);
+      btn.innerText = "Succès !";
+      setTimeout(() => bankr.invokeScript('refreshData').then(refresh), 2000);
     }
-  } catch (e) {
-    showErrorAlert(e);
-  }
+  } catch (e) { btn.innerText = "Erreur"; }
+  finally { setTimeout(() => { btn.disabled = false; btn.innerText = "Ouvrir un Pack (Gratuit)"; }, 3000); }
 }
 
-async function refreshOnChainData() {
-  if (!contract || !userAddress) return;
-
-  try {
-    const bal = await provider.getBalance(userAddress);
-    document.getElementById('sub-eth-bal').innerText = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
-  } catch(e) {}
-
-  try {
-    // Tentative d'appel direct
-    const dailyCount = await contract.dailyMintCount(userAddress);
-    document.getElementById('ui-daily-limit').innerText = `${dailyCount.toString()} / 2 Mints`;
-
-    countries.forEach((_, i) => {
-      document.getElementById(`country-${i + 1}`).classList.remove('unlocked');
-    });
-
-    const nextId = await contract.nextTokenId();
-    const maxId = parseInt(nextId.toString());
-    
-    const promises = [];
-    for (let id = 1; id < maxId; id++) {
-      promises.push((async (tokenId) => {
-        try {
-          const owner = await contract.ownerOf(tokenId);
-          if (owner.toLowerCase() === userAddress.toLowerCase()) {
-            const countryId = await contract.tokenToCountry(tokenId);
-            return parseInt(countryId.toString());
-          }
-        } catch(e) {}
-        return null;
-      })(id));
-    }
-    
-    const results = await Promise.all(promises);
-    results.forEach(countryId => {
-      if (countryId) {
-        const card = document.getElementById(`country-${countryId}`);
-        if (card) { card.classList.add('unlocked'); }
-      }
-    });
-
-    // Si tout réussit, on cache l'ancienne boîte d'erreur si elle était restée active
-    document.getElementById('error-display').style.display = "none";
-
-  } catch(e) {
-    console.error(e);
-    const network = await provider.getNetwork();
-    let netName = "Réseau Inconnu";
-    if (network.chainId === 8453) netName = "Base Mainnet (Réseau Réel)";
-    if (network.chainId === 84532) netName = "Base Sepolia (Testnet)";
-    
-    const errBox = document.getElementById('error-display');
-    errBox.innerHTML = `⚠ <strong>Erreur de synchronisation :</strong> Ton portefeuille est actuellement sur <strong>${netName}</strong>, mais ton smart contract n'existe pas ou n'a pas été trouvé à l'adresse renseignée.<br><br>👉 <strong>Comment régler ça :</strong> Vérifie sur quel réseau Remix était branché lors du déploiement (Base Mainnet ou Sepolia) et assure-toi d'aligner ton Rabby Wallet sur ce même réseau !`;
-    errBox.style.display = "block";
-  }
-}
-
-function showErrorAlert(e) {
-  const errBox = document.getElementById('error-display');
-  errBox.innerText = "⚠ Erreur : " + (e.reason || e.message);
-  errBox.style.display = "block";
-  document.getElementById('btn-action-mint').disabled = false;
-  document.getElementById('btn-action-mint').innerText = userAddress ? "Ouvrir un Pack (Gratuit) 🎲" : "Connecter le Wallet";
-}
-
-function startStaticTimer() {
-  let hours = 71, minutes = 59, seconds = 59;
-  setInterval(() => {
-    seconds--;
-    if (seconds < 0) { seconds = 59; minutes--; }
-    if (minutes < 0) { minutes = 59; hours--; }
-    document.getElementById('ui-timer').innerText = `${hours}h ${minutes}m ${seconds}s`;
-  }, 1000);
-}
+bankr.on('ready', () => { renderGrid([]); refresh(); bankr.invokeScript('refreshData').then(refresh); });
 </script>
 </body>
 </html>
+const CONTRACT = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+const ABI = [
+  "function dailyMintCount(address) view returns (uint256)",
+  "function tokenToCountry(uint256) view returns (uint256)"
+];
+
+const me = await bankr.wallet.me();
+if (!me.evmAddress) return { error: "No wallet" };
+
+const dailyCount = await bankr.chain.readContract({
+  chain: "base", address: CONTRACT, abi: ABI,
+  functionName: "dailyMintCount", args: [me.evmAddress]
+});
+
+const logs = await bankr.chain.getLogs({
+  chain: "base", address: CONTRACT,
+  event: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
+  args: { to: me.evmAddress }, fromBlock: "earliest"
+});
+
+const unlocked = [];
+for (const log of logs) {
+  const cId = await bankr.chain.readContract({
+    chain: "base", address: CONTRACT, abi: ABI,
+    functionName: "tokenToCountry", args: [log.args.tokenId]
+  });
+  unlocked.push(Number(cId));
+}
+
+const snapshot = {
+  dailyCount: Number(dailyCount),
+  unlockedCountries: [...new Set(unlocked)],
+  updatedAt: Date.now()
+};
+
+await appKV.set("user_snapshot", snapshot);
+return snapshot;
+const CONTRACT = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+const txBlob = await bankr.tx.prepare({
+  chain: "base",
+  to: CONTRACT,
+  data: "0x6e279b9d", // selector pour mintPack()
+  label: "Ouvrir un Pack World Cup 2026"
+});
+return { txBlob }
