@@ -126,45 +126,53 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 
 /* ── REVEAL MODAL ── */
 .reveal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
   z-index:1000;align-items:center;justify-content:center;
 }
-.reveal-overlay.open{display:flex;}
-.reveal-card{
-  width:200px;height:280px;perspective:800px;cursor:pointer;
+.reveal-overlay.open{display:flex;animation:fadeIn .25s ease;}
+.reveal-box{
+  display:flex;flex-direction:column;align-items:center;
+  background:linear-gradient(160deg,#111827 0%,#0a0b0d 100%);
+  border:1px solid rgba(0,82,255,.35);border-radius:20px;
+  padding:2.5rem 2rem 2rem;min-width:260px;max-width:320px;
+  box-shadow:0 0 60px rgba(0,82,255,.2),0 20px 60px rgba(0,0,0,.8);
+  animation:popIn .45s cubic-bezier(.4,0,.2,1);
+  position:relative;
 }
-.reveal-card-inner{
-  width:100%;height:100%;position:relative;
-  transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1);
+.reveal-sparkle{
+  font-size:.65rem;font-weight:800;letter-spacing:.2em;color:var(--base-blue);
+  margin-bottom:1.5rem;animation:pulse 2s infinite;
 }
-.reveal-card-inner.flipped{transform:rotateY(180deg);}
-.reveal-face{
-  position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+.reveal-flag-wrap{
+  width:120px;height:80px;border-radius:8px;overflow:hidden;
+  border:2px solid rgba(0,82,255,.3);margin-bottom:1.25rem;
+  box-shadow:0 0 30px rgba(0,82,255,.25);
+  display:flex;align-items:center;justify-content:center;
 }
-.reveal-back{
-  background:linear-gradient(135deg,#1e293b,#0f172a);
-  border:2px solid var(--base-blue);
-  box-shadow:0 0 40px rgba(0,82,255,.4);
+.reveal-flag-big{width:100%;height:100%;object-fit:cover;}
+.reveal-country-name{
+  font-size:1.5rem;font-weight:800;color:white;text-align:center;
+  margin-bottom:.25rem;letter-spacing:-.02em;
 }
-.reveal-back-label{font-size:.9rem;font-weight:800;letter-spacing:.1em;color:var(--base-blue);text-transform:uppercase;}
-.reveal-back-hint{font-size:.65rem;color:var(--muted);margin-top:6px;}
-.reveal-front{
-  background:linear-gradient(160deg,#1e293b 0%,#0f172a 100%);
-  border:2px solid var(--base-blue);transform:rotateY(180deg);
-  box-shadow:0 0 40px rgba(0,82,255,.4);gap:8px;
+.reveal-conf{
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;
+  color:var(--base-blue);margin-bottom:.5rem;text-transform:uppercase;
 }
-.reveal-flag{width:80px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.5);}
-.reveal-country-name{font-size:.9rem;font-weight:700;color:white;text-align:center;padding:0 .5rem;}
-.reveal-id{font-size:.65rem;color:var(--base-blue);font-weight:600;}
+.reveal-card-id{font-size:.7rem;color:var(--muted);margin-bottom:1.5rem;}
+.reveal-cta{
+  background:var(--base-blue);color:white;border:none;border-radius:10px;
+  padding:.75rem 1.5rem;font-size:.85rem;font-weight:600;cursor:pointer;
+  transition:background .2s;width:100%;
+}
+.reveal-cta:hover{background:var(--base-blue-hover);}
 .reveal-close{
-  position:absolute;top:1.5rem;right:1.5rem;background:none;border:1px solid var(--border);
-  color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;
-  font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  position:absolute;top:1rem;right:1rem;background:none;border:1px solid var(--border);
+  color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;
+  font-size:1rem;display:flex;align-items:center;justify-content:center;
   transition:border-color .2s,color .2s;
 }
 .reveal-close:hover{border-color:var(--red);color:var(--red);}
-.reveal-hint-text{color:var(--muted);font-size:.75rem;margin-top:1rem;text-align:center;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 
 /* ── BUTTONS ── */
 .btn-mint{
@@ -196,12 +204,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 /* ── COLLECTION ── */
 .collection-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
 .collection-count{font-size:.8rem;color:var(--muted);}
+.conf-header{
+  grid-column:1/-1;font-size:.6rem;font-weight:800;letter-spacing:.12em;
+  color:var(--base-blue);text-transform:uppercase;padding:.5rem 0 .25rem;
+  border-top:1px solid var(--border);margin-top:.5rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.conf-header:first-child{border-top:none;margin-top:0;}
+.conf-count{
+  background:rgba(0,82,255,.15);color:var(--base-blue);
+  font-size:.55rem;padding:2px 6px;border-radius:4px;font-weight:700;
+}
 .collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.75rem;}
 .slot-card{
   background:var(--card-sub);border:1px solid var(--border);border-radius:10px;
-  padding:1.1rem .5rem;text-align:center;font-size:.72rem;color:var(--muted);
+  padding:1.1rem .5rem .8rem;text-align:center;font-size:.72rem;color:var(--muted);
   font-weight:600;transition:all .35s ease;position:relative;
 }
+.slot-name{font-size:.7rem;line-height:1.3;}
 .slot-card img{
   width:42px;height:auto;border-radius:4px;margin-bottom:8px;
   filter:grayscale(1);opacity:.18;transition:all .35s ease;display:block;margin-left:auto;margin-right:auto;
@@ -315,21 +335,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 <!-- REVEAL OVERLAY -->
 <div class="reveal-overlay" id="reveal-overlay" onclick="handleOverlayClick(event)">
   <button class="reveal-close" onclick="closeReveal()" aria-label="Fermer">✕</button>
-  <div style="display:flex;flex-direction:column;align-items:center;">
-    <div class="reveal-card" id="reveal-card" onclick="flipCard()">
-      <div class="reveal-card-inner" id="reveal-inner">
-        <div class="reveal-face reveal-back">
-          <div class="reveal-back-label">⚽ Mondial</div>
-          <div class="reveal-back-hint">Cliquer pour révéler</div>
-        </div>
-        <div class="reveal-face reveal-front">
-          <img class="reveal-flag" id="reveal-flag-img" src="" alt="">
-          <div class="reveal-country-name" id="reveal-country-name"></div>
-          <div class="reveal-id" id="reveal-country-id"></div>
-        </div>
-      </div>
+  <div class="reveal-box">
+    <div class="reveal-sparkle" id="reveal-sparkle">✦ NOUVEAU NFT ✦</div>
+    <div class="reveal-flag-wrap">
+      <img class="reveal-flag-big" id="reveal-flag-img" src="" alt="">
     </div>
-    <div class="reveal-hint-text" id="reveal-hint">Cliquez sur la carte pour découvrir votre pays !</div>
+    <div class="reveal-country-name" id="reveal-country-name"></div>
+    <div class="reveal-conf" id="reveal-conf"></div>
+    <div class="reveal-card-id" id="reveal-country-id"></div>
+    <button class="reveal-cta" onclick="closeReveal()">Voir ma collection →</button>
   </div>
 </div>
 
@@ -378,14 +392,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
         Connecter le Wallet
       </button>
 
-      <div class="info-grid">
+      <div class="info-grid" style="grid-template-columns:1fr;">
         <div class="info-card">
           <div class="section-label">Mints aujourd'hui</div>
           <div class="info-val" id="ui-daily-limit">— / 2</div>
-        </div>
-        <div class="info-card">
-          <div class="section-label">Fin du drop</div>
-          <div class="info-val" id="ui-timer">—h —m —s</div>
         </div>
       </div>
 
@@ -401,7 +411,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
     <!-- ── VIEW: COLLECTION ── -->
     <div class="view-content" id="view-collection">
       <div class="collection-header">
-        <div class="section-label" style="margin-bottom:0;">Album National</div>
+        <div class="section-label" style="margin-bottom:0;">Album WC2026 — 48 Nations</div>
         <div class="collection-count" id="collection-count">0 / 48 pays</div>
       </div>
       <div class="collection-grid" id="ui-collection-grid"></div>
@@ -446,38 +456,72 @@ const SUPPORTED_CHAINS = {
 };
 
 const DAILY_LIMIT = 2;
-// Durée du drop: 72h depuis le premier lancement (stocké dans localStorage)
-const DROP_DURATION_MS = 72 * 60 * 60 * 1000;
 
 const countries = [
-  {name:"États-Unis",code:"us"},{name:"Mexique",code:"mx"},{name:"Canada",code:"ca"},
-  {name:"France",code:"fr"},{name:"Brésil",code:"br"},{name:"Argentine",code:"ar"},
-  {name:"Espagne",code:"es"},{name:"Angleterre",code:"gb-eng"},{name:"Allemagne",code:"de"},
-  {name:"Italie",code:"it"},{name:"Portugal",code:"pt"},{name:"Pays-Bas",code:"nl"},
-  {name:"Belgique",code:"be"},{name:"Croatie",code:"hr"},{name:"Maroc",code:"ma"},
-  {name:"Sénégal",code:"sn"},{name:"Tunisie",code:"tn"},{name:"Algérie",code:"dz"},
-  {name:"Égypte",code:"eg"},{name:"Cameroun",code:"cm"},{name:"Japon",code:"jp"},
-  {name:"Corée du Sud",code:"kr"},{name:"Australie",code:"au"},{name:"Arabie Saoudite",code:"sa"},
-  {name:"Uruguay",code:"uy"},{name:"Colombie",code:"co"},{name:"Chili",code:"cl"},
-  {name:"Équateur",code:"ec"},{name:"Suisse",code:"ch"},{name:"Danemark",code:"dk"},
-  {name:"Pologne",code:"pl"},{name:"Suède",code:"se"},{name:"Ukraine",code:"ua"},
-  {name:"Turquie",code:"tr"},{name:"Nigeria",code:"ng"},{name:"Ghana",code:"gh"},
-  {name:"Côte d'Ivoire",code:"ci"},{name:"Afrique du Sud",code:"za"},{name:"Iran",code:"ir"},
-  {name:"Qatar",code:"qa"},{name:"Émirats Arabes Unis",code:"ae"},{name:"Nouvelle-Zélande",code:"nz"},
-  {name:"Costa Rica",code:"cr"},{name:"Jamaïque",code:"jm"},{name:"Pérou",code:"pe"},
-  {name:"Autriche",code:"at"},{name:"Écosse",code:"gb-sct"},{name:"Pays de Galles",code:"gb-wls"}
+  // CONCACAF
+  {name:"Canada",         code:"ca", conf:"CONCACAF"},
+  {name:"Curaçao",        code:"cw", conf:"CONCACAF"},
+  {name:"États-Unis",     code:"us", conf:"CONCACAF"},
+  {name:"Haïti",          code:"ht", conf:"CONCACAF"},
+  {name:"Mexique",        code:"mx", conf:"CONCACAF"},
+  {name:"Panama",         code:"pa", conf:"CONCACAF"},
+  // AFC
+  {name:"Arabie Saoudite",code:"sa", conf:"AFC"},
+  {name:"Australie",      code:"au", conf:"AFC"},
+  {name:"Irak",           code:"iq", conf:"AFC"},
+  {name:"Japon",          code:"jp", conf:"AFC"},
+  {name:"Jordanie",       code:"jo", conf:"AFC"},
+  {name:"Ouzbékistan",    code:"uz", conf:"AFC"},
+  {name:"Qatar",          code:"qa", conf:"AFC"},
+  {name:"Corée du Sud",   code:"kr", conf:"AFC"},
+  {name:"Iran",           code:"ir", conf:"AFC"},
+  // CAF
+  {name:"Afrique du Sud", code:"za", conf:"CAF"},
+  {name:"Algérie",        code:"dz", conf:"CAF"},
+  {name:"Cap-Vert",       code:"cv", conf:"CAF"},
+  {name:"Côte d'Ivoire",  code:"ci", conf:"CAF"},
+  {name:"Égypte",         code:"eg", conf:"CAF"},
+  {name:"Ghana",          code:"gh", conf:"CAF"},
+  {name:"Maroc",          code:"ma", conf:"CAF"},
+  {name:"RD Congo",       code:"cd", conf:"CAF"},
+  {name:"Sénégal",        code:"sn", conf:"CAF"},
+  {name:"Tunisie",        code:"tn", conf:"CAF"},
+  // CONMEBOL
+  {name:"Argentine",      code:"ar", conf:"CONMEBOL"},
+  {name:"Brésil",         code:"br", conf:"CONMEBOL"},
+  {name:"Colombie",       code:"co", conf:"CONMEBOL"},
+  {name:"Équateur",       code:"ec", conf:"CONMEBOL"},
+  {name:"Paraguay",       code:"py", conf:"CONMEBOL"},
+  {name:"Uruguay",        code:"uy", conf:"CONMEBOL"},
+  // OFC
+  {name:"Nouvelle-Zélande",code:"nz", conf:"OFC"},
+  // UEFA
+  {name:"Allemagne",      code:"de", conf:"UEFA"},
+  {name:"Angleterre",     code:"gb-eng", conf:"UEFA"},
+  {name:"Autriche",       code:"at", conf:"UEFA"},
+  {name:"Belgique",       code:"be", conf:"UEFA"},
+  {name:"Bosnie-Herzégovine",code:"ba", conf:"UEFA"},
+  {name:"Croatie",        code:"hr", conf:"UEFA"},
+  {name:"Écosse",         code:"gb-sct", conf:"UEFA"},
+  {name:"France",         code:"fr", conf:"UEFA"},
+  {name:"Espagne",        code:"es", conf:"UEFA"},
+  {name:"Norvège",        code:"no", conf:"UEFA"},
+  {name:"Pays-Bas",       code:"nl", conf:"UEFA"},
+  {name:"Portugal",       code:"pt", conf:"UEFA"},
+  {name:"Suède",          code:"se", conf:"UEFA"},
+  {name:"Suisse",         code:"ch", conf:"UEFA"},
+  {name:"Tchéquie",       code:"cz", conf:"UEFA"},
+  {name:"Turquie",        code:"tr", conf:"UEFA"},
 ];
 
 // ── STATE ───────────────────────────────────────────────────────────────────
 let provider, signer, contract, userAddress = null;
 let currentChainId = null;
 let unlockedCountries = new Set();
-let timerInterval = null;
 
 // ── INIT ────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
   generateCollectionGrid();
-  startDropTimer();
 
   // Tenter reconnexion silencieuse si déjà connecté
   if (window.ethereum) {
@@ -613,78 +657,88 @@ async function executeMint() {
 async function refreshAll() {
   if (!contract || !userAddress) return;
 
+  // Solde ETH
   try {
-    // Solde ETH
     const bal = await provider.getBalance(userAddress);
     document.getElementById('sub-eth-bal').textContent =
       parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + ' ETH';
   } catch(e) {}
 
+  // Mints du jour
   try {
-    // Mints du jour
     const daily = await contract.dailyMintCount(userAddress);
     const used = daily.toNumber();
     const remaining = Math.max(0, DAILY_LIMIT - used);
     const dailyEl = document.getElementById('ui-daily-limit');
     dailyEl.textContent = `${used} / ${DAILY_LIMIT}`;
     dailyEl.className = 'info-val ' + (remaining === 0 ? 'danger' : remaining === 1 ? 'warn' : 'ok');
-
-    // Bouton
-    if (remaining === 0) {
-      updateMintButton('limit');
-    } else {
-      updateMintButton('mint', remaining);
-    }
+    if (remaining === 0) updateMintButton('limit');
+    else updateMintButton('mint', remaining);
   } catch(e) {
     updateMintButton('mint');
   }
 
-  try {
-    // Tokens possédés
-    unlockedCountries = new Set();
-    const nextId = await contract.nextTokenId();
-    const maxId = nextId.toNumber();
+  // Collection: lire les Transfer(from=0x0 → userAddress) via events
+  // Beaucoup plus rapide que boucler ownerOf sur chaque token
+  await refreshCollection();
 
-    if (maxId > 1) {
-      const promises = [];
-      for (let id = 1; id < maxId; id++) {
-        promises.push((async (tokenId) => {
-          try {
-            const owner = await contract.ownerOf(tokenId);
-            if (owner.toLowerCase() === userAddress.toLowerCase()) {
-              const cId = await contract.tokenToCountry(tokenId);
-              return cId.toNumber();
-            }
-          } catch(e) {}
-          return null;
-        })(id));
-      }
-      const results = await Promise.all(promises);
-      results.forEach(cId => { if (cId !== null) unlockedCountries.add(cId); });
-    }
+  hideError();
+}
+
+async function refreshCollection() {
+  if (!contract || !userAddress) return;
+  try {
+    // Tous les tokens reçus depuis l'adresse zéro (= mints)
+    const mintFilter = contract.filters.Transfer(ethers.constants.AddressZero, userAddress);
+    const mintEvents = await contract.queryFilter(mintFilter);
+
+    // Tokens éventuellement transférés (envoyés depuis userAddress)
+    const sentFilter = contract.filters.Transfer(userAddress);
+    const sentEvents = await contract.queryFilter(sentFilter);
+    const sentTokenIds = new Set(sentEvents.map(e => e.args.tokenId.toString()));
+
+    // Tokens réellement possédés = mintés - envoyés
+    const ownedTokenIds = mintEvents
+      .map(e => e.args.tokenId)
+      .filter(id => !sentTokenIds.has(id.toString()));
+
+    // Récupérer les countryId pour chaque token possédé
+    unlockedCountries = new Set();
+    const countryResults = await Promise.all(
+      ownedTokenIds.map(tokenId =>
+        contract.tokenToCountry(tokenId).then(cId => cId.toNumber()).catch(() => null)
+      )
+    );
+    countryResults.forEach(cId => { if (cId !== null) unlockedCountries.add(cId); });
 
     updateCollectionUI();
   } catch(e) {
-    console.error('Erreur lecture tokens:', e);
+    console.error('Erreur lecture collection:', e);
   }
-
-  hideError();
 }
 
 // ── COLLECTION UI ────────────────────────────────────────────────────────────
 function generateCollectionGrid() {
   const grid = document.getElementById('ui-collection-grid');
-  grid.innerHTML = countries.map((c, i) => {
-    const id = i + 1;
-    return `<div class="slot-card" id="country-${id}">
-      <img src="https://flagcdn.com/w80/${c.code}.png" alt="${c.name}" loading="lazy">
-      <div>${c.name}</div>
-      <span class="unlock-badge">#${id}</span>
-    </div>`;
-  }).join('');
+  const confs = [...new Set(countries.map(c => c.conf))];
+  let html = '';
+  confs.forEach(conf => {
+    const group = countries.filter(c => c.conf === conf);
+    html += `<div class="conf-header">${conf} <span class="conf-count">${group.length}</span></div>`;
+    group.forEach(c => {
+      const id = countries.indexOf(c) + 1;
+      html += `<div class="slot-card" id="country-${id}">
+        <img src="https://flagcdn.com/w80/${c.code}.png" alt="${c.name}" loading="lazy">
+        <div class="slot-name">${c.name}</div>
+        <span class="unlock-badge">#${id}</span>
+      </div>`;
+    });
+  });
+  grid.innerHTML = html;
 }
 
 function updateCollectionUI() {
+  const total = countries.length;
   countries.forEach((_, i) => {
     const id = i + 1;
     const el = document.getElementById(`country-${id}`);
@@ -696,49 +750,34 @@ function updateCollectionUI() {
     }
   });
   const count = unlockedCountries.size;
-  document.getElementById('collection-count').textContent = `${count} / 48 pays`;
-  document.getElementById('progress-text').textContent = `${count} / 48`;
-  document.getElementById('progress-fill').style.width = `${(count / 48) * 100}%`;
+  document.getElementById('collection-count').textContent = `${count} / ${total} pays`;
+  document.getElementById('progress-text').textContent = `${count} / ${total}`;
+  document.getElementById('progress-fill').style.width = `${(count / total) * 100}%`;
 }
 
-// ── REVEAL ANIMATION ─────────────────────────────────────────────────────────
+// ── REVEAL ───────────────────────────────────────────────────────────────────
 function openReveal(countryId) {
-  // Reset flip
-  document.getElementById('reveal-inner').classList.remove('flipped');
-  document.getElementById('reveal-hint').textContent = 'Cliquez sur la carte pour découvrir votre pays !';
-
-  if (countryId !== null && countryId >= 1 && countryId <= 48) {
+  const total = countries.length;
+  if (countryId !== null && countryId >= 1 && countryId <= total) {
     const c = countries[countryId - 1];
-    document.getElementById('reveal-flag-img').src = `https://flagcdn.com/w80/${c.code}.png`;
+    document.getElementById('reveal-flag-img').src = `https://flagcdn.com/w160/${c.code}.png`;
+    document.getElementById('reveal-flag-img').alt = c.name;
     document.getElementById('reveal-country-name').textContent = c.name;
+    document.getElementById('reveal-conf').textContent = c.conf;
     document.getElementById('reveal-country-id').textContent = `Carte #${countryId} · World Cup 2026`;
   } else {
     document.getElementById('reveal-flag-img').src = '';
     document.getElementById('reveal-country-name').textContent = 'Pays surprise';
+    document.getElementById('reveal-conf').textContent = '';
     document.getElementById('reveal-country-id').textContent = 'World Cup 2026';
   }
-
   document.getElementById('reveal-overlay').classList.add('open');
-}
-
-function flipCard() {
-  const inner = document.getElementById('reveal-inner');
-  if (!inner.classList.contains('flipped')) {
-    inner.classList.add('flipped');
-    document.getElementById('reveal-hint').textContent = 'Fermer ✕';
-    // Highlight dans la collection
-    if (unlockedCountries.size > 0) {
-      const last = [...unlockedCountries].pop();
-      const el = document.getElementById(`country-${last}`);
-      if (el) el.classList.add('new-unlock');
-    }
-  } else {
-    closeReveal();
-  }
 }
 
 function closeReveal() {
   document.getElementById('reveal-overlay').classList.remove('open');
+  // Switch vers la collection pour que l'utilisateur voie son nouveau NFT
+  switchTab(1);
 }
 
 function handleOverlayClick(e) {
@@ -809,40 +848,13 @@ async function buildLeaderboard(prov, listEl) {
   `).join('');
 }
 
-// ── TIMER ────────────────────────────────────────────────────────────────────
-function startDropTimer() {
-  // Stocker la date de fin dans localStorage pour la rendre persistante
-  const STORAGE_KEY = 'footbase_drop_end';
-  let endTime = parseInt(localStorage.getItem(STORAGE_KEY) || '0');
-  if (!endTime || endTime < Date.now()) {
-    endTime = Date.now() + DROP_DURATION_MS;
-    localStorage.setItem(STORAGE_KEY, endTime.toString());
-  }
-
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const remaining = endTime - Date.now();
-    const el = document.getElementById('ui-timer');
-    if (remaining <= 0) {
-      el.textContent = 'Terminé';
-      el.className = 'info-val danger';
-      clearInterval(timerInterval);
-      return;
-    }
-    const h = Math.floor(remaining / 3600000);
-    const m = Math.floor((remaining % 3600000) / 60000);
-    const s = Math.floor((remaining % 60000) / 1000);
-    el.textContent = `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
-    el.className = 'info-val ' + (h < 6 ? 'danger' : h < 24 ? 'warn' : 'ok');
-  }, 1000);
-}
-
 // ── TABS ──────────────────────────────────────────────────────────────────────
 function switchTab(index) {
   document.querySelectorAll('.tab-item').forEach((t, i) =>
     t.classList.toggle('active', i === index));
   document.querySelectorAll('.view-content').forEach((v, i) =>
     v.classList.toggle('active', i === index));
+  if (index === 1 && userAddress) refreshCollection();
   if (index === 2) loadLeaderboard();
 }
 
