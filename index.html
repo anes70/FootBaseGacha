@@ -3,159 +3,931 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FOOT BASE 2026</title>
+<title>FOOT BASE — World Cup 2026 Gacha Pack</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <style>
 :root {
-  --bg: #0a0b0d; --card: #14161b; --card-sub: #1b1e24; --border: #222630;
-  --base-blue: #0052ff; --text: #ffffff; --muted: #8a93a6; --font: 'Inter', sans-serif;
+  --bg: #0a0b0d;
+  --card: #14161b;
+  --card-sub: #1b1e24;
+  --border: #222630;
+  --base-blue: #0052ff;
+  --base-blue-hover: #0046d5;
+  --base-blue-dim: rgba(0,82,255,0.12);
+  --text: #ffffff;
+  --muted: #8a93a6;
+  --amber: #f5a623;
+  --green: #00e87a;
+  --red: #ff3b5c;
+  --font: 'Inter', sans-serif;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background: var(--bg); color: var(--text); font-family: var(--font); padding-bottom: 3rem; }
-.wrap { max-width: 860px; margin: 0 auto; padding: 1.5rem; }
-.main-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.tab-bar { display: flex; background: var(--card-sub); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 1.5rem; }
-.tab-item { flex: 1; text-align: center; padding: 0.6rem; font-size: 0.8rem; font-weight: 600; color: var(--muted); border-radius: 8px; cursor: pointer; }
-.tab-item.active { background: var(--base-blue); color: white; }
-.view-content { display: none; }
-.view-content.active { display: block; }
-.btn-mint { width: 100%; background: var(--base-blue); color: white; border: none; border-radius: 12px; padding: 1.1rem; font-weight: 600; cursor: pointer; }
-.btn-mint:disabled { opacity: 0.5; }
-.collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.75rem; }
-.slot-card { background: var(--card-sub); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 0.5rem; text-align: center; font-size: 0.7rem; color: var(--muted); }
-.slot-card img { width: 40px; filter: grayscale(1); opacity: 0.2; margin-bottom: 8px; }
-.slot-card.unlocked { border-color: var(--base-blue); color: white; background: rgba(0,82,255,0.05); }
-.slot-card.unlocked img { filter: none; opacity: 1; }
-.status-bar { display: flex; justify-content: space-between; margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;padding-bottom:3rem;}
+
+/* ── HERO ── */
+.hero-banner{
+  background:linear-gradient(180deg,rgba(0,82,255,.13) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);
+  padding:2.5rem 0;position:relative;overflow:hidden;
+}
+.hero-banner::before{
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,82,255,.04) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(0,82,255,.04) 1px,transparent 1px);
+  background-size:20px 20px;pointer-events:none;
+}
+.wrap{max-width:860px;margin:0 auto;padding:0 1.5rem;}
+.header-flex{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.brand-box{display:flex;align-items:center;gap:1rem;}
+.base-logo{
+  width:48px;height:48px;background:var(--base-blue);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 20px rgba(0,82,255,.3);flex-shrink:0;
+}
+.base-logo-circle{width:22px;height:22px;border:4px solid white;border-radius:50%;}
+.title{font-size:1.75rem;font-weight:700;letter-spacing:-.02em;}
+.subtitle{font-size:.85rem;color:var(--muted);margin-top:.25rem;}
+.author{font-size:.75rem;color:var(--muted);margin-top:.4rem;}
+.author a{color:var(--base-blue);text-decoration:none;font-weight:500;}
+.badge-live{
+  background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);
+  color:var(--green);font-size:.7rem;font-weight:600;padding:6px 12px;border-radius:20px;
+  display:flex;align-items:center;gap:6px;flex-shrink:0;
+}
+.dot-blink{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite;}
+
+/* ── MAIN BOX ── */
+.main-box{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:2rem;margin-top:-1.5rem;position:relative;z-index:10;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.section-label{font-size:.65rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;}
+
+/* ── CONTEXT BAR ── */
+.address-sub-bar{
+  display:none;background:var(--card-sub);border:1px solid var(--border);border-radius:10px;
+  padding:.75rem 1rem;justify-content:space-between;align-items:center;
+  margin-bottom:1.5rem;font-size:.8rem;gap:.5rem;flex-wrap:wrap;
+}
+.sub-bar-addr{color:var(--muted);font-family:monospace;}
+.sub-bar-right{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+.eth-badge{background:#222630;padding:4px 10px;border-radius:6px;font-weight:600;}
+.link-basescan{color:var(--base-blue);text-decoration:none;font-weight:500;}
+.network-badge{
+  font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:6px;
+  background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2);
+}
+.network-badge.wrong{background:rgba(255,59,92,.1);color:var(--red);border-color:rgba(255,59,92,.2);}
+
+/* ── TABS ── */
+.tab-bar{
+  display:flex;background:var(--card-sub);border:1px solid var(--border);
+  border-radius:10px;padding:4px;margin-bottom:1.5rem;
+}
+.tab-item{
+  flex:1;text-align:center;padding:.6rem;font-size:.8rem;font-weight:600;
+  color:var(--muted);border-radius:8px;cursor:pointer;transition:all .2s;
+}
+.tab-item.active{background:var(--base-blue);color:white;}
+.view-content{display:none;}
+.view-content.active{display:block;}
+
+/* ── PACK OPENER ── */
+.pack-hero-container{
+  background:radial-gradient(circle at center,rgba(0,82,255,.07) 0%,transparent 70%);
+  padding:2rem 0;text-align:center;
+}
+.pack-mockup{
+  width:140px;height:200px;
+  background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+  border:2px solid var(--base-blue);border-radius:12px;
+  margin:0 auto 1.5rem;box-shadow:0 15px 35px rgba(0,82,255,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.pack-mockup:hover{transform:scale(1.03);box-shadow:0 20px 40px rgba(0,82,255,.3);}
+.pack-glow{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(0,82,255,.15) 0%,transparent 60%);
+  pointer-events:none;
+}
+.pack-label{
+  font-size:.75rem;font-weight:800;letter-spacing:.15em;
+  color:var(--base-blue);text-transform:uppercase;z-index:1;
+}
+.pack-number{
+  font-size:3.5rem;font-weight:800;color:rgba(0,82,255,.2);
+  position:absolute;bottom:-4px;right:8px;line-height:1;z-index:0;
+}
+.pack-wc{font-size:.65rem;color:var(--muted);z-index:1;margin-top:2px;}
+
+/* ── REVEAL MODAL ── */
+.reveal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:1000;align-items:center;justify-content:center;
+}
+.reveal-overlay.open{display:flex;}
+.reveal-card{
+  width:200px;height:280px;perspective:800px;cursor:pointer;
+}
+.reveal-card-inner{
+  width:100%;height:100%;position:relative;
+  transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1);
+}
+.reveal-card-inner.flipped{transform:rotateY(180deg);}
+.reveal-face{
+  position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.reveal-back{
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+  border:2px solid var(--base-blue);
+  box-shadow:0 0 40px rgba(0,82,255,.4);
+}
+.reveal-back-label{font-size:.9rem;font-weight:800;letter-spacing:.1em;color:var(--base-blue);text-transform:uppercase;}
+.reveal-back-hint{font-size:.65rem;color:var(--muted);margin-top:6px;}
+.reveal-front{
+  background:linear-gradient(160deg,#1e293b 0%,#0f172a 100%);
+  border:2px solid var(--base-blue);transform:rotateY(180deg);
+  box-shadow:0 0 40px rgba(0,82,255,.4);gap:8px;
+}
+.reveal-flag{width:80px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.5);}
+.reveal-country-name{font-size:.9rem;font-weight:700;color:white;text-align:center;padding:0 .5rem;}
+.reveal-id{font-size:.65rem;color:var(--base-blue);font-weight:600;}
+.reveal-close{
+  position:absolute;top:1.5rem;right:1.5rem;background:none;border:1px solid var(--border);
+  color:var(--muted);width:32px;height:32px;border-radius:8px;cursor:pointer;
+  font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:border-color .2s,color .2s;
+}
+.reveal-close:hover{border-color:var(--red);color:var(--red);}
+.reveal-hint-text{color:var(--muted);font-size:.75rem;margin-top:1rem;text-align:center;}
+
+/* ── BUTTONS ── */
+.btn-mint{
+  width:100%;background:var(--base-blue);color:white;border:none;border-radius:12px;
+  padding:1.1rem;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s,opacity .2s;
+  display:block;text-align:center;box-shadow:0 4px 12px rgba(0,82,255,.2);
+}
+.btn-mint:hover:not(:disabled){background:var(--base-blue-hover);}
+.btn-mint:disabled{
+  background:var(--card-sub);border:1px solid var(--border);
+  color:var(--muted);cursor:not-allowed;box-shadow:none;
+}
+.btn-mint.loading{opacity:.7;cursor:wait;}
+
+/* ── INFO GRID ── */
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1.5rem;}
+.info-card{background:var(--card-sub);border:1px solid var(--border);border-radius:12px;padding:1rem;}
+.info-val{font-size:1.25rem;font-weight:700;margin-top:.25rem;}
+.info-val.warn{color:var(--amber);}
+.info-val.ok{color:var(--green);}
+.info-val.danger{color:var(--red);}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{margin-top:1.5rem;}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.75rem;color:var(--muted);}
+.progress-bar{height:6px;background:var(--card-sub);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--base-blue);border-radius:3px;transition:width .4s;}
+
+/* ── COLLECTION ── */
+.collection-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.collection-count{font-size:.8rem;color:var(--muted);}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.75rem;}
+.slot-card{
+  background:var(--card-sub);border:1px solid var(--border);border-radius:10px;
+  padding:1.1rem .5rem;text-align:center;font-size:.72rem;color:var(--muted);
+  font-weight:600;transition:all .35s ease;position:relative;
+}
+.slot-card img{
+  width:42px;height:auto;border-radius:4px;margin-bottom:8px;
+  filter:grayscale(1);opacity:.18;transition:all .35s ease;display:block;margin-left:auto;margin-right:auto;
+}
+.slot-card.unlocked{
+  border-color:var(--base-blue);color:white;
+  background:linear-gradient(180deg,rgba(0,82,255,.1) 0%,transparent 100%);
+  box-shadow:0 4px 15px rgba(0,82,255,.15);
+}
+.slot-card.unlocked img{filter:none;opacity:1;}
+.slot-card.new-unlock{animation:popIn .5s cubic-bezier(.4,0,.2,1);}
+.unlock-badge{
+  position:absolute;top:6px;right:6px;
+  background:var(--base-blue);color:white;
+  font-size:.55rem;font-weight:700;padding:2px 5px;border-radius:4px;
+  display:none;
+}
+.slot-card.unlocked .unlock-badge{display:block;}
+
+/* ── LEADERBOARD ── */
+.lb-refresh{
+  float:right;background:none;border:1px solid var(--border);
+  color:var(--muted);padding:4px 10px;border-radius:6px;
+  font-size:.7rem;cursor:pointer;transition:border-color .2s,color .2s;
+}
+.lb-refresh:hover{border-color:var(--base-blue);color:var(--base-blue);}
+.lb-refresh:disabled{opacity:.4;cursor:not-allowed;}
+.leader-row{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card-sub);border:1px solid var(--border);
+  padding:.85rem 1rem;border-radius:10px;margin-bottom:.5rem;
+  font-size:.85rem;transition:border-color .2s;
+}
+.leader-row.me{border-color:var(--base-blue);background:rgba(0,82,255,.05);}
+.leader-left{display:flex;align-items:center;gap:.75rem;}
+.leader-rank{font-weight:800;color:var(--amber);width:24px;text-align:center;flex-shrink:0;}
+.leader-rank.top1{color:#FFD700;}
+.leader-rank.top2{color:#C0C0C0;}
+.leader-rank.top3{color:#CD7F32;}
+.leader-addr{font-family:monospace;color:var(--muted);font-size:.8rem;}
+.leader-score{font-weight:700;color:var(--base-blue);white-space:nowrap;}
+.lb-empty{color:var(--muted);font-size:.85rem;text-align:center;padding:2rem 0;}
+.lb-loading{color:var(--muted);font-size:.8rem;text-align:center;padding:1.5rem 0;animation:pulse 1.5s infinite;}
+
+/* ── ERROR ── */
+.error-card{
+  color:var(--red);font-size:.8rem;padding:1rem;
+  background:rgba(255,59,92,.06);border:1px solid rgba(255,59,92,.2);
+  border-radius:10px;margin-bottom:1.5rem;display:none;line-height:1.5;
+}
+.error-card strong{display:block;margin-bottom:.25rem;}
+
+/* ── SUCCESS TOAST ── */
+.toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120px);
+  background:var(--card);border:1px solid rgba(0,232,122,.3);
+  color:var(--green);padding:.75rem 1.5rem;border-radius:10px;
+  font-size:.85rem;font-weight:600;transition:transform .4s cubic-bezier(.4,0,.2,1);
+  z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.5);white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── NETWORK WARNING ── */
+.network-warn{
+  display:none;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.25);
+  border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:.82rem;color:var(--amber);line-height:1.5;
+}
+.network-warn strong{display:block;margin-bottom:.25rem;}
+
+/* ── FOOTER ── */
+.footer{
+  margin-top:3rem;display:flex;justify-content:space-between;
+  align-items:center;flex-wrap:wrap;gap:1rem;font-size:.7rem;color:var(--muted);
+}
+.footer a{color:var(--base-blue);text-decoration:none;}
+
+/* ── ANIMATIONS ── */
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+@keyframes popIn{0%{transform:scale(.8);opacity:0;}60%{transform:scale(1.05);}100%{transform:scale(1);opacity:1;}}
+@keyframes spinOnce{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:520px){
+  .title{font-size:1.35rem;}
+  .info-grid{grid-template-columns:1fr;}
+  .collection-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
+  .main-box{padding:1.25rem;}
+}
 </style>
 </head>
 <body>
+
+<!-- HERO -->
+<div class="hero-banner">
   <div class="wrap">
-    <div class="main-box">
-      <div class="tab-bar">
-        <div class="tab-item active" onclick="switchTab(0)">Pack</div>
-        <div class="tab-item" onclick="switchTab(1)">Collection</div>
-      </div>
-      <div id="view-mint" class="view-content active">
-        <div style="text-align:center; padding: 2rem 0;">
-          <div style="font-size:4rem; margin-bottom:1rem;">⚽</div>
-          <button class="btn-mint" id="mint-btn" onclick="handleMint()">Ouvrir un Pack (Gratuit)</button>
-        </div>
-        <div class="status-bar">
-          <span id="daily-count">Mints: -- / 2</span>
-          <span id="wallet-addr">--</span>
+    <div class="header-flex">
+      <div class="brand-box">
+        <div class="base-logo"><div class="base-logo-circle"></div></div>
+        <div>
+          <div class="title">FOOT BASE</div>
+          <div class="subtitle">World Cup 2026 Album — On-Chain Gacha</div>
+          <div class="author">✍ by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></div>
         </div>
       </div>
-      <div id="view-collection" class="view-content">
-        <div class="collection-grid" id="grid"></div>
-      </div>
+      <div class="badge-live"><div class="dot-blink"></div> Live Drop</div>
     </div>
   </div>
+</div>
+
+<!-- REVEAL OVERLAY -->
+<div class="reveal-overlay" id="reveal-overlay" onclick="handleOverlayClick(event)">
+  <button class="reveal-close" onclick="closeReveal()" aria-label="Fermer">✕</button>
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="reveal-card" id="reveal-card" onclick="flipCard()">
+      <div class="reveal-card-inner" id="reveal-inner">
+        <div class="reveal-face reveal-back">
+          <div class="reveal-back-label">⚽ Mondial</div>
+          <div class="reveal-back-hint">Cliquer pour révéler</div>
+        </div>
+        <div class="reveal-face reveal-front">
+          <img class="reveal-flag" id="reveal-flag-img" src="" alt="">
+          <div class="reveal-country-name" id="reveal-country-name"></div>
+          <div class="reveal-id" id="reveal-country-id"></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-hint-text" id="reveal-hint">Cliquez sur la carte pour découvrir votre pays !</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MAIN -->
+<div class="wrap">
+  <div class="main-box">
+
+    <div class="error-card" id="error-display"></div>
+    <div class="network-warn" id="network-warn">
+      <strong>⚠ Mauvais réseau détecté</strong>
+      Ce contrat est déployé sur <strong id="warn-target-net">Base</strong>. Ton wallet est actuellement sur <strong id="warn-current-net">un autre réseau</strong>. Bascule sur le bon réseau dans ton wallet et rafraîchis.
+    </div>
+
+    <!-- Wallet info bar -->
+    <div class="address-sub-bar" id="context-bar">
+      <div class="sub-bar-addr" id="sub-wallet-address">0x000...0000</div>
+      <div class="sub-bar-right">
+        <span class="network-badge" id="network-badge">—</span>
+        <div class="eth-badge" id="sub-eth-bal">— ETH</div>
+        <a href="#" target="_blank" class="link-basescan" id="sub-basescan-link">Basescan ↗</a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab(0)">Pack Opener</div>
+      <div class="tab-item" onclick="switchTab(1)">Ma Collection</div>
+      <div class="tab-item" onclick="switchTab(2)">Leaderboard</div>
+    </div>
+
+    <!-- ── VIEW: PACK OPENER ── -->
+    <div class="view-content active" id="view-gacha">
+      <div class="pack-hero-container">
+        <div class="pack-mockup" onclick="connectOrMint()">
+          <div class="pack-glow"></div>
+          <div class="pack-label">Mondial 2026</div>
+          <div class="pack-wc">World Cup Edition</div>
+          <div class="pack-number">48</div>
+        </div>
+      </div>
+
+      <button class="btn-mint" id="btn-action-mint" onclick="connectOrMint()">
+        Connecter le Wallet
+      </button>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="section-label">Mints aujourd'hui</div>
+          <div class="info-val" id="ui-daily-limit">— / 2</div>
+        </div>
+        <div class="info-card">
+          <div class="section-label">Fin du drop</div>
+          <div class="info-val" id="ui-timer">—h —m —s</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span>Pays découverts</span>
+          <span id="progress-text">0 / 48</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: COLLECTION ── -->
+    <div class="view-content" id="view-collection">
+      <div class="collection-header">
+        <div class="section-label" style="margin-bottom:0;">Album National</div>
+        <div class="collection-count" id="collection-count">0 / 48 pays</div>
+      </div>
+      <div class="collection-grid" id="ui-collection-grid"></div>
+    </div>
+
+    <!-- ── VIEW: LEADERBOARD ── -->
+    <div class="view-content" id="view-leaderboard">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div class="section-label" style="margin-bottom:0;">Top Collectionneurs</div>
+        <button class="lb-refresh" id="lb-refresh-btn" onclick="loadLeaderboard()">↻ Actualiser</button>
+      </div>
+      <div id="ui-leaderboard-list"><div class="lb-loading">Chargement du classement…</div></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div>Base Node RPC · ERC-721 on-chain</div>
+    <div>Built by <strong><a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></strong></div>
+  </div>
+</div>
+
 <script>
-const countries = [
-  { name: "États-Unis", code: "us" }, { name: "Mexique", code: "mx" }, { name: "Canada", code: "ca" },
-  { name: "France", code: "fr" }, { name: "Brésil", code: "br" }, { name: "Argentine", code: "ar" },
-  { name: "Espagne", code: "es" }, { name: "Angleterre", code: "gb-eng" }, { name: "Allemagne", code: "de" },
-  { name: "Italie", code: "it" }, { name: "Portugal", code: "pt" }, { name: "Pays-Bas", code: "nl" },
-  { name: "Belgique", code: "be" }, { name: "Croatie", code: "hr" }, { name: "Maroc", code: "ma" },
-  { name: "Sénégal", code: "sn" }, { name: "Tunisie", code: "tn" }, { name: "Algérie", code: "dz" },
-  { name: "Égypte", code: "eg" }, { name: "Cameroun", code: "cm" }, { name: "Japon", code: "jp" },
-  { name: "Corée du Sud", code: "kr" }, { name: "Australie", code: "au" }, { name: "Arabie Saoudite", code: "sa" },
-  { name: "Uruguay", code: "uy" }, { name: "Colombie", code: "co" }, { name: "Chili", code: "cl" },
-  { name: "Équateur", code: "ec" }, { name: "Suisse", code: "ch" }, { name: "Danemark", code: "dk" },
-  { name: "Pologne", code: "pl" }, { name: "Suède", code: "se" }, { name: "Ukraine", code: "ua" },
-  { name: "Turquie", code: "tr" }, { name: "Nigeria", code: "ng" }, { name: "Ghana", code: "gh" },
-  { name: "Côte d'Ivoire", code: "ci" }, { name: "Afrique du Sud", code: "za" }, { name: "Iran", code: "ir" },
-  { name: "Qatar", code: "qa" }, { name: "Émirats Arabes Unis", code: "ae" }, { name: "Nouvelle-Zélande", code: "nz" },
-  { name: "Costa Rica", code: "cr" }, { name: "Jamaïque", code: "jm" }, { name: "Pérou", code: "pe" },
-  { name: "Autriche", code: "at" }, { name: "Écosse", code: "gb-sct" }, { name: "Pays de Galles", code: "gb-wls" }
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+
+// ABI étendu: tous les appels nécessaires + event Transfer
+const CONTRACT_ABI = [
+  "function mintPack() external payable",
+  "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
+  "function totalMintedByAddress(address addr) external view returns (uint256)",
+  "function dailyMintCount(address addr) external view returns (uint256)",
+  "function nextTokenId() external view returns (uint256)",
+  "function ownerOf(uint256 tokenId) external view returns (address)",
+  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
 ];
 
-function switchTab(idx) {
-  document.querySelectorAll('.tab-item').forEach((t, i) => t.classList.toggle('active', i === idx));
-  document.querySelectorAll('.view-content').forEach((v, i) => v.classList.toggle('active', i === idx));
-}
+// Réseaux supportés: Base Mainnet (8453) et Base Sepolia testnet (84532)
+const SUPPORTED_CHAINS = {
+  8453:  { name: "Base Mainnet", scan: "https://basescan.org" },
+  84532: { name: "Base Sepolia", scan: "https://sepolia.basescan.org" }
+};
 
-async function refresh() {
-  const snap = await bankr.appKV.get('user_snapshot');
-  if (snap) {
-    document.getElementById('daily-count').innerText = `Mints: ${snap.dailyCount} / 2`;
-    renderGrid(snap.unlockedCountries || []);
+const DAILY_LIMIT = 2;
+// Durée du drop: 72h depuis le premier lancement (stocké dans localStorage)
+const DROP_DURATION_MS = 72 * 60 * 60 * 1000;
+
+const countries = [
+  {name:"États-Unis",code:"us"},{name:"Mexique",code:"mx"},{name:"Canada",code:"ca"},
+  {name:"France",code:"fr"},{name:"Brésil",code:"br"},{name:"Argentine",code:"ar"},
+  {name:"Espagne",code:"es"},{name:"Angleterre",code:"gb-eng"},{name:"Allemagne",code:"de"},
+  {name:"Italie",code:"it"},{name:"Portugal",code:"pt"},{name:"Pays-Bas",code:"nl"},
+  {name:"Belgique",code:"be"},{name:"Croatie",code:"hr"},{name:"Maroc",code:"ma"},
+  {name:"Sénégal",code:"sn"},{name:"Tunisie",code:"tn"},{name:"Algérie",code:"dz"},
+  {name:"Égypte",code:"eg"},{name:"Cameroun",code:"cm"},{name:"Japon",code:"jp"},
+  {name:"Corée du Sud",code:"kr"},{name:"Australie",code:"au"},{name:"Arabie Saoudite",code:"sa"},
+  {name:"Uruguay",code:"uy"},{name:"Colombie",code:"co"},{name:"Chili",code:"cl"},
+  {name:"Équateur",code:"ec"},{name:"Suisse",code:"ch"},{name:"Danemark",code:"dk"},
+  {name:"Pologne",code:"pl"},{name:"Suède",code:"se"},{name:"Ukraine",code:"ua"},
+  {name:"Turquie",code:"tr"},{name:"Nigeria",code:"ng"},{name:"Ghana",code:"gh"},
+  {name:"Côte d'Ivoire",code:"ci"},{name:"Afrique du Sud",code:"za"},{name:"Iran",code:"ir"},
+  {name:"Qatar",code:"qa"},{name:"Émirats Arabes Unis",code:"ae"},{name:"Nouvelle-Zélande",code:"nz"},
+  {name:"Costa Rica",code:"cr"},{name:"Jamaïque",code:"jm"},{name:"Pérou",code:"pe"},
+  {name:"Autriche",code:"at"},{name:"Écosse",code:"gb-sct"},{name:"Pays de Galles",code:"gb-wls"}
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+let provider, signer, contract, userAddress = null;
+let currentChainId = null;
+let unlockedCountries = new Set();
+let timerInterval = null;
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  generateCollectionGrid();
+  startDropTimer();
+
+  // Tenter reconnexion silencieuse si déjà connecté
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length > 0) await setupProvider(false);
+    } catch(e) {}
+
+    window.ethereum.on('accountsChanged', accounts => {
+      if (accounts.length === 0) { disconnectUI(); }
+      else { setupProvider(false); }
+    });
+    window.ethereum.on('chainChanged', () => { setupProvider(false); });
   }
-  const addr = bankr.ctx.walletAddress;
-  document.getElementById('wallet-addr').innerText = addr ? addr.substring(0,6) + '...' : 'Connecter';
+});
+
+// ── PROVIDER SETUP ──────────────────────────────────────────────────────────
+async function setupProvider(requestAccounts = true) {
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    if (requestAccounts) await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    const network = await provider.getNetwork();
+    currentChainId = network.chainId;
+
+    const chainInfo = SUPPORTED_CHAINS[currentChainId];
+    const isSupported = !!chainInfo;
+
+    // Update network badge
+    const badge = document.getElementById('network-badge');
+    if (isSupported) {
+      badge.textContent = chainInfo.name;
+      badge.className = 'network-badge';
+    } else {
+      badge.textContent = `Chain ${currentChainId}`;
+      badge.className = 'network-badge wrong';
+    }
+
+    // Basescan link
+    const scanBase = isSupported ? chainInfo.scan : "https://basescan.org";
+    document.getElementById('sub-basescan-link').href = `${scanBase}/address/${userAddress}`;
+
+    // Show wallet bar
+    const shortAddr = userAddress.slice(0,6) + "…" + userAddress.slice(-4);
+    document.getElementById('sub-wallet-address').textContent = shortAddr;
+    document.getElementById('context-bar').style.display = 'flex';
+
+    // Network warning
+    document.getElementById('network-warn').style.display = isSupported ? 'none' : 'block';
+    if (!isSupported) {
+      document.getElementById('warn-current-net').textContent = `Chain ID ${currentChainId}`;
+      document.getElementById('warn-target-net').textContent = 'Base Mainnet (8453) ou Base Sepolia (84532)';
+    }
+
+    if (isSupported) {
+      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      await refreshAll();
+    } else {
+      updateMintButton('connect');
+    }
+  } catch(e) {
+    handleError(e, 'connexion');
+  }
 }
 
-function renderGrid(unlocked) {
-  const grid = document.getElementById('grid');
-  grid.innerHTML = countries.map((c, i) => `
-    <div class="slot-card ${unlocked.includes(i + 1) ? 'unlocked' : ''}">
-      <img src="https://flagcdn.com/w80/${c.code}.png">
+// ── CONNECT OR MINT ─────────────────────────────────────────────────────────
+async function connectOrMint() {
+  hideError();
+  if (!window.ethereum) {
+    showError('<strong>Aucun wallet détecté</strong>Installe <a href="https://metamask.io" target="_blank" style="color:var(--red)">MetaMask</a> ou <a href="https://rabby.io" target="_blank" style="color:var(--red)">Rabby</a> pour continuer.');
+    return;
+  }
+  if (!userAddress) { await setupProvider(true); return; }
+  await executeMint();
+}
+
+async function executeMint() {
+  const btn = document.getElementById('btn-action-mint');
+
+  // Vérif limite on-chain
+  try {
+    const dailyCount = await contract.dailyMintCount(userAddress);
+    if (dailyCount.toNumber() >= DAILY_LIMIT) {
+      showError('<strong>Limite journalière atteinte</strong>Tu as déjà effectué 2 mints aujourd\'hui. Reviens demain !');
+      return;
+    }
+  } catch(e) { /* on laisse passer si call échoue, le contrat rejetera */ }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = 'Signature requise…';
+
+  try {
+    const tx = await contract.mintPack({ gasLimit: 300000 });
+    btn.textContent = 'Validation on-chain…';
+    const receipt = await tx.wait();
+
+    // Lire le countryId depuis les logs de la tx
+    let mintedCountryId = null;
+    if (receipt.logs && receipt.logs.length > 0) {
+      try {
+        const iface = new ethers.utils.Interface(CONTRACT_ABI);
+        for (const log of receipt.logs) {
+          try {
+            const parsed = iface.parseLog(log);
+            if (parsed.name === 'Transfer' && parsed.args.from === ethers.constants.AddressZero) {
+              const tokenId = parsed.args.tokenId.toNumber();
+              const cId = await contract.tokenToCountry(tokenId);
+              mintedCountryId = cId.toNumber();
+              break;
+            }
+          } catch(e) {}
+        }
+      } catch(e) {}
+    }
+
+    showToast('🎉 Pack ouvert avec succès !');
+    await refreshAll();
+
+    // Révéler la carte
+    openReveal(mintedCountryId);
+
+  } catch(e) {
+    handleError(e, 'mint');
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+// ── REFRESH ALL DATA ─────────────────────────────────────────────────────────
+async function refreshAll() {
+  if (!contract || !userAddress) return;
+
+  try {
+    // Solde ETH
+    const bal = await provider.getBalance(userAddress);
+    document.getElementById('sub-eth-bal').textContent =
+      parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + ' ETH';
+  } catch(e) {}
+
+  try {
+    // Mints du jour
+    const daily = await contract.dailyMintCount(userAddress);
+    const used = daily.toNumber();
+    const remaining = Math.max(0, DAILY_LIMIT - used);
+    const dailyEl = document.getElementById('ui-daily-limit');
+    dailyEl.textContent = `${used} / ${DAILY_LIMIT}`;
+    dailyEl.className = 'info-val ' + (remaining === 0 ? 'danger' : remaining === 1 ? 'warn' : 'ok');
+
+    // Bouton
+    if (remaining === 0) {
+      updateMintButton('limit');
+    } else {
+      updateMintButton('mint', remaining);
+    }
+  } catch(e) {
+    updateMintButton('mint');
+  }
+
+  try {
+    // Tokens possédés
+    unlockedCountries = new Set();
+    const nextId = await contract.nextTokenId();
+    const maxId = nextId.toNumber();
+
+    if (maxId > 1) {
+      const promises = [];
+      for (let id = 1; id < maxId; id++) {
+        promises.push((async (tokenId) => {
+          try {
+            const owner = await contract.ownerOf(tokenId);
+            if (owner.toLowerCase() === userAddress.toLowerCase()) {
+              const cId = await contract.tokenToCountry(tokenId);
+              return cId.toNumber();
+            }
+          } catch(e) {}
+          return null;
+        })(id));
+      }
+      const results = await Promise.all(promises);
+      results.forEach(cId => { if (cId !== null) unlockedCountries.add(cId); });
+    }
+
+    updateCollectionUI();
+  } catch(e) {
+    console.error('Erreur lecture tokens:', e);
+  }
+
+  hideError();
+}
+
+// ── COLLECTION UI ────────────────────────────────────────────────────────────
+function generateCollectionGrid() {
+  const grid = document.getElementById('ui-collection-grid');
+  grid.innerHTML = countries.map((c, i) => {
+    const id = i + 1;
+    return `<div class="slot-card" id="country-${id}">
+      <img src="https://flagcdn.com/w80/${c.code}.png" alt="${c.name}" loading="lazy">
       <div>${c.name}</div>
+      <span class="unlock-badge">#${id}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateCollectionUI() {
+  countries.forEach((_, i) => {
+    const id = i + 1;
+    const el = document.getElementById(`country-${id}`);
+    if (!el) return;
+    if (unlockedCountries.has(id)) {
+      el.classList.add('unlocked');
+    } else {
+      el.classList.remove('unlocked');
+    }
+  });
+  const count = unlockedCountries.size;
+  document.getElementById('collection-count').textContent = `${count} / 48 pays`;
+  document.getElementById('progress-text').textContent = `${count} / 48`;
+  document.getElementById('progress-fill').style.width = `${(count / 48) * 100}%`;
+}
+
+// ── REVEAL ANIMATION ─────────────────────────────────────────────────────────
+function openReveal(countryId) {
+  // Reset flip
+  document.getElementById('reveal-inner').classList.remove('flipped');
+  document.getElementById('reveal-hint').textContent = 'Cliquez sur la carte pour découvrir votre pays !';
+
+  if (countryId !== null && countryId >= 1 && countryId <= 48) {
+    const c = countries[countryId - 1];
+    document.getElementById('reveal-flag-img').src = `https://flagcdn.com/w80/${c.code}.png`;
+    document.getElementById('reveal-country-name').textContent = c.name;
+    document.getElementById('reveal-country-id').textContent = `Carte #${countryId} · World Cup 2026`;
+  } else {
+    document.getElementById('reveal-flag-img').src = '';
+    document.getElementById('reveal-country-name').textContent = 'Pays surprise';
+    document.getElementById('reveal-country-id').textContent = 'World Cup 2026';
+  }
+
+  document.getElementById('reveal-overlay').classList.add('open');
+}
+
+function flipCard() {
+  const inner = document.getElementById('reveal-inner');
+  if (!inner.classList.contains('flipped')) {
+    inner.classList.add('flipped');
+    document.getElementById('reveal-hint').textContent = 'Fermer ✕';
+    // Highlight dans la collection
+    if (unlockedCountries.size > 0) {
+      const last = [...unlockedCountries].pop();
+      const el = document.getElementById(`country-${last}`);
+      if (el) el.classList.add('new-unlock');
+    }
+  } else {
+    closeReveal();
+  }
+}
+
+function closeReveal() {
+  document.getElementById('reveal-overlay').classList.remove('open');
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('reveal-overlay')) closeReveal();
+}
+
+// ── LEADERBOARD ──────────────────────────────────────────────────────────────
+async function loadLeaderboard() {
+  const listEl = document.getElementById('ui-leaderboard-list');
+  const refreshBtn = document.getElementById('lb-refresh-btn');
+  listEl.innerHTML = '<div class="lb-loading">Lecture des events on-chain…</div>';
+  refreshBtn.disabled = true;
+
+  if (!provider) {
+    // Lecture publique sans wallet
+    try {
+      const pub = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
+      await buildLeaderboard(pub, listEl);
+    } catch(e) {
+      listEl.innerHTML = '<div class="lb-empty">Connecte ton wallet pour voir le classement.</div>';
+    }
+    refreshBtn.disabled = false;
+    return;
+  }
+
+  try {
+    await buildLeaderboard(provider, listEl);
+  } catch(e) {
+    listEl.innerHTML = '<div class="lb-empty">Erreur de chargement. Réessaie.</div>';
+  }
+  refreshBtn.disabled = false;
+}
+
+async function buildLeaderboard(prov, listEl) {
+  const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, prov);
+  const filter = readContract.filters.Transfer(ethers.constants.AddressZero);
+
+  // Lire les Transfer events depuis le bloc 0
+  const events = await readContract.queryFilter(filter);
+
+  // Compter les tokens par adresse
+  const scores = {};
+  for (const ev of events) {
+    const to = ev.args.to.toLowerCase();
+    scores[to] = (scores[to] || 0) + 1;
+  }
+
+  const sorted = Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 20);
+
+  if (sorted.length === 0) {
+    listEl.innerHTML = '<div class="lb-empty">Aucun mint encore — sois le premier !</div>';
+    return;
+  }
+
+  const rankClass = i => i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+  const isMe = addr => userAddress && addr === userAddress.toLowerCase();
+
+  listEl.innerHTML = sorted.map(([addr, count], i) => `
+    <div class="leader-row ${isMe(addr) ? 'me' : ''}">
+      <div class="leader-left">
+        <div class="leader-rank ${rankClass(i)}">${i + 1}</div>
+        <div class="leader-addr">${addr.slice(0,6)}…${addr.slice(-4)}${isMe(addr) ? ' 👈' : ''}</div>
+      </div>
+      <div class="leader-score">${count} NFT</div>
     </div>
   `).join('');
 }
 
-async function handleMint() {
-  const btn = document.getElementById('mint-btn');
-  btn.disabled = true; btn.innerText = "Signature...";
-  try {
-    const res = await bankr.invokeScript('prepareMint');
-    if (res?.txBlob) {
-      await bankr.confirmTransaction(res.txBlob);
-      btn.innerText = "Succès !";
-      setTimeout(() => bankr.invokeScript('refreshData').then(refresh), 2000);
+// ── TIMER ────────────────────────────────────────────────────────────────────
+function startDropTimer() {
+  // Stocker la date de fin dans localStorage pour la rendre persistante
+  const STORAGE_KEY = 'footbase_drop_end';
+  let endTime = parseInt(localStorage.getItem(STORAGE_KEY) || '0');
+  if (!endTime || endTime < Date.now()) {
+    endTime = Date.now() + DROP_DURATION_MS;
+    localStorage.setItem(STORAGE_KEY, endTime.toString());
+  }
+
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const remaining = endTime - Date.now();
+    const el = document.getElementById('ui-timer');
+    if (remaining <= 0) {
+      el.textContent = 'Terminé';
+      el.className = 'info-val danger';
+      clearInterval(timerInterval);
+      return;
     }
-  } catch (e) { btn.innerText = "Erreur"; }
-  finally { setTimeout(() => { btn.disabled = false; btn.innerText = "Ouvrir un Pack (Gratuit)"; }, 3000); }
+    const h = Math.floor(remaining / 3600000);
+    const m = Math.floor((remaining % 3600000) / 60000);
+    const s = Math.floor((remaining % 60000) / 1000);
+    el.textContent = `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+    el.className = 'info-val ' + (h < 6 ? 'danger' : h < 24 ? 'warn' : 'ok');
+  }, 1000);
 }
 
-bankr.on('ready', () => { renderGrid([]); refresh(); bankr.invokeScript('refreshData').then(refresh); });
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(index) {
+  document.querySelectorAll('.tab-item').forEach((t, i) =>
+    t.classList.toggle('active', i === index));
+  document.querySelectorAll('.view-content').forEach((v, i) =>
+    v.classList.toggle('active', i === index));
+  if (index === 2) loadLeaderboard();
+}
+
+// ── BUTTON STATES ─────────────────────────────────────────────────────────────
+function updateMintButton(state, remaining) {
+  const btn = document.getElementById('btn-action-mint');
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  switch(state) {
+    case 'connect': btn.textContent = 'Connecter le Wallet'; break;
+    case 'mint':
+      btn.textContent = remaining === 1
+        ? 'Ouvrir un Pack (Gratuit) · Dernier mint du jour 🎲'
+        : 'Ouvrir un Pack (Gratuit) 🎲';
+      break;
+    case 'limit':
+      btn.textContent = 'Limite atteinte — Revenez demain';
+      btn.disabled = true;
+      break;
+    case 'wrong-network':
+      btn.textContent = 'Mauvais réseau — Changer sur Base';
+      btn.disabled = true;
+      break;
+  }
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function disconnectUI() {
+  userAddress = null; provider = null; signer = null; contract = null;
+  document.getElementById('context-bar').style.display = 'none';
+  updateMintButton('connect');
+  document.getElementById('ui-daily-limit').textContent = '— / 2';
+  document.getElementById('ui-daily-limit').className = 'info-val';
+}
+
+function showError(html) {
+  const el = document.getElementById('error-display');
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+function hideError() {
+  document.getElementById('error-display').style.display = 'none';
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function handleError(e, context) {
+  const btn = document.getElementById('btn-action-mint');
+  btn.classList.remove('loading');
+
+  // Codes d'erreur connus
+  if (e.code === 4001 || e.code === 'ACTION_REJECTED') {
+    showError('<strong>Transaction annulée</strong>Tu as refusé la signature dans ton wallet.');
+    updateMintButton('mint');
+    return;
+  }
+  if (e.code === -32002) {
+    showError('<strong>Demande déjà en cours</strong>Regarde dans ton wallet, une demande de connexion est déjà ouverte.');
+    return;
+  }
+
+  const msg = e.reason || e.data?.message || e.message || 'Erreur inconnue';
+
+  if (msg.includes('daily') || msg.includes('limit')) {
+    showError('<strong>Limite journalière atteinte</strong>2 mints maximum par jour. Reviens demain !');
+    updateMintButton('limit');
+    return;
+  }
+  if (msg.includes('execution reverted')) {
+    showError(`<strong>Transaction rejetée par le contrat</strong>${msg}`);
+    updateMintButton('mint');
+    return;
+  }
+
+  showError(`<strong>Erreur (${context})</strong>${msg}`);
+  if (userAddress) updateMintButton('mint');
+  else updateMintButton('connect');
+}
 </script>
 </body>
 </html>
-const CONTRACT = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-const ABI = [
-  "function dailyMintCount(address) view returns (uint256)",
-  "function tokenToCountry(uint256) view returns (uint256)"
-];
-
-const me = await bankr.wallet.me();
-if (!me.evmAddress) return { error: "No wallet" };
-
-const dailyCount = await bankr.chain.readContract({
-  chain: "base", address: CONTRACT, abi: ABI,
-  functionName: "dailyMintCount", args: [me.evmAddress]
-});
-
-const logs = await bankr.chain.getLogs({
-  chain: "base", address: CONTRACT,
-  event: "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
-  args: { to: me.evmAddress }, fromBlock: "earliest"
-});
-
-const unlocked = [];
-for (const log of logs) {
-  const cId = await bankr.chain.readContract({
-    chain: "base", address: CONTRACT, abi: ABI,
-    functionName: "tokenToCountry", args: [log.args.tokenId]
-  });
-  unlocked.push(Number(cId));
-}
-
-const snapshot = {
-  dailyCount: Number(dailyCount),
-  unlockedCountries: [...new Set(unlocked)],
-  updatedAt: Date.now()
-};
-
-await appKV.set("user_snapshot", snapshot);
-return snapshot;
-const CONTRACT = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-const txBlob = await bankr.tx.prepare({
-  chain: "base",
-  to: CONTRACT,
-  data: "0x6e279b9d", // selector pour mintPack()
-  label: "Ouvrir un Pack World Cup 2026"
-});
-return { txBlob }
