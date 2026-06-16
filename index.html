@@ -1,222 +1,351 @@
-// ==========================================
-// DONNÉES : Les 48 Nations de la World Cup
-// ==========================================
-const NATIONS = [
-  // UEFA (Europe)
-  { id: 1, name: "France", code: "fr", conf: "UEFA" }, { id: 2, name: "Angleterre", code: "gb-eng", conf: "UEFA" },
-  { id: 3, name: "Espagne", code: "es", conf: "UEFA" }, { id: 4, name: "Allemagne", code: "de", conf: "UEFA" },
-  { id: 5, name: "Portugal", code: "pt", conf: "UEFA" }, { id: 6, name: "Italie", code: "it", conf: "UEFA" },
-  { id: 7, name: "Pays-Bas", code: "nl", conf: "UEFA" }, { id: 8, name: "Belgique", code: "be", conf: "UEFA" },
-  { id: 9, name: "Croatie", code: "hr", conf: "UEFA" }, { id: 10, name: "Suisse", code: "ch", conf: "UEFA" },
-  { id: 11, name: "Danemark", code: "dk", conf: "UEFA" }, { id: 12, name: "Serbie", code: "rs", conf: "UEFA" },
-  { id: 13, name: "Pologne", code: "pl", conf: "UEFA" }, { id: 14, name: "Autriche", code: "at", conf: "UEFA" },
-  { id: 15, name: "Hongrie", code: "hu", conf: "UEFA" }, { id: 16, name: "Suède", code: "se", conf: "UEFA" },
-  // CONMEBOL (Amérique du Sud)
-  { id: 17, name: "Brésil", code: "br", conf: "CONMEBOL" }, { id: 18, name: "Argentine", code: "ar", conf: "CONMEBOL" },
-  { id: 19, name: "Uruguay", code: "uy", conf: "CONMEBOL" }, { id: 20, name: "Colombie", code: "co", conf: "CONMEBOL" },
-  { id: 21, name: "Équateur", code: "ec", conf: "CONMEBOL" }, { id: 22, name: "Pérou", code: "pe", conf: "CONMEBOL" },
-  // CONCACAF (Amérique du Nord)
-  { id: 23, name: "États-Unis", code: "us", conf: "CONCACAF" }, { id: 24, name: "Mexique", code: "mx", conf: "CONCACAF" },
-  { id: 25, name: "Canada", code: "ca", conf: "CONCACAF" }, { id: 26, name: "Costa Rica", code: "cr", conf: "CONCACAF" },
-  { id: 27, name: "Panama", code: "pa", conf: "CONCACAF" }, { id: 28, name: "Jamaïque", code: "jm", conf: "CONCACAF" },
-  // CAF (Afrique)
-  { id: 29, name: "Maroc", code: "ma", conf: "CAF" }, { id: 30, name: "Sénégal", code: "sn", conf: "CAF" },
-  { id: 31, name: "Cameroun", code: "cm", conf: "CAF" }, { id: 32, name: "Nigeria", code: "ng", conf: "CAF" },
-  { id: 33, name: "Égypte", code: "eg", conf: "CAF" }, { id: 34, name: "Côte d'Ivoire", code: "ci", conf: "CAF" },
-  { id: 35, name: "Algérie", code: "dz", conf: "CAF" }, { id: 36, name: "Mali", code: "ml", conf: "CAF" },
-  { id: 37, name: "Ghana", code: "gh", conf: "CAF" },
-  // AFC (Asie)
-  { id: 38, name: "Japon", code: "jp", conf: "AFC" }, { id: 39, name: "Corée du Sud", code: "kr", conf: "AFC" },
-  { id: 40, name: "Iran", code: "ir", conf: "AFC" }, { id: 41, name: "Australie", code: "au", conf: "AFC" },
-  { id: 42, name: "Arabie S.", code: "sa", conf: "AFC" }, { id: 43, name: "Qatar", code: "qa", conf: "AFC" },
-  { id: 44, name: "Irak", code: "iq", conf: "AFC" }, { id: 45, name: "Ouzbékistan", code: "uz", conf: "AFC" },
-  // OFC (Océanie)
-  { id: 46, name: "N. Zélande", code: "nz", conf: "OFC" },
-  // WILD CARDS
-  { id: 47, name: "Grèce", code: "gr", conf: "UEFA" }, { id: 48, name: "Chili", code: "cl", conf: "CONMEBOL" }
+const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+
+const CONTRACT_ABI = [
+  "function openPack() external payable",
+  "function balanceOf(address owner) external view returns (uint256)",
+  "function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)",
+  "function tokenToNation(uint256 tokenId) external view returns (uint256)",
+  "function getOwnedNations(address player) external view returns (uint256[] memory)",
+  "function getDailyMintsCount(address player) external view returns (uint256)"
 ];
 
-// ==========================================
-// ÉTAT DE L'APPLICATION
-// ==========================================
-// On charge la collection depuis le navigateur (localStorage) pour simuler la blockchain
-let myCollection = JSON.parse(localStorage.getItem('footbase_collection')) || [];
-let mintsToday = 0;
+const NATIONS = [
+  { id: 1, name: "France", conf: "UEFA", code: "fr" },
+  { id: 2, name: "Allemagne", conf: "UEFA", code: "de" },
+  { id: 3, name: "Espagne", conf: "UEFA", code: "es" },
+  { id: 4, name: "Angleterre", conf: "UEFA", code: "gb-eng" },
+  { id: 5, name: "Italie", conf: "UEFA", code: "it" },
+  { id: 6, name: "Pays-Bas", conf: "UEFA", code: "nl" },
+  { id: 7, name: "Portugal", conf: "UEFA", code: "pt" },
+  { id: 8, name: "Belgique", conf: "UEFA", code: "be" },
+  { id: 9, name: "Croatie", conf: "UEFA", code: "hr" },
+  { id: 10, name: "Suisse", conf: "UEFA", code: "ch" },
+  { id: 11, name: "Danemark", conf: "UEFA", code: "dk" },
+  { id: 12, name: "Autriche", conf: "UEFA", code: "at" },
+  { id: 13, name: "Pologne", conf: "UEFA", code: "pl" },
+  { id: 14, name: "Turquie", conf: "UEFA", code: "tr" },
+  { id: 15, name: "Ukraine", conf: "UEFA", code: "ua" },
+  { id: 16, name: "Hongrie", conf: "UEFA", code: "hu" },
+  { id: 17, name: "Brésil", conf: "CONMEBOL", code: "br" },
+  { id: 18, name: "Argentine", conf: "CONMEBOL", code: "ar" },
+  { id: 19, name: "Uruguay", conf: "CONMEBOL", code: "uy" },
+  { id: 20, name: "Colombie", conf: "CONMEBOL", code: "co" },
+  { id: 21, name: "Équateur", conf: "CONMEBOL", code: "ec" },
+  { id: 22, name: "Chili", conf: "CONMEBOL", code: "cl" },
+  { id: 23, name: "États-Unis", conf: "CONCACAF", code: "us" },
+  { id: 24, name: "Mexique", conf: "CONCACAF", code: "mx" },
+  { id: 25, name: "Canada", conf: "CONCACAF", code: "ca" },
+  { id: 26, name: "Costa Rica", conf: "CONCACAF", code: "cr" },
+  { id: 27, name: "Jamaïque", conf: "CONCACAF", code: "jm" },
+  { id: 28, name: "Panama", conf: "CONCACAF", code: "pa" },
+  { id: 29, name: "Maroc", conf: "CAF", code: "ma" },
+  { id: 30, name: "Sénégal", conf: "CAF", code: "sn" },
+  { id: 31, name: "Tunisie", conf: "CAF", code: "tn" },
+  { id: 32, name: "Algérie", conf: "CAF", code: "dz" },
+  { id: 33, name: "Égypte", conf: "CAF", code: "eg" },
+  { id: 34, name: "Nigéria", conf: "CAF", code: "ng" },
+  { id: 35, name: "Cameroun", conf: "CAF", code: "cm" },
+  { id: 36, name: "Côte d'Ivoire", conf: "CAF", code: "ci" },
+  { id: 37, name: "Ghana", conf: "CAF", code: "gh" },
+  { id: 38, name: "Japon", conf: "AFC", code: "jp" },
+  { id: 39, name: "Corée du Sud", conf: "AFC", code: "kr" },
+  { id: 40, name: "Australie", conf: "AFC", code: "au" },
+  { id: 41, name: "Iran", conf: "AFC", code: "ir" },
+  { id: 42, name: "Arabie Saoudite", conf: "AFC", code: "sa" },
+  { id: 43, name: "Qatar", conf: "AFC", code: "qa" },
+  { id: 44, name: "Ouzbékistan", conf: "AFC", code: "uz" },
+  { id: 45, name: "Irak", conf: "AFC", code: "iq" },
+  { id: 46, name: "Nouvelle-Zélande", conf: "OFC", code: "nz" },
+  { id: 47, name: "Îles Salomon", conf: "OFC", code: "sb" },
+  { id: 48, name: "Fidji", conf: "OFC", code: "fj" }
+];
 
-// ==========================================
-// SÉLECTION DES ÉLÉMENTS DOM
-// ==========================================
-const ui = {
-  tabs: document.querySelectorAll('.tab'),
-  views: document.querySelectorAll('.view'),
-  packBtn: document.getElementById('pack'),
-  revealDiv: document.getElementById('reveal'),
-  revealFlag: document.getElementById('reveal-flag'),
-  revealName: document.getElementById('reveal-name'),
-  revealConf: document.getElementById('reveal-conf'),
-  revealMeta: document.getElementById('reveal-meta'),
-  resetBtn: document.getElementById('reset-pack'),
-  collectionGrid: document.getElementById('collection-grid'),
-  gaugeCount: document.getElementById('gauge-count'),
-  gaugeFill: document.getElementById('gauge-fill'),
-  collectionCount: document.getElementById('collection-count'),
-  toast: document.getElementById('toast'),
-  mainBtn: document.getElementById('main-btn'),
-  demoBtn: document.getElementById('demo-btn'),
-  dailyValue: document.getElementById('daily-value')
+let provider, signer, contract;
+let appState = {
+  isDemo: false,
+  isConnected: false,
+  userAddress: null,
+  collection: new Set(),
+  dailyMints: 0
 };
 
-// ==========================================
-// FONCTIONS PRINCIPALES
-// ==========================================
+const el = {
+  error: document.getElementById("error"),
+  networkWarning: document.getElementById("network-warning"),
+  currentNetwork: document.getElementById("current-network"),
+  walletBar: document.getElementById("wallet-bar"),
+  walletAddress: document.getElementById("wallet-address"),
+  networkBadge: document.getElementById("network-badge"),
+  ethBalance: document.getElementById("eth-balance"),
+  disconnectBtn: document.getElementById("disconnect-btn"),
+  tabs: document.querySelectorAll(".tab"),
+  views: document.querySelectorAll(".view"),
+  packBtn: document.getElementById("pack"),
+  revealZone: document.getElementById("reveal"),
+  revealConf: document.getElementById("reveal-conf"),
+  revealFlag: document.getElementById("reveal-flag"),
+  revealName: document.getElementById("reveal-name"),
+  revealMeta: document.getElementById("reveal-meta"),
+  resetPackBtn: document.getElementById("reset-pack"),
+  gaugeCount: document.getElementById("gauge-count"),
+  gaugeFill: document.getElementById("gauge-fill"),
+  dailyValue: document.getElementById("daily-value"),
+  chainValue: document.getElementById("chain-value"),
+  mainBtn: document.getElementById("main-btn"),
+  demoBtn: document.getElementById("demo-btn"),
+  collectionCount: document.getElementById("collection-count"),
+  collectionGrid: document.getElementById("collection-grid"),
+  leaderList: document.getElementById("leader-list"),
+  refreshLbBtn: document.getElementById("refresh-lb"),
+  toast: document.getElementById("toast")
+};
 
-// 1. Gestion des Onglets
-ui.tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    // Retirer 'active' partout
-    ui.tabs.forEach(t => t.classList.remove('active'));
-    ui.views.forEach(v => v.classList.remove('active'));
-    
-    // Ajouter 'active' au tab cliqué et à sa vue
-    tab.classList.add('active');
-    const viewId = `view-${tab.dataset.tab}`;
-    document.getElementById(viewId).classList.add('active');
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  initTabs();
+  initButtons();
+  renderGrid();
 });
 
-// 2. Générer la grille de collection
-function renderCollection() {
-  ui.collectionGrid.innerHTML = '';
-  
-  // Regrouper par confédération pour faire joli
-  const confs = [...new Set(NATIONS.map(n => n.conf))];
-  
-  confs.forEach(conf => {
-    // Ajouter un séparateur
-    const sep = document.createElement('div');
-    sep.className = 'conf-sep';
-    sep.innerHTML = `<span>${conf}</span> <span class="conf-num">${NATIONS.filter(n => n.conf === conf).length}</span>`;
-    ui.collectionGrid.appendChild(sep);
-    
-    // Ajouter les cartes
-    NATIONS.filter(n => n.conf === conf).forEach(nation => {
-      const isOwned = myCollection.includes(nation.id);
-      const slot = document.createElement('div');
-      slot.className = `slot ${isOwned ? 'got' : ''}`;
-      
-      const imgUrl = `https://flagcdn.com/w160/${nation.code}.png`;
-      
-      slot.innerHTML = `
-        <span class="slot-number">#${nation.id}</span>
-        <img src="${imgUrl}" alt="${nation.name}" loading="lazy">
-        <div>${nation.name}</div>
-      `;
-      ui.collectionGrid.appendChild(slot);
+function initTabs() {
+  el.tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      el.tabs.forEach(t => t.classList.remove("active"));
+      el.views.forEach(v => v.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById(`view-${tab.getAttribute("data-tab")}`).classList.add("active");
+      if (tab.getAttribute("data-tab") === "2") renderLeaderboard();
     });
   });
-  
-  updateStats();
 }
 
-// 3. Mettre à jour les jauges et compteurs
-function updateStats() {
-  const count = myCollection.length;
-  const max = NATIONS.length;
-  const percentage = (count / max) * 100;
-  
-  ui.gaugeCount.textContent = `${count} / ${max}`;
-  ui.collectionCount.textContent = `${count} / ${max} pays`;
-  ui.gaugeFill.style.width = `${percentage}%`;
-  ui.dailyValue.textContent = `${mintsToday} / 2`;
-  
-  if(count === max) ui.gaugeCount.classList.add('full');
+function initButtons() {
+  el.mainBtn.addEventListener("click", () => {
+    if (!appState.isConnected && !appState.isDemo) connectWallet();
+    else if (appState.isConnected) mintPackOnChain();
+    else if (appState.isDemo) simulateMint();
+  });
+  el.demoBtn.addEventListener("click", startDemoMode);
+  el.disconnectBtn.addEventListener("click", disconnectWallet);
+  el.resetPackBtn.addEventListener("click", resetPackView);
+  el.packBtn.addEventListener("click", () => el.mainBtn.click());
+  el.refreshLbBtn.addEventListener("click", renderLeaderboard);
 }
 
-// 4. Ouvrir un Pack (Gacha Logic)
-async function openPack() {
-  if(mintsToday >= 2) {
-    showToast("Tu as atteint ta limite de 2 mints aujourd'hui !");
+async function connectWallet() {
+  if (!window.ethereum) {
+    showToast("Installe un wallet (Rabby, Coinbase Wallet) !");
     return;
   }
+  try {
+    el.mainBtn.innerText = "Connexion...";
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    appState.userAddress = await signer.getAddress();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-  // Animation de chargement
-  ui.packBtn.style.pointerEvents = 'none';
-  ui.packBtn.style.transform = 'scale(0.95)';
-  ui.packBtn.style.opacity = '0.5';
-  
-  // Simuler le délai blockchain/réseau (1.5 secondes)
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Logique du tirage : Sélectionner une nation au hasard
-  const randomIndex = Math.floor(Math.random() * NATIONS.length);
-  const droppedNation = NATIONS[randomIndex];
-  
-  // Vérifier si c'est un doublon
-  const isDuplicate = myCollection.includes(droppedNation.id);
-  
-  if (!isDuplicate) {
-    myCollection.push(droppedNation.id);
-    localStorage.setItem('footbase_collection', JSON.stringify(myCollection));
+    const network = await provider.getNetwork();
+    const isBase = network.chainId === 8453 || network.chainId === 84532;
+
+    if (!isBase) {
+      el.networkWarning.style.display = "block";
+      el.currentNetwork.innerText = `ID: ${network.chainId}`;
+    } else {
+      el.networkWarning.style.display = "none";
+    }
+
+    appState.isConnected = true;
+    appState.isDemo = false;
+    
+    await fetchBlockchainData();
+    updateUI();
+    showToast("Wallet connecté sur Base !");
+  } catch (err) {
+    console.error(err);
+    el.mainBtn.innerText = "Connecter le wallet";
   }
-  
-  mintsToday++;
-
-  // Mettre à jour l'UI de révélation
-  ui.revealFlag.src = `https://flagcdn.com/w320/${droppedNation.code}.png`;
-  ui.revealConf.textContent = droppedNation.conf;
-  ui.revealName.textContent = droppedNation.name;
-  
-  if(isDuplicate) {
-    ui.revealMeta.textContent = "🔄 Doublon ! (Brûlé pour 10 XP)";
-    ui.revealMeta.style.color = "var(--amber)";
-  } else {
-    ui.revealMeta.textContent = "✨ Nouvelle Nation !";
-    ui.revealMeta.style.color = "var(--green)";
-  }
-
-  // Cacher le pack, afficher la révélation
-  ui.packBtn.style.display = 'none';
-  ui.revealDiv.style.display = 'flex';
-  
-  // Mettre à jour les données visuelles
-  renderCollection();
 }
 
-// 5. Réinitialiser la vue du pack
+async function fetchBlockchainData() {
+  try {
+    const balance = await provider.getBalance(appState.userAddress);
+    el.ethBalance.innerText = `${parseFloat(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
+    
+    try {
+      const owned = await contract.getOwnedNations(appState.userAddress);
+      appState.collection = new Set(owned.map(id => id.toNumber()));
+    } catch {
+      const balanceTokens = await contract.balanceOf(appState.userAddress);
+      appState.collection.clear();
+      for(let i=0; i<balanceTokens; i++) {
+        const tid = await contract.tokenOfOwnerByIndex(appState.userAddress, i);
+        const nid = await contract.tokenToNation(tid);
+        appState.collection.add(nid.toNumber());
+      }
+    }
+
+    try {
+      const daily = await contract.getDailyMintsCount(appState.userAddress);
+      appState.dailyMints = daily.toNumber();
+    } catch {
+      appState.dailyMints = 0;
+    }
+  } catch (e) {
+    console.error("Erreur de lecture on-chain", e);
+  }
+}
+
+async function mintPackOnChain() {
+  if (appState.dailyMints >= 2) {
+    showToast("Limite journalière de 2 mints atteinte !");
+    return;
+  }
+  try {
+    el.mainBtn.innerText = "Validation du Pack...";
+    el.mainBtn.disabled = true;
+
+    const tx = await contract.openPack();
+    showToast("Transaction envoyée... Attente du bloc Base");
+    
+    const receipt = await tx.wait();
+    
+    let nationId = Math.floor(Math.random() * 48) + 1; 
+    if (receipt.events) {
+      const event = receipt.events.find(e => e.event === 'PackOpened');
+      if (event) nationId = event.args.nationId.toNumber();
+    }
+
+    await fetchBlockchainData();
+    animateReveal(nationId);
+  } catch (err) {
+    showToast("Transaction annulée.");
+    console.error(err);
+  } finaly {
+    el.mainBtn.disabled = false;
+    updateUI();
+  }
+}
+
+function startDemoMode() {
+  appState.isDemo = true;
+  appState.isConnected = false;
+  appState.userAddress = "0xDemoUser2026";
+  appState.collection.clear();
+  appState.dailyMints = 0;
+  updateUI();
+  renderGrid();
+  showToast("Mode Démo activé.");
+}
+
+function simulateMint() {
+  const randomNationId = Math.floor(Math.random() * 48) + 1;
+  appState.collection.add(randomNationId);
+  animateReveal(randomNationId);
+  updateUI();
+}
+
+function animateReveal(nationId) {
+  const nation = NATIONS.find(n => n.id === nationId);
+  if (!nation) return;
+
+  el.packBtn.style.opacity = "0.2";
+  setTimeout(() => {
+    el.revealConf.innerText = nation.conf;
+    el.revealFlag.src = `https://flagcdn.com/w320/${nation.code}.png`;
+    el.revealName.innerText = nation.name.toUpperCase();
+    el.revealMeta.innerText = `ID National #${nation.id} / Album Officiel`;
+    
+    el.packBtn.style.display = "none";
+    el.revealZone.style.display = "flex";
+    renderGrid();
+  }, 400);
+}
+
 function resetPackView() {
-  ui.revealDiv.style.display = 'none';
-  ui.packBtn.style.display = 'flex';
-  ui.packBtn.style.pointerEvents = 'auto';
-  ui.packBtn.style.transform = 'none';
-  ui.packBtn.style.opacity = '1';
+  el.revealZone.style.display = "none";
+  el.packBtn.style.display = "flex";
+  el.packBtn.style.opacity = "1";
 }
 
-// 6. Système de notification
-function showToast(message) {
-  ui.toast.textContent = message;
-  ui.toast.classList.add('show');
-  setTimeout(() => ui.toast.classList.remove('show'), 3000);
+function updateUI() {
+  const count = appState.collection.size;
+  el.gaugeCount.innerText = `${count} / 48`;
+  el.gaugeFill.style.width = `${(count / 48) * 100}%`;
+  el.collectionCount.innerText = `${count} / 48 pays`;
+  el.dailyValue.innerText = appState.isDemo ? "∞" : `${appState.dailyMints} / 2`;
+
+  if (appState.isConnected || appState.isDemo) {
+    el.walletBar.style.display = "flex";
+    el.walletAddress.innerText = appState.userAddress.substring(0, 6) + "..." + appState.userAddress.slice(-4);
+    el.mainBtn.innerText = "Ouvrir un Booster";
+    el.chainValue.innerText = appState.isDemo ? "Simulation" : "Base Network";
+  }
 }
 
-// ==========================================
-// ÉCOUTEURS D'ÉVÉNEMENTS
-// ==========================================
-ui.packBtn.addEventListener('click', openPack);
-ui.resetBtn.addEventListener('click', resetPackView);
+function renderGrid() {
+  el.collectionGrid.innerHTML = "";
+  ["UEFA", "CONMEBOL", "CONCACAF", "CAF", "AFC", "OFC"].forEach(conf => {
+    const list = NATIONS.filter(n => n.conf === conf);
+    const sep = document.createElement("div");
+    sep.className = "conf-sep";
+    sep.innerHTML = `${conf} <span class="conf-num">${list.length}</span>`;
+    el.collectionGrid.appendChild(sep);
 
-ui.mainBtn.addEventListener('click', () => {
-  showToast("Connecteur Web3 simulé. Passe en mode démo pour tester !");
-});
+    list.forEach(n => {
+      const got = appState.collection.has(n.id);
+      const div = document.createElement("div");
+      div.className = `slot ${got ? "got" : ""}`;
+      div.innerHTML = `<span class="slot-number">#${n.id}</span><img src="https://flagcdn.com/w320/${n.code}.png"><div>${n.name}</div>`;
+      el.collectionGrid.appendChild(div);
+    });
+  });
+}
 
-ui.demoBtn.addEventListener('click', () => {
-  showToast("Mode démo activé ! Tu as reçu 2 mints gratuits.");
-  mintsToday = 0; // Reset pour la démo
-  ui.mainBtn.textContent = "Wallet Connecté (0xDemo...123)";
-  ui.mainBtn.classList.add('secondary');
-  ui.mainBtn.style.background = "transparent";
-  ui.demoBtn.style.display = "none";
-  updateStats();
-});
+function renderLeaderboard() {
+  el.leaderList.innerHTML = "";
+  const mockLeaders = [
+    { addr: "0x6342...F380", score: 45, isMe: false },
+    { addr: "irezroifer.base.eth", score: 42, isMe: false },
+    { addr: "0x9811...02b2", score: 31, isMe: false }
+  ];
 
-// Initialisation au chargement
-renderCollection();
+  if (appState.isConnected || appState.isDemo) {
+    mockLeaders.push({
+      addr: appState.userAddress.substring(0, 6) + "..." + appState.userAddress.slice(-4),
+      score: appState.collection.size,
+      isMe: true
+    });
+  }
+
+  mockLeaders.sort((a, b) => b.score - a.score);
+
+  mockLeaders.forEach((leader, idx) => {
+    const row = document.createElement("div");
+    row.className = `leader-row ${leader.isMe ? "me" : ""}`;
+    row.innerHTML = `
+      <div class="leader-left">
+        <span class="rank">#${idx + 1}</span>
+        <span class="addr">${leader.addr} ${leader.isMe ? "(Toi)" : ""}</span>
+      </div>
+      <span class="score">${leader.score} / 48</span>
+    `;
+    el.leaderList.appendChild(row);
+  });
+}
+
+function disconnectWallet() {
+  appState.isConnected = false;
+  appState.isDemo = false;
+  el.walletBar.style.display = "none";
+  el.mainBtn.innerText = "Connecter le wallet";
+  el.chainValue.innerText = "Non connecté";
+  appState.collection.clear();
+  updateUI();
+  renderGrid();
+}
+
+function showToast(msg) {
+  el.toast.innerText = msg;
+  el.toast.classList.add("show");
+  setTimeout(() => el.toast.classList.remove("show"), 2500);
+}
