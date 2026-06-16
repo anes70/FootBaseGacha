@@ -1,671 +1,112 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FOOT BASE — World Cup 2026 Gacha Pack</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-<style>
-:root{
-  --bg:#0a0b0d;--card:#14161b;--card-sub:#1b1e24;--border:#222630;
-  --blue:#0052ff;--blue-h:#0046d5;--text:#fff;--muted:#8a93a6;
-  --amber:#f5a623;--green:#00e87a;--red:#ff3b5c;--font:'Inter',sans-serif;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;padding-bottom:4rem;}
-
-/* HERO */
-.hero{background:linear-gradient(180deg,rgba(0,82,255,.13) 0%,transparent 100%);border-bottom:1px solid var(--border);padding:2.5rem 0;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,82,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,82,255,.04) 1px,transparent 1px);background-size:20px 20px;pointer-events:none;}
-.wrap{max-width:860px;margin:0 auto;padding:0 1.5rem;}
-.hflex{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-.brand{display:flex;align-items:center;gap:1rem;}
-.logo{width:48px;height:48px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(0,82,255,.3);flex-shrink:0;}
-.logo-c{width:22px;height:22px;border:4px solid white;border-radius:50%;}
-.htitle{font-size:1.75rem;font-weight:700;letter-spacing:-.02em;}
-.hsub{font-size:.85rem;color:var(--muted);margin-top:.25rem;}
-.hauth{font-size:.75rem;color:var(--muted);margin-top:.4rem;}
-.hauth a{color:var(--blue);text-decoration:none;font-weight:500;}
-.live-badge{background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);color:var(--green);font-size:.7rem;font-weight:600;padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s infinite;}
-
-/* MAIN BOX */
-.box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-top:-1.5rem;position:relative;z-index:10;box-shadow:0 10px 30px rgba(0,0,0,.5);}
-.slabel{font-size:.65rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem;}
-
-/* WALLET BAR */
-.wbar{display:none;background:var(--card-sub);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;justify-content:space-between;align-items:center;margin-bottom:1.5rem;font-size:.8rem;gap:.5rem;flex-wrap:wrap;}
-.waddr{color:var(--muted);font-family:monospace;}
-.wbar-r{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
-.eth-b{background:#222630;padding:4px 10px;border-radius:6px;font-weight:600;}
-.scan-a{color:var(--blue);text-decoration:none;font-weight:500;}
-.net-b{font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:6px;background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2);}
-.net-b.wrong{background:rgba(255,59,92,.1);color:var(--red);border-color:rgba(255,59,92,.2);}
-
-/* TABS */
-.tabs{display:flex;background:var(--card-sub);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.5rem;}
-.tab{flex:1;text-align:center;padding:.6rem;font-size:.8rem;font-weight:600;color:var(--muted);border-radius:8px;cursor:pointer;transition:all .2s;}
-.tab.active{background:var(--blue);color:white;}
-.view{display:none;}
-.view.active{display:block;}
-
-/* ── PACK ZONE ── */
-.pack-zone{text-align:center;padding:1.5rem 0 1rem;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;}
-
-/* État initial : mockup du pack */
-.pack-mockup{
-  width:150px;height:210px;
-  background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
-  border:2px solid var(--blue);border-radius:14px;
-  margin:0 auto 1.25rem;
-  box-shadow:0 15px 35px rgba(0,82,255,.2);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;cursor:pointer;
-  transition:transform .15s,box-shadow .15s;
-}
-.pack-mockup:hover{transform:scale(1.03);box-shadow:0 20px 40px rgba(0,82,255,.3);}
-.pack-glow{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,82,255,.15) 0%,transparent 60%);pointer-events:none;}
-.pack-lbl{font-size:.75rem;font-weight:800;letter-spacing:.15em;color:var(--blue);text-transform:uppercase;z-index:1;}
-.pack-num{font-size:3.5rem;font-weight:800;color:rgba(0,82,255,.18);position:absolute;bottom:-4px;right:8px;line-height:1;}
-.pack-sub{font-size:.6rem;color:var(--muted);z-index:1;margin-top:2px;}
-
-/* État après mint : drapeau révélé */
-.reveal-zone{display:none;flex-direction:column;align-items:center;gap:.75rem;animation:popIn .5s cubic-bezier(.4,0,.2,1);}
-.reveal-flag-frame{
-  width:160px;height:106px;border-radius:10px;overflow:hidden;
-  border:3px solid var(--blue);
-  box-shadow:0 0 0 6px rgba(0,82,255,.1),0 15px 40px rgba(0,82,255,.25);
-  position:relative;
-}
-.reveal-flag-frame img{width:100%;height:100%;object-fit:cover;display:block;}
-.reveal-conf-tag{font-size:.6rem;font-weight:800;letter-spacing:.15em;color:var(--blue);text-transform:uppercase;}
-.reveal-country-big{font-size:1.6rem;font-weight:800;color:white;letter-spacing:-.02em;}
-.reveal-card-no{font-size:.7rem;color:var(--muted);}
-.reveal-again{font-size:.75rem;color:var(--blue);cursor:pointer;text-decoration:underline;margin-top:.25rem;}
-
-/* JAUGE */
-.gauge-wrap{margin-top:1.5rem;}
-.gauge-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;}
-.gauge-title{font-size:.7rem;color:var(--muted);font-weight:600;}
-.gauge-count{font-size:1rem;font-weight:800;color:white;transition:color .4s;}
-.gauge-count.full{color:var(--green);}
-.gauge-track{height:10px;background:var(--card-sub);border-radius:5px;overflow:hidden;border:1px solid var(--border);}
-.gauge-fill{height:100%;background:linear-gradient(90deg,#0052ff,#00c2ff);border-radius:5px;width:0%;transition:width .6s cubic-bezier(.4,0,.2,1);}
-.gauge-milestones{display:flex;justify-content:space-between;margin-top:.35rem;font-size:.6rem;color:var(--muted);}
-
-/* INFO CARD */
-.info-solo{background:var(--card-sub);border:1px solid var(--border);border-radius:12px;padding:1rem;margin-top:1rem;}
-.info-val{font-size:1.25rem;font-weight:700;margin-top:.25rem;}
-.info-val.warn{color:var(--amber);}.info-val.ok{color:var(--green);}.info-val.danger{color:var(--red);}
-
-/* MINT BTN */
-.btn-mint{width:100%;background:var(--blue);color:white;border:none;border-radius:12px;padding:1.1rem;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s,opacity .2s;display:block;text-align:center;box-shadow:0 4px 12px rgba(0,82,255,.2);margin-top:1.25rem;}
-.btn-mint:hover:not(:disabled){background:var(--blue-h);}
-.btn-mint:disabled{background:var(--card-sub);border:1px solid var(--border);color:var(--muted);cursor:not-allowed;box-shadow:none;}
-.btn-mint.loading{opacity:.7;cursor:wait;}
-
-/* COLLECTION */
-.col-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
-.col-count{font-size:.8rem;color:var(--muted);}
-.col-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.75rem;}
-.conf-sep{grid-column:1/-1;font-size:.6rem;font-weight:800;letter-spacing:.12em;color:var(--blue);text-transform:uppercase;padding:.5rem 0 .25rem;border-top:1px solid var(--border);margin-top:.25rem;display:flex;align-items:center;gap:.5rem;}
-.conf-sep:first-child{border-top:none;margin-top:0;padding-top:0;}
-.conf-n{background:rgba(0,82,255,.15);color:var(--blue);font-size:.55rem;padding:2px 6px;border-radius:4px;font-weight:700;}
-.slot{background:var(--card-sub);border:1px solid var(--border);border-radius:10px;padding:1rem .5rem .75rem;text-align:center;font-size:.7rem;color:var(--muted);font-weight:600;transition:all .35s ease;position:relative;}
-.slot img{width:44px;height:auto;border-radius:4px;margin-bottom:7px;filter:grayscale(1);opacity:.18;transition:all .35s ease;display:block;margin-left:auto;margin-right:auto;}
-.slot.got{border-color:var(--blue);color:white;background:linear-gradient(180deg,rgba(0,82,255,.12) 0%,transparent 100%);box-shadow:0 4px 15px rgba(0,82,255,.15);}
-.slot.got img{filter:none;opacity:1;}
-.slot.pop{animation:popIn .5s cubic-bezier(.4,0,.2,1);}
-.slot-num{position:absolute;top:5px;right:6px;background:var(--blue);color:white;font-size:.5rem;font-weight:800;padding:2px 5px;border-radius:4px;display:none;}
-.slot.got .slot-num{display:block;}
-
-/* LEADERBOARD */
-.lb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-.lb-ref{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:.7rem;cursor:pointer;transition:border-color .2s,color .2s;}
-.lb-ref:hover{border-color:var(--blue);color:var(--blue);}
-.lb-ref:disabled{opacity:.4;cursor:not-allowed;}
-.lrow{display:flex;justify-content:space-between;align-items:center;background:var(--card-sub);border:1px solid var(--border);padding:.85rem 1rem;border-radius:10px;margin-bottom:.5rem;font-size:.85rem;transition:border-color .2s;}
-.lrow.me{border-color:var(--blue);background:rgba(0,82,255,.05);}
-.ll{display:flex;align-items:center;gap:.75rem;}
-.lrank{font-weight:800;color:var(--amber);width:24px;text-align:center;flex-shrink:0;}
-.lrank.g{color:#FFD700;}.lrank.s{color:#C0C0C0;}.lrank.b{color:#CD7F32;}
-.laddr{font-family:monospace;color:var(--muted);font-size:.8rem;}
-.lscore{font-weight:700;color:var(--blue);white-space:nowrap;}
-.lb-empty{color:var(--muted);font-size:.85rem;text-align:center;padding:2rem 0;}
-.lb-load{color:var(--muted);font-size:.8rem;text-align:center;padding:1.5rem 0;animation:pulse 1.5s infinite;}
-
-/* TOAST */
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120px);background:var(--card);border:1px solid rgba(0,232,122,.3);color:var(--green);padding:.75rem 1.5rem;border-radius:10px;font-size:.85rem;font-weight:600;transition:transform .4s cubic-bezier(.4,0,.2,1);z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.5);white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);}
-
-/* ERROR */
-.err{color:var(--red);font-size:.8rem;padding:1rem;background:rgba(255,59,92,.06);border:1px solid rgba(255,59,92,.2);border-radius:10px;margin-bottom:1.5rem;display:none;line-height:1.5;}
-.err strong{display:block;margin-bottom:.25rem;}
-
-/* NET WARN */
-.netwarn{display:none;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:.82rem;color:var(--amber);line-height:1.5;}
-.netwarn strong{display:block;margin-bottom:.25rem;}
-
-/* FOOTER */
-.footer{margin-top:3rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-size:.7rem;color:var(--muted);}
-.footer a{color:var(--blue);text-decoration:none;}
-
-/* ANIMATIONS */
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-@keyframes popIn{0%{transform:scale(.8);opacity:0;}60%{transform:scale(1.06);}100%{transform:scale(1);opacity:1;}}
-
-@media(max-width:520px){
-  .htitle{font-size:1.35rem;}
-  .col-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
-  .box{padding:1.25rem;}
-}
-</style>
-</head>
-<body>
-
-<div class="hero">
-  <div class="wrap">
-    <div class="hflex">
-      <div class="brand">
-        <div class="logo"><div class="logo-c"></div></div>
-        <div>
-          <div class="htitle">FOOT BASE</div>
-          <div class="hsub">World Cup 2026 Album — On-Chain Gacha</div>
-          <div class="hauth">✍ by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></div>
-        </div>
-      </div>
-      <div class="live-badge"><div class="dot"></div> Live Drop</div>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<div class="wrap">
-<div class="box">
-
-  <div class="err" id="err"></div>
-  <div class="netwarn" id="netwarn">
-    <strong>⚠ Mauvais réseau</strong>
-    Ce contrat tourne sur <strong id="wt-net">Base</strong>. Ton wallet est sur <strong id="wc-net">un autre réseau</strong>. Change de réseau dans ton wallet.
-  </div>
-
-  <div class="wbar" id="wbar">
-    <div class="waddr" id="waddr">0x…</div>
-    <div class="wbar-r">
-      <span class="net-b" id="netbadge">—</span>
-      <div class="eth-b" id="ethbal">— ETH</div>
-      <a href="#" target="_blank" class="scan-a" id="scanlink">Basescan ↗</a>
-    </div>
-  </div>
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab(0)">Pack Opener</div>
-    <div class="tab" onclick="switchTab(1)">Ma Collection</div>
-    <div class="tab" onclick="switchTab(2)">Leaderboard</div>
-  </div>
-
-  <!-- ── PACK OPENER ── -->
-  <div class="view active" id="v0">
-
-    <div class="pack-zone" id="pack-zone">
-      <!-- Mockup initial -->
-      <div class="pack-mockup" id="pack-mockup" onclick="connectOrMint()">
-        <div class="pack-glow"></div>
-        <div class="pack-lbl">Mondial 2026</div>
-        <div class="pack-sub">World Cup Edition</div>
-        <div class="pack-num">48</div>
-      </div>
-
-      <!-- Zone drapeau révélé (cachée au départ) -->
-      <div class="reveal-zone" id="reveal-zone">
-        <div class="reveal-conf-tag" id="rv-conf"></div>
-        <div class="reveal-flag-frame">
-          <img id="rv-flag" src="" alt="">
-        </div>
-        <div class="reveal-country-big" id="rv-name"></div>
-        <div class="reveal-card-no" id="rv-no"></div>
-        <div class="reveal-again" onclick="resetPackView()">↩ Ouvrir un autre pack</div>
-      </div>
-    </div>
-
-    <button class="btn-mint" id="btn" onclick="connectOrMint()">Connecter le Wallet</button>
-
-    <!-- Jauge NFT -->
-    <div class="gauge-wrap">
-      <div class="gauge-header">
-        <span class="gauge-title">Ta collection</span>
-        <span class="gauge-count" id="gauge-count">0 / 48</span>
-      </div>
-      <div class="gauge-track">
-        <div class="gauge-fill" id="gauge-fill"></div>
-      </div>
-      <div class="gauge-milestones">
-        <span>0</span><span>12</span><span>24</span><span>36</span><span>48</span>
-      </div>
-    </div>
-
-    <div class="info-solo">
-      <div class="slabel">Mints aujourd'hui</div>
-      <div class="info-val" id="daily-val">— / 2</div>
-    </div>
-
-  </div>
-
-  <!-- ── COLLECTION ── -->
-  <div class="view" id="v1">
-    <div class="col-header">
-      <div class="slabel" style="margin-bottom:0;">Album WC2026 — 48 Nations</div>
-      <div class="col-count" id="col-count">0 / 48</div>
-    </div>
-    <div class="col-grid" id="col-grid"></div>
-  </div>
-
-  <!-- ── LEADERBOARD ── -->
-  <div class="view" id="v2">
-    <div class="lb-top">
-      <div class="slabel" style="margin-bottom:0;">Top Collectionneurs</div>
-      <button class="lb-ref" id="lb-ref" onclick="loadLB()">↻ Actualiser</button>
-    </div>
-    <div id="lb-list"><div class="lb-load">Chargement…</div></div>
-  </div>
-
-</div>
-
-<div class="footer">
-  <div>Base RPC · ERC-721 on-chain · localStorage cache</div>
-  <div>Built by <strong><a href="https://rainbow.me/irezroifer.base.eth" target="_blank">irezroifer.base.eth</a></strong></div>
-</div>
-</div>
-
-<script>
-// ── CONFIG ──────────────────────────────────────────────────────────────────
-const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-const CONTRACT_ABI = [
-  "function mintPack() external payable",
-  "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
-  "function dailyMintCount(address addr) external view returns (uint256)",
-  "function nextTokenId() external view returns (uint256)",
-  "function ownerOf(uint256 tokenId) external view returns (address)",
-  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
-];
-const SUPPORTED = {
-  8453:  { name:"Base Mainnet", scan:"https://basescan.org" },
-  84532: { name:"Base Sepolia", scan:"https://sepolia.basescan.org" }
-};
-const DAILY_LIMIT = 2;
-const TOTAL = 48;
-const CACHE_KEY = addr => `footbase_col_${addr.toLowerCase()}`;
-
-// ── PAYS WC 2026 ─────────────────────────────────────────────────────────────
-const countries = [
-  // CONCACAF
-  {name:"Canada",            code:"ca", conf:"CONCACAF"},
-  {name:"Curaçao",           code:"cw", conf:"CONCACAF"},
-  {name:"États-Unis",        code:"us", conf:"CONCACAF"},
-  {name:"Haïti",             code:"ht", conf:"CONCACAF"},
-  {name:"Mexique",           code:"mx", conf:"CONCACAF"},
-  {name:"Panama",            code:"pa", conf:"CONCACAF"},
-  // AFC
-  {name:"Arabie Saoudite",   code:"sa", conf:"AFC"},
-  {name:"Australie",         code:"au", conf:"AFC"},
-  {name:"Irak",              code:"iq", conf:"AFC"},
-  {name:"Japon",             code:"jp", conf:"AFC"},
-  {name:"Jordanie",          code:"jo", conf:"AFC"},
-  {name:"Ouzbékistan",       code:"uz", conf:"AFC"},
-  {name:"Qatar",             code:"qa", conf:"AFC"},
-  {name:"Corée du Sud",      code:"kr", conf:"AFC"},
-  {name:"Iran",              code:"ir", conf:"AFC"},
-  // CAF
-  {name:"Afrique du Sud",    code:"za", conf:"CAF"},
-  {name:"Algérie",           code:"dz", conf:"CAF"},
-  {name:"Cap-Vert",          code:"cv", conf:"CAF"},
-  {name:"Côte d'Ivoire",     code:"ci", conf:"CAF"},
-  {name:"Égypte",            code:"eg", conf:"CAF"},
-  {name:"Ghana",             code:"gh", conf:"CAF"},
-  {name:"Maroc",             code:"ma", conf:"CAF"},
-  {name:"RD Congo",          code:"cd", conf:"CAF"},
-  {name:"Sénégal",           code:"sn", conf:"CAF"},
-  {name:"Tunisie",           code:"tn", conf:"CAF"},
-  // CONMEBOL
-  {name:"Argentine",         code:"ar", conf:"CONMEBOL"},
-  {name:"Brésil",            code:"br", conf:"CONMEBOL"},
-  {name:"Colombie",          code:"co", conf:"CONMEBOL"},
-  {name:"Équateur",          code:"ec", conf:"CONMEBOL"},
-  {name:"Paraguay",          code:"py", conf:"CONMEBOL"},
-  {name:"Uruguay",           code:"uy", conf:"CONMEBOL"},
-  // OFC
-  {name:"Nouvelle-Zélande",  code:"nz", conf:"OFC"},
-  // UEFA
-  {name:"Allemagne",         code:"de",  flag:"🇩🇪", conf:"UEFA"},
-  {name:"Angleterre",        code:"gb",  flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", conf:"UEFA"},
-  {name:"Autriche",          code:"at",  flag:"🇦🇹", conf:"UEFA"},
-  {name:"Belgique",          code:"be",  flag:"🇧🇪", conf:"UEFA"},
-  {name:"Bosnie-Herzégovine",code:"ba",  flag:"🇧🇦", conf:"UEFA"},
-  {name:"Croatie",           code:"hr",  conf:"UEFA"},
-  {name:"Écosse",            code:"gb",  flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", conf:"UEFA"},
-  {name:"France",            code:"fr",  conf:"UEFA"},
-  {name:"Espagne",           code:"es",  conf:"UEFA"},
-  {name:"Norvège",           code:"no",  conf:"UEFA"},
-  {name:"Pays-Bas",          code:"nl",  conf:"UEFA"},
-  {name:"Portugal",          code:"pt",  conf:"UEFA"},
-  {name:"Suède",             code:"se",  conf:"UEFA"},
-  {name:"Suisse",            code:"ch",  conf:"UEFA"},
-  {name:"Tchéquie",          code:"cz",  conf:"UEFA"},
-  {name:"Turquie",           code:"tr",  conf:"UEFA"},
-];
-
-// ── STATE ────────────────────────────────────────────────────────────────────
-let provider, signer, contract, userAddress = null;
-let owned = new Set(); // Set de countryId (1-based) possédés
-let lastMintedId = null; // dernier pays minté pour le reveal
-
-// ── CACHE localStorage ──────────────────────────────────────────────────────
-function cacheLoad(addr) {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY(addr));
-    if (!raw) return new Set();
-    return new Set(JSON.parse(raw));
-  } catch { return new Set(); }
-}
-function cacheSave(addr, set) {
-  try { localStorage.setItem(CACHE_KEY(addr), JSON.stringify([...set])); } catch {}
-}
-
-// ── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  buildCollectionGrid();
-  if (window.ethereum) {
-    window.ethereum.request({method:'eth_accounts'}).then(acc => {
-      if (acc.length > 0) setupProvider(false);
-    }).catch(() => {});
-    window.ethereum.on('accountsChanged', acc => acc.length ? setupProvider(false) : disconnectUI());
-    window.ethereum.on('chainChanged', () => setupProvider(false));
-  }
-});
-
-// ── PROVIDER ─────────────────────────────────────────────────────────────────
-async function setupProvider(requestAccounts = true) {
-  try {
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    if (requestAccounts) await provider.send("eth_requestAccounts", []);
-    signer = provider.getSigner();
-    userAddress = await signer.getAddress();
-
-    const net = await provider.getNetwork();
-    const info = SUPPORTED[net.chainId];
-    const ok = !!info;
-
-    document.getElementById('netbadge').textContent = ok ? info.name : `Chain ${net.chainId}`;
-    document.getElementById('netbadge').className = 'net-b' + (ok ? '' : ' wrong');
-    document.getElementById('scanlink').href = (ok ? info.scan : 'https://basescan.org') + '/address/' + userAddress;
-    document.getElementById('waddr').textContent = userAddress.slice(0,6) + '…' + userAddress.slice(-4);
-    document.getElementById('wbar').style.display = 'flex';
-    document.getElementById('netwarn').style.display = ok ? 'none' : 'block';
-    if (!ok) {
-      document.getElementById('wc-net').textContent = `Chain ${net.chainId}`;
-      document.getElementById('wt-net').textContent = 'Base Mainnet (8453) ou Sepolia (84532)';
+button.textContent = "Limite atteinte - reviens demain";
+        button.disabled = true;
+      } else if (state === "wrong-network") {
+        button.textContent = "Changer vers Base dans le wallet";
+        button.disabled = true;
+      } else if (state === "demo") {
+        button.textContent = "Mode démo actif";
+      } else {
+        button.textContent = "Connecter le wallet";
+      }
     }
 
-    if (ok) {
-      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      // Charger le cache immédiatement pour que la UI soit réactive
-      owned = cacheLoad(userAddress);
+    function disconnectUI() {
+      provider = null;
+      signer = null;
+      contract = null;
+      userAddress = "";
+      activeChain = null;
+      demoMode = false;
+      owned = new Set();
+      $("#wallet-bar").style.display = "none";
+      $("#network-warning").style.display = "none";
+      $("#daily-value").textContent = `- / ${DAILY_LIMIT}`;
+      $("#daily-value").className = "value";
+      $("#eth-balance").textContent = "0 ETH";
+      $("#chain-value").textContent = "Base";
+      $("#chain-value").className = "value";
+      resetPackView();
+      setButton("connect");
       updateUI();
-      // Puis synchroniser avec la chain
-      await refreshAll();
-    } else {
-      setBtn('connect');
     }
-  } catch(e) { handleErr(e, 'connexion'); }
-}
 
-// ── CONNECT OR MINT ──────────────────────────────────────────────────────────
-async function connectOrMint() {
-  hideErr();
-  if (!window.ethereum) {
-    showErr('<strong>Aucun wallet détecté</strong>Installe MetaMask ou Rabby pour continuer.');
-    return;
-  }
-  if (!userAddress) { await setupProvider(true); return; }
-  await doMint();
-}
-
-async function doMint() {
-  const btn = document.getElementById('btn');
-  try {
-    const daily = await contract.dailyMintCount(userAddress);
-    if (daily.toNumber() >= DAILY_LIMIT) {
-      showErr('<strong>Limite journalière atteinte</strong>2 mints max par jour. Reviens demain !');
-      return;
-    }
-  } catch {}
-
-  btn.disabled = true;
-  btn.classList.add('loading');
-  btn.textContent = 'Signature requise…';
-
-  try {
-    const tx = await contract.mintPack({ gasLimit: 300000 });
-    btn.textContent = 'Validation on-chain…';
-    const receipt = await tx.wait();
-
-    // Extraire le countryId depuis les logs
-    let cId = null;
-    const iface = new ethers.utils.Interface(CONTRACT_ABI);
-    for (const log of receipt.logs) {
+    function loadCollection(key) {
       try {
-        const p = iface.parseLog(log);
-        if (p.name === 'Transfer' && p.args.from === ethers.constants.AddressZero) {
-          const raw = await contract.tokenToCountry(p.args.tokenId.toNumber());
-          cId = raw.toNumber();
-          break;
-        }
-      } catch {}
+        const raw = localStorage.getItem(key);
+        const ids = raw ? JSON.parse(raw) : [];
+        return new Set(ids.map(Number).filter(normalizeCountryId));
+      } catch (_) {
+        return new Set();
+      }
     }
 
-    if (cId !== null) {
-      owned.add(cId);
-      cacheSave(userAddress, owned);
-      lastMintedId = cId;
+    function saveCollection(key, collection) {
+      try {
+        localStorage.setItem(key, JSON.stringify([...collection].sort((a, b) => a - b)));
+      } catch (_) {}
     }
 
-    showToast('🎉 Pack ouvert !');
-    updateUI();
-    showReveal(cId);
-    await refreshAll();
+    function normalizeCountryId(value) {
+      const id = Number(value);
+      return Number.isInteger(id) && id >= 1 && id <= TOTAL ? id : null;
+    }
 
-  } catch(e) {
-    handleErr(e, 'mint');
-  } finally {
-    btn.classList.remove('loading');
-  }
-}
+    function flagUrl(country, size) {
+      return `https://flagcdn.com/w${size}/${country.code}.png`;
+    }
 
-// ── REVEAL dans la zone pack ──────────────────────────────────────────────────
-function showReveal(cId) {
-  const mockup = document.getElementById('pack-mockup');
-  const zone   = document.getElementById('reveal-zone');
-  mockup.style.display = 'none';
-  zone.style.display   = 'flex';
+    function compactAddress(address) {
+      if (!address || address.length < 12) return address || "";
+      return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    }
 
-  if (cId !== null && cId >= 1 && cId <= countries.length) {
-    const c = countries[cId - 1];
-    document.getElementById('rv-flag').src  = `https://flagcdn.com/w160/${c.code}.png`;
-    document.getElementById('rv-flag').alt  = c.name;
-    document.getElementById('rv-conf').textContent = c.conf;
-    document.getElementById('rv-name').textContent = c.name;
-    document.getElementById('rv-no').textContent   = `Carte #${cId} · World Cup 2026`;
-  } else {
-    document.getElementById('rv-flag').src  = '';
-    document.getElementById('rv-name').textContent = 'Pays surprise';
-    document.getElementById('rv-conf').textContent = '';
-    document.getElementById('rv-no').textContent   = 'World Cup 2026';
-  }
-}
+    function showToast(message) {
+      const toast = $("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+    }
 
-function resetPackView() {
-  document.getElementById('pack-mockup').style.display = '';
-  document.getElementById('reveal-zone').style.display  = 'none';
-  lastMintedId = null;
-}
+    function showError(title, message) {
+      const error = $("#error");
+      error.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
+      error.style.display = "block";
+    }
 
-// ── REFRESH CHAIN ─────────────────────────────────────────────────────────────
-async function refreshAll() {
-  if (!contract || !userAddress) return;
+    function hideError() {
+      $("#error").style.display = "none";
+    }
 
-  try {
-    const bal = await provider.getBalance(userAddress);
-    document.getElementById('ethbal').textContent = parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + ' ETH';
-  } catch {}
+    function handleError(error, context) {
+      const message = error?.reason || error?.data?.message || error?.message || "Erreur inconnue";
+      const lower = String(message).toLowerCase();
 
-  try {
-    const daily = await contract.dailyMintCount(userAddress);
-    const used  = daily.toNumber();
-    const left  = Math.max(0, DAILY_LIMIT - used);
-    const el    = document.getElementById('daily-val');
-    el.textContent = `${used} / ${DAILY_LIMIT}`;
-    el.className   = 'info-val ' + (left === 0 ? 'danger' : left === 1 ? 'warn' : 'ok');
-    setBtn(left === 0 ? 'limit' : 'mint', left);
-  } catch { setBtn('mint'); }
+      if (error?.code === 4001 || error?.code === "ACTION_REJECTED") {
+        showError("Action annulée", "Tu as refusé la demande dans ton wallet.");
+      } else if (error?.code === -32002) {
+        showError("Demande déjà ouverte", "Regarde dans ton wallet, une confirmation est déjà en attente.");
+      } else if (lower.includes("daily") || lower.includes("limit")) {
+        showError("Limite journalière", `${DAILY_LIMIT} mints maximum par jour.`);
+        setButton("limit");
+        return;
+      } else if (lower.includes("network") || lower.includes("chain")) {
+        showError("Problème de réseau", "Vérifie que ton wallet est connecté à Base Mainnet ou Base Sepolia.");
+      } else {
+        showError(`Erreur ${context}`, message);
+      }
 
-  // Lecture on-chain via events Transfer
-  try {
-    const mintFilter = contract.filters.Transfer(ethers.constants.AddressZero, userAddress);
-    const mintEvts   = await contract.queryFilter(mintFilter);
-    const sentFilter = contract.filters.Transfer(userAddress);
-    const sentEvts   = await contract.queryFilter(sentFilter);
-    const sentIds    = new Set(sentEvts.map(e => e.args.tokenId.toString()));
+      setButton(userAddress && contract ? "mint" : "connect");
+    }
 
-    const ownedIds   = mintEvts.map(e => e.args.tokenId).filter(id => !sentIds.has(id.toString()));
-    const cResults   = await Promise.all(
-      ownedIds.map(id => contract.tokenToCountry(id).then(v => v.toNumber()).catch(() => null))
-    );
-
-    owned = new Set();
-    cResults.forEach(c => { if (c !== null) owned.add(c); });
-    cacheSave(userAddress, owned);
-    updateUI();
-  } catch(e) { console.error('refresh collection:', e); }
-
-  hideErr();
-}
-
-// ── UPDATE UI (jauge + collection) ───────────────────────────────────────────
-function updateUI() {
-  const count = owned.size;
-  const pct   = Math.round((count / TOTAL) * 100);
-
-  // Jauge
-  document.getElementById('gauge-fill').style.width = pct + '%';
-  const gc = document.getElementById('gauge-count');
-  gc.textContent = `${count} / ${TOTAL}`;
-  gc.className   = 'gauge-count' + (count === TOTAL ? ' full' : '');
-
-  // Collection
-  document.getElementById('col-count').textContent = `${count} / ${TOTAL} pays`;
-  countries.forEach((_, i) => {
-    const id = i + 1;
-    const el = document.getElementById(`s${id}`);
-    if (!el) return;
-    if (owned.has(id)) { el.classList.add('got'); }
-    else               { el.classList.remove('got'); }
-  });
-}
-
-// ── BUILD COLLECTION GRID ─────────────────────────────────────────────────────
-function buildCollectionGrid() {
-  const grid  = document.getElementById('col-grid');
-  const confs = [...new Set(countries.map(c => c.conf))];
-  let html    = '';
-  confs.forEach(conf => {
-    const group = countries.filter(c => c.conf === conf);
-    html += `<div class="conf-sep">${conf}<span class="conf-n">${group.length}</span></div>`;
-    group.forEach(c => {
-      const id = countries.indexOf(c) + 1;
-      html += `<div class="slot" id="s${id}">
-        <img src="https://flagcdn.com/w80/${c.code}.png" alt="${c.name}" loading="lazy">
-        <div>${c.name}</div>
-        <span class="slot-num">#${id}</span>
-      </div>`;
-    });
-  });
-  grid.innerHTML = html;
-}
-
-// ── LEADERBOARD ──────────────────────────────────────────────────────────────
-async function loadLB() {
-  const list = document.getElementById('lb-list');
-  const btn  = document.getElementById('lb-ref');
-  list.innerHTML = '<div class="lb-load">Lecture on-chain…</div>';
-  btn.disabled   = true;
-  const prov = provider || new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
-  try {
-    const rc  = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, prov);
-    const evs = await rc.queryFilter(rc.filters.Transfer(ethers.constants.AddressZero));
-    const sc  = {};
-    evs.forEach(e => { const a = e.args.to.toLowerCase(); sc[a] = (sc[a]||0)+1; });
-    const sorted = Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,20);
-    if (!sorted.length) { list.innerHTML = '<div class="lb-empty">Aucun mint encore — sois le premier !</div>'; btn.disabled=false; return; }
-    const rc_ = i => i===0?'g':i===1?'s':i===2?'b':'';
-    const me_ = a => userAddress && a===userAddress.toLowerCase();
-    list.innerHTML = sorted.map(([a,n],i) => `
-      <div class="lrow ${me_(a)?'me':''}">
-        <div class="ll"><div class="lrank ${rc_(i)}">${i+1}</div><div class="laddr">${a.slice(0,6)}…${a.slice(-4)}${me_(a)?' 👈':''}</div></div>
-        <div class="lscore">${n} NFT</div>
-      </div>`).join('');
-  } catch { list.innerHTML = '<div class="lb-empty">Erreur. Réessaie.</div>'; }
-  btn.disabled = false;
-}
-
-// ── TABS ──────────────────────────────────────────────────────────────────────
-function switchTab(i) {
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.querySelectorAll('.view').forEach((v,j)=>v.classList.toggle('active',j===i));
-  if (i===2) loadLB();
-}
-
-// ── BUTTON ───────────────────────────────────────────────────────────────────
-function setBtn(state, left) {
-  const b = document.getElementById('btn');
-  b.disabled = false; b.classList.remove('loading');
-  if (state==='connect') { b.textContent = 'Connecter le Wallet'; }
-  else if (state==='mint') { b.textContent = left===1 ? 'Ouvrir un Pack · Dernier mint du jour 🎲' : 'Ouvrir un Pack (Gratuit) 🎲'; }
-  else if (state==='limit') { b.textContent = 'Limite atteinte — Revenez demain'; b.disabled=true; }
-}
-
-// ── DISCONNECT ────────────────────────────────────────────────────────────────
-function disconnectUI() {
-  userAddress=null; provider=null; signer=null; contract=null;
-  owned=new Set(); updateUI();
-  document.getElementById('wbar').style.display='none';
-  setBtn('connect');
-  document.getElementById('daily-val').textContent='— / 2';
-}
-
-// ── ERRORS ───────────────────────────────────────────────────────────────────
-function showErr(h) { const e=document.getElementById('err'); e.innerHTML=h; e.style.display='block'; }
-function hideErr()  { document.getElementById('err').style.display='none'; }
-
-let _tt;
-function showToast(m) {
-  const t=document.getElementById('toast');
-  t.textContent=m; t.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show'),3500);
-}
-
-function handleErr(e, ctx) {
-  const b = document.getElementById('btn');
-  b.classList.remove('loading');
-  if (e.code===4001||e.code==='ACTION_REJECTED') { showErr('<strong>Transaction annulée</strong>Tu as refusé dans ton wallet.'); setBtn('mint'); return; }
-  if (e.code===-32002) { showErr('<strong>Demande en cours</strong>Regarde dans ton wallet.'); return; }
-  const m = e.reason||e.data?.message||e.message||'Erreur inconnue';
-  if (m.includes('daily')||m.includes('limit')) { showErr('<strong>Limite journalière</strong>2 mints max par jour.'); setBtn('limit'); return; }
-  showErr(`<strong>Erreur (${ctx})</strong>${m}`);
-  if (userAddress) setBtn('mint'); else setBtn('connect');
-}
-</script>
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
 </body>
 </html>
