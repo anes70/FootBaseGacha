@@ -1,112 +1,582 @@
-button.textContent = "Limite atteinte - reviens demain";
-        button.disabled = true;
-      } else if (state === "wrong-network") {
-        button.textContent = "Changer vers Base dans le wallet";
-        button.disabled = true;
-      } else if (state === "demo") {
-        button.textContent = "Mode démo actif";
-      } else {
-        button.textContent = "Connecter le wallet";
-      }
+!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>FOOT BASE - World Cup 2026 Gacha Pack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #080a0d;
+      --panel: #12161d;
+      --panel-2: #191f29;
+      --panel-3: #222a36;
+      --border: #2a3442;
+      --text: #f7fbff;
+      --muted: #98a4b7;
+      --blue: #1f72ff;
+      --blue-2: #00b7ff;
+      --green: #17e68a;
+      --amber: #f6b84b;
+      --red: #ff5570;
+      --shadow: 0 22px 70px rgba(0, 0, 0, .42);
+      --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    function disconnectUI() {
-      provider = null;
-      signer = null;
-      contract = null;
-      userAddress = "";
-      activeChain = null;
-      demoMode = false;
-      owned = new Set();
-      $("#wallet-bar").style.display = "none";
-      $("#network-warning").style.display = "none";
-      $("#daily-value").textContent = `- / ${DAILY_LIMIT}`;
-      $("#daily-value").className = "value";
-      $("#eth-balance").textContent = "0 ETH";
-      $("#chain-value").textContent = "Base";
-      $("#chain-value").className = "value";
-      resetPackView();
-      setButton("connect");
-      updateUI();
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(31, 114, 255, .18), transparent 34rem),
+        linear-gradient(180deg, #0a0d12 0%, var(--bg) 34rem);
+      color: var(--text);
+      font-family: var(--font);
+      padding-bottom: 3rem;
     }
 
-    function loadCollection(key) {
-      try {
-        const raw = localStorage.getItem(key);
-        const ids = raw ? JSON.parse(raw) : [];
-        return new Set(ids.map(Number).filter(normalizeCountryId));
-      } catch (_) {
-        return new Set();
-      }
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .wrap { width: min(980px, calc(100% - 32px)); margin: 0 auto; }
+    .hero {
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 22px 22px;
+      mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      padding: 2rem 0 3rem;
+    }
+    .brand { display: flex; align-items: center; gap: .95rem; min-width: 0; }
+    .logo {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--blue), #08d8b4);
+      box-shadow: 0 16px 38px rgba(31,114,255,.32);
+      flex: 0 0 auto;
+    }
+    .logo-mark {
+      width: 27px;
+      height: 27px;
+      border: 4px solid white;
+      border-radius: 50%;
+      position: relative;
+    }
+    .logo-mark::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      background: white;
+    }
+    h1 { margin: 0; font-size: clamp(1.45rem, 3.8vw, 2.15rem); letter-spacing: 0; line-height: 1; }
+    .subtitle { margin-top: .35rem; color: var(--muted); font-size: .9rem; }
+    .author { margin-top: .45rem; color: var(--muted); font-size: .78rem; }
+    .author a, .footer a { color: #7db0ff; text-decoration: none; font-weight: 700; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      border: 1px solid rgba(23,230,138,.32);
+      color: var(--green);
+      background: rgba(23,230,138,.09);
+      border-radius: 999px;
+      padding: .48rem .75rem;
+      font-size: .74rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 1.4s ease-in-out infinite;
     }
 
-    function saveCollection(key, collection) {
-      try {
-        localStorage.setItem(key, JSON.stringify([...collection].sort((a, b) => a - b)));
-      } catch (_) {}
+    .shell {
+      position: relative;
+      z-index: 2;
+      margin-top: -1.35rem;
+      background: rgba(18,22,29,.94);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 1.35rem;
+      backdrop-filter: blur(16px);
     }
 
-    function normalizeCountryId(value) {
-      const id = Number(value);
-      return Number.isInteger(id) && id >= 1 && id <= TOTAL ? id : null;
+    .alert {
+      display: none;
+      border-radius: 12px;
+      border: 1px solid;
+      padding: .9rem 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.45;
+      font-size: .86rem;
+    }
+    .alert strong { display: block; margin-bottom: .2rem; }
+    .alert.error { color: #ffd5dc; background: rgba(255,85,112,.09); border-color: rgba(255,85,112,.32); }
+    .alert.warn { color: #ffe3ad; background: rgba(246,184,75,.09); border-color: rgba(246,184,75,.34); }
+
+    .wallet-bar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: .8rem .95rem;
+      margin-bottom: 1rem;
+      font-size: .82rem;
+    }
+    .wallet-left, .wallet-right { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+    .wallet-address { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      border-radius: 8px;
+      padding: .23rem .55rem;
+      background: var(--panel-3);
+      color: var(--text);
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    .tag.ok { color: var(--green); background: rgba(23,230,138,.1); border: 1px solid rgba(23,230,138,.2); }
+    .tag.bad { color: var(--red); background: rgba(255,85,112,.1); border: 1px solid rgba(255,85,112,.22); }
+    .scan-link { color: #7db0ff; text-decoration: none; font-weight: 800; }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+      margin-bottom: 1.25rem;
+      border-radius: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+    }
+    .tab {
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      min-height: 42px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+    .tab.active { background: var(--blue); color: white; }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .pack-layout {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(230px, .75fr);
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .pack-stage {
+      min-height: 348px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(31,114,255,.08), transparent),
+        var(--panel-2);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 1.2rem;
+      overflow: hidden;
+    }
+    .pack {
+      width: 166px;
+      height: 232px;
+      border: 2px solid rgba(125,176,255,.9);
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(31,114,255,.72), transparent 34%),
+        linear-gradient(160deg, #182436, #0d121a);
+      box-shadow: 0 26px 60px rgba(31,114,255,.22);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .pack:hover { transform: translateY(-3px); box-shadow: 0 32px 72px rgba(31,114,255,.32); }
+    .pack-title { position: relative; z-index: 1; color: white; font-weight: 900; letter-spacing: .06em; font-size: .86rem; }
+    .pack-sub { position: relative; z-index: 1; color: #b7c5d9; font-size: .68rem; margin-top: .25rem; }
+    .pack-num {
+      position: absolute;
+      right: 8px;
+      bottom: -11px;
+      font-size: 4.8rem;
+      font-weight: 900;
+      color: rgba(255,255,255,.09);
+      line-height: 1;
+    }
+    .pack-lines {
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px;
     }
 
-    function flagUrl(country, size) {
-      return `https://flagcdn.com/w${size}/${country.code}.png`;
+    .reveal { display: none; flex-direction: column; align-items: center; gap: .75rem; animation: pop .42s cubic-bezier(.2,.8,.2,1); }
+    .reveal-conf { color: #7db0ff; font-size: .68rem; font-weight: 900; letter-spacing: .13em; }
+    .flag-frame {
+      width: 178px;
+      aspect-ratio: 3 / 2;
+      border-radius: 13px;
+      border: 3px solid #7db0ff;
+      background: var(--panel-3);
+      overflow: hidden;
+      box-shadow: 0 0 0 7px rgba(31,114,255,.12), 0 24px 54px rgba(31,114,255,.2);
+    }
+    .flag-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .reveal-name { font-size: 1.65rem; font-weight: 900; }
+    .reveal-meta { color: var(--muted); font-size: .78rem; }
+    .link-button {
+      border: 0;
+      background: transparent;
+      color: #7db0ff;
+      cursor: pointer;
+      font-weight: 800;
+      padding: .3rem;
     }
 
-    function compactAddress(address) {
-      if (!address || address.length < 12) return address || "";
-      return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    .side-panel {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel-2);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .metric {
+      min-height: 84px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.025);
+      padding: .8rem;
+    }
+    .label { color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .value { margin-top: .35rem; font-weight: 900; font-size: 1.2rem; }
+    .value.ok { color: var(--green); }
+    .value.warn { color: var(--amber); }
+    .value.bad { color: var(--red); }
+    .gauge-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .55rem; }
+    .gauge-count { font-size: 1rem; font-weight: 900; }
+    .gauge-count.full { color: var(--green); }
+    .track { height: 12px; border: 1px solid var(--border); border-radius: 999px; background: #0d1118; overflow: hidden; }
+    .fill { height: 100%; width: 0%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--blue-2), var(--green)); transition: width .55s ease; }
+    .milestones { display: flex; justify-content: space-between; color: var(--muted); font-size: .65rem; margin-top: .4rem; }
+
+    .primary {
+      width: 100%;
+      min-height: 52px;
+      border: 0;
+      border-radius: 12px;
+      color: white;
+      background: linear-gradient(135deg, var(--blue), #00a4ff);
+      cursor: pointer;
+      font-weight: 900;
+      box-shadow: 0 14px 32px rgba(31,114,255,.24);
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .primary:hover:not(:disabled) { transform: translateY(-1px); }
+    .primary:disabled {
+      cursor: not-allowed;
+      color: var(--muted);
+      background: var(--panel-3);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .primary.loading { opacity: .75; cursor: wait; }
+    .secondary {
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 800;
     }
 
-    function showToast(message) {
-      const toast = $("#toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .count { color: var(--muted); font-size: .84rem; font-weight: 700; }
+    .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: .8rem; }
+    .conf-sep {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      color: #7db0ff;
+      border-top: 1px solid var(--border);
+      padding-top: .75rem;
+      margin-top: .25rem;
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .1em;
+    }
+    .conf-sep:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+    .conf-num { border-radius: 999px; background: rgba(31,114,255,.16); padding: .13rem .48rem; font-size: .62rem; }
+    .slot {
+      min-height: 112px;
+      position: relative;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel-2);
+      color: var(--muted);
+      padding: .85rem .45rem .7rem;
+      font-size: .74rem;
+      font-weight: 800;
+      transition: transform .2s ease, border-color .2s ease, color .2s ease;
+    }
+    .slot img {
+      width: 52px;
+      height: 35px;
+      object-fit: cover;
+      border-radius: 5px;
+      display: block;
+      margin: 0 auto .55rem;
+      filter: grayscale(1);
+      opacity: .2;
+      background: var(--panel-3);
+    }
+    .slot.got { color: white; border-color: rgba(125,176,255,.72); background: linear-gradient(180deg, rgba(31,114,255,.14), var(--panel-2)); }
+    .slot.got img { filter: none; opacity: 1; }
+    .slot-number {
+      display: none;
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      color: white;
+      background: var(--blue);
+      border-radius: 7px;
+      padding: .13rem .36rem;
+      font-size: .58rem;
+      font-weight: 900;
+    }
+    .slot.got .slot-number { display: inline-block; }
+
+    .leader-actions { display: flex; gap: .5rem; align-items: center; }
+    .leader-list { min-height: 210px; }
+    .leader-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel-2);
+      padding: .82rem .95rem;
+      margin-bottom: .55rem;
+      font-size: .86rem;
+    }
+    .leader-row.me { border-color: rgba(125,176,255,.85); background: rgba(31,114,255,.1); }
+    .leader-left { display: flex; align-items: center; gap: .75rem; min-width: 0; }
+    .rank { width: 28px; flex: 0 0 28px; text-align: center; font-weight: 900; color: var(--amber); }
+    .addr { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+    .score { color: #7db0ff; font-weight: 900; white-space: nowrap; }
+    .empty, .loading-text { color: var(--muted); text-align: center; padding: 2.2rem 0; font-size: .88rem; }
+    .loading-text { animation: pulse 1.4s ease-in-out infinite; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 1.25rem;
+      z-index: 20;
+      transform: translate(-50%, 120px);
+      max-width: min(520px, calc(100% - 32px));
+      color: var(--green);
+      background: #111820;
+      border: 1px solid rgba(23,230,138,.34);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: .85rem 1rem;
+      font-size: .86rem;
+      font-weight: 800;
+      text-align: center;
+      transition: transform .28s ease;
+    }
+    .toast.show { transform: translate(-50%, 0); }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 1.5rem;
+      color: var(--muted);
+      font-size: .75rem;
     }
 
-    function showError(title, message) {
-      const error = $("#error");
-      error.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
-      error.style.display = "block";
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+    @keyframes pop { 0% { opacity: 0; transform: scale(.86); } 70% { transform: scale(1.035); } 100% { opacity: 1; transform: scale(1); } }
+
+    @media (max-width: 760px) {
+      .hero-inner, .wallet-bar, .section-head { align-items: flex-start; flex-direction: column; }
+      .status-pill { align-self: flex-start; }
+      .shell { padding: 1rem; }
+      .tabs { grid-template-columns: 1fr; }
+      .pack-layout { grid-template-columns: 1fr; }
+      .pack-stage { min-height: 300px; }
+      .collection-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+      .metric-row { grid-template-columns: 1fr; }
     }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><div class="logo-mark"></div></div>
+        <div>
+          <h1>FOOT BASE</h1>
+          <div class="subtitle">Album World Cup 2026 - Gacha on-chain</div>
+          <div class="author">by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank" rel="noreferrer">irezroifer.base.eth</a></div>
+        </div>
+      </div>
+      <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
+    </div>
+  </header>
 
-    function hideError() {
-      $("#error").style.display = "none";
-    }
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    function handleError(error, context) {
-      const message = error?.reason || error?.data?.message || error?.message || "Erreur inconnue";
-      const lower = String(message).toLowerCase();
+  <main class="wrap">
+    <section class="shell">
+      <div class="alert error" id="error"></div>
+      <div class="alert warn" id="network-warning">
+        <strong>Mauvais réseau</strong>
+        Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est actuellement sur <span id="current-network">un autre réseau</span>.
+      </div>
 
-      if (error?.code === 4001 || error?.code === "ACTION_REJECTED") {
-        showError("Action annulée", "Tu as refusé la demande dans ton wallet.");
-      } else if (error?.code === -32002) {
-        showError("Demande déjà ouverte", "Regarde dans ton wallet, une confirmation est déjà en attente.");
-      } else if (lower.includes("daily") || lower.includes("limit")) {
-        showError("Limite journalière", `${DAILY_LIMIT} mints maximum par jour.`);
-        setButton("limit");
-        return;
-      } else if (lower.includes("network") || lower.includes("chain")) {
-        showError("Problème de réseau", "Vérifie que ton wallet est connecté à Base Mainnet ou Base Sepolia.");
-      } else {
-        showError(`Erreur ${context}`, message);
-      }
+      <div class="wallet-bar" id="wallet-bar">
+        <div class="wallet-left">
+          <span class="wallet-address" id="wallet-address">0x...</span>
+          <span class="tag" id="network-badge">Non connecté</span>
+        </div>
+        <div class="wallet-right">
+          <span class="tag" id="eth-balance">0 ETH</span>
+          <a class="scan-link" id="scan-link" href="https://basescan.org" target="_blank" rel="noreferrer">Basescan</a>
+          <button class="secondary" type="button" id="disconnect-btn">Déconnecter</button>
+        </div>
+      </div>
 
-      setButton(userAddress && contract ? "mint" : "connect");
-    }
+      <nav class="tabs" aria-label="Navigation">
+        <button class="tab active" type="button" data-tab="0">Pack opener</button>
+        <button class="tab" type="button" data-tab="1">Ma collection</button>
+        <button class="tab" type="button" data-tab="2">Leaderboard</button>
+      </nav>
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-  </script>
+      <div class="view active" id="view-0">
+        <div class="pack-layout">
+          <div class="pack-stage">
+            <button class="pack" id="pack" type="button" aria-label="Ouvrir un pack">
+              <span class="pack-lines"></span>
+              <span class="pack-title">MONDIAL 2026</span>
+              <span class="pack-sub">World Cup Edition</span>
+              <span class="pack-num">48</span>
+            </button>
+
+            <div class="reveal" id="reveal">
+              <div class="reveal-conf" id="reveal-conf"></div>
+              <div class="flag-frame"><img id="reveal-flag" alt=""></div>
+              <div class="reveal-name" id="reveal-name"></div>
+              <div class="reveal-meta" id="reveal-meta"></div>
+              <button class="link-button" type="button" id="reset-pack">Ouvrir un autre pack</button>
+            </div>
+          </div>
+
+          <aside class="side-panel">
+            <div>
+              <div class="gauge-head">
+                <div class="label">Ta collection</div>
+                <div class="gauge-count" id="gauge-count">0 / 48</div>
+              </div>
+              <div class="track"><div class="fill" id="gauge-fill"></div></div>
+              <div class="milestones"><span>0</span><span>12</span><span>24</span><span>36</span><span>48</span></div>
+            </div>
+
+            <div class="metric-row">
+              <div class="metric">
+                <div class="label">Mints aujourd'hui</div>
+                <div class="value" id="daily-value">- / 2</div>
+              </div>
+              <div class="metric">
+                <div class="label">Réseau</div>
+                <div class="value" id="chain-value">Base</div>
+              </div>
+            </div>
+
+            <button class="primary" id="main-btn" type="button">Connecter le wallet</button>
+            <button class="secondary" id="demo-btn" type="button">Tester en mode démo</button>
+          </aside>
+        </div>
+      </div>
+
+      <div class="view" id="view-1">
+        <div class="section-head">
+          <div class="label">Album WC2026 - 48 nations</div>
+          <div class="count" id="collection-count">0 / 48 pays</div>
+        </div>
+        <div class="collection-grid" id="collection-grid"></div>
+      </div>
+
+      <div class="view" id="view-2">
+        <div class="section-head">
+          <div class="label">Top collectionneurs</div>
+          <div class="leader-actions">
+            <button class="secondary" type="button" id="refresh-lb">Actualiser</button>
+          </div>
+        </div>
+        <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>Base RPC - ERC-721 - cache local sécurisé</div>
+      <div>Contrat: <a href="https://basescan.org/address/0xfa0a2a71c0db19afb457648537eb45fb734a5c7a" target="_blank" rel="noreferrer">0xfa0a...5c7a</a></div>
+    </footer>
+  </main>
+
+  <script defer src="app.js"></script>
 </body>
 </html>
+
+                
