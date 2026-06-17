@@ -1,1254 +1,972 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
-  <title>FOOT BASE - World Cup 2026 Gacha Pack</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-  <style>
-    :root {
-      --bg: #080a0d;
-      --panel: #12161d;
-      --panel-2: #191f29;
-      --panel-3: #222a36;
-      --border: #2a3442;
-      --text: #f7fbff;
-      --muted: #98a4b7;
-      --blue: #1f72ff;
-      --blue-2: #00b7ff;
-      --green: #17e68a;
-      --amber: #f6b84b;
-      --red: #ff5570;
-      --shadow: 0 22px 70px rgba(0, 0, 0, .42);
-      --font: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>FOOT BASE — World Cup 2026 Gacha Pack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080a0d; --panel:#12161d; --panel-2:#191f29; --panel-3:#222a36; --border:#2a3442;
+  --text:#f7fbff; --muted:#98a4b7; --blue:#1f72ff; --blue-2:#00b7ff;
+  --green:#17e68a; --amber:#f6b84b; --red:#ff5570; --purple:#a259ff; --gold:#ffd23f;
+  --shadow:0 22px 70px rgba(0,0,0,.42);
+  --font:"Inter",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(31,114,255,.18), transparent 34rem),
+    linear-gradient(180deg,#0a0d12 0%,var(--bg) 34rem);
+  color:var(--text);font-family:var(--font);padding-bottom:3rem;
+}
+button,input{font:inherit;}
+button{-webkit-tap-highlight-color:transparent;}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 20% 0%, rgba(31, 114, 255, .18), transparent 34rem),
-        linear-gradient(180deg, #0a0d12 0%, var(--bg) 34rem);
-      color: var(--text);
-      font-family: var(--font);
-      padding-bottom: 3rem;
-    }
+.wrap{width:min(980px,calc(100% - 32px));margin:0 auto;}
 
-    button, input { font: inherit; }
-    button { -webkit-tap-highlight-color: transparent; }
+/* HERO */
+.hero{border-bottom:1px solid rgba(255,255,255,.06);overflow:hidden;position:relative;}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:22px 22px;mask-image:linear-gradient(180deg,#000 0%,transparent 85%);pointer-events:none;
+}
+.hero-inner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:1.25rem;padding:2rem 0 3rem;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:.95rem;min-width:0;}
+.logo{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),#08d8b4);box-shadow:0 16px 38px rgba(31,114,255,.32);flex:0 0 auto;}
+.logo-mark{width:27px;height:27px;border:4px solid white;border-radius:50%;position:relative;}
+.logo-mark::after{content:"";position:absolute;inset:7px;border-radius:50%;background:white;}
+h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:1;}
+.subtitle{margin-top:.35rem;color:var(--muted);font-size:.9rem;}
+.author{margin-top:.45rem;color:var(--muted);font-size:.78rem;}
+.author a,.footer a{color:#7db0ff;text-decoration:none;font-weight:700;}
+.status-pill{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgba(23,230,138,.32);color:var(--green);background:rgba(23,230,138,.09);border-radius:999px;padding:.48rem .75rem;font-size:.74rem;font-weight:800;white-space:nowrap;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.4s ease-in-out infinite;}
 
-    .wrap { width: min(980px, calc(100% - 32px)); margin: 0 auto; }
-    .hero {
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      overflow: hidden;
-      position: relative;
-    }
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
-      background-size: 22px 22px;
-      mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
-      pointer-events: none;
-    }
-    .hero-inner {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.25rem;
-      padding: 2rem 0 3rem;
-    }
-    .brand { display: flex; align-items: center; gap: .95rem; min-width: 0; }
-    .logo {
-      width: 54px;
-      height: 54px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--blue), #08d8b4);
-      box-shadow: 0 16px 38px rgba(31,114,255,.32);
-      flex: 0 0 auto;
-    }
-    .logo-mark {
-      width: 27px;
-      height: 27px;
-      border: 4px solid white;
-      border-radius: 50%;
-      position: relative;
-    }
-    .logo-mark::after {
-      content: "";
-      position: absolute;
-      inset: 7px;
-      border-radius: 50%;
-      background: white;
-    }
-    h1 { margin: 0; font-size: clamp(1.45rem, 3.8vw, 2.15rem); letter-spacing: 0; line-height: 1; }
-    .subtitle { margin-top: .35rem; color: var(--muted); font-size: .9rem; }
-    .author { margin-top: .45rem; color: var(--muted); font-size: .78rem; }
-    .author a, .footer a { color: #7db0ff; text-decoration: none; font-weight: 700; }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      border: 1px solid rgba(23,230,138,.32);
-      color: var(--green);
-      background: rgba(23,230,138,.09);
-      border-radius: 999px;
-      padding: .48rem .75rem;
-      font-size: .74rem;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-      animation: pulse 1.4s ease-in-out infinite;
-    }
+/* SHELL */
+.shell{position:relative;z-index:2;margin-top:-1.35rem;background:rgba(18,22,29,.94);border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:var(--shadow);padding:1.35rem;backdrop-filter:blur(16px);}
 
-    .shell {
-      position: relative;
-      z-index: 2;
-      margin-top: -1.35rem;
-      background: rgba(18,22,29,.94);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-      padding: 1.35rem;
-      backdrop-filter: blur(16px);
-    }
+.alert{display:none;border-radius:12px;border:1px solid;padding:.9rem 1rem;margin-bottom:1rem;line-height:1.45;font-size:.86rem;}
+.alert strong{display:block;margin-bottom:.2rem;}
+.alert.error{color:#ffd5dc;background:rgba(255,85,112,.09);border-color:rgba(255,85,112,.32);}
+.alert.warn{color:#ffe3ad;background:rgba(246,184,75,.09);border-color:rgba(246,184,75,.34);}
+.alert.show{display:block;}
 
-    .alert {
-      display: none;
-      border-radius: 12px;
-      border: 1px solid;
-      padding: .9rem 1rem;
-      margin-bottom: 1rem;
-      line-height: 1.45;
-      font-size: .86rem;
-    }
-    .alert strong { display: block; margin-bottom: .2rem; }
-    .alert.error { color: #ffd5dc; background: rgba(255,85,112,.09); border-color: rgba(255,85,112,.32); }
-    .alert.warn { color: #ffe3ad; background: rgba(246,184,75,.09); border-color: rgba(246,184,75,.34); }
+.wallet-bar{display:none;align-items:center;justify-content:space-between;gap:.75rem;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:.8rem .95rem;margin-bottom:1rem;font-size:.82rem;flex-wrap:wrap;}
+.wallet-bar.show{display:flex;}
+.wallet-left,.wallet-right{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+.wallet-address{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
+.tag{display:inline-flex;align-items:center;min-height:25px;border-radius:8px;padding:.23rem .55rem;background:var(--panel-3);color:var(--text);font-size:.72rem;font-weight:800;}
+.tag.ok{color:var(--green);background:rgba(23,230,138,.1);border:1px solid rgba(23,230,138,.2);}
+.tag.bad{color:var(--red);background:rgba(255,85,112,.1);border:1px solid rgba(255,85,112,.22);}
+.scan-link{color:#7db0ff;text-decoration:none;font-weight:800;}
 
-    .wallet-bar {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: .8rem .95rem;
-      margin-bottom: 1rem;
-      font-size: .82rem;
-    }
-    .wallet-left, .wallet-right { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
-    .wallet-address { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 25px;
-      border-radius: 8px;
-      padding: .23rem .55rem;
-      background: var(--panel-3);
-      color: var(--text);
-      font-size: .72rem;
-      font-weight: 800;
-    }
-    .tag.ok { color: var(--green); background: rgba(23,230,138,.1); border: 1px solid rgba(23,230,138,.2); }
-    .tag.bad { color: var(--red); background: rgba(255,85,112,.1); border: 1px solid rgba(255,85,112,.22); }
-    .scan-link { color: #7db0ff; text-decoration: none; font-weight: 800; }
+/* TABS */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin-bottom:1.25rem;border-radius:12px;background:var(--panel-2);border:1px solid var(--border);}
+.tab{border:0;color:var(--muted);background:transparent;min-height:42px;border-radius:9px;cursor:pointer;font-size:.82rem;font-weight:800;}
+.tab.active{background:var(--blue);color:white;}
+.view{display:none;}
+.view.active{display:block;}
 
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-      padding: 4px;
-      margin-bottom: 1.25rem;
-      border-radius: 12px;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-    }
-    .tab {
-      border: 0;
-      color: var(--muted);
-      background: transparent;
-      min-height: 42px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-size: .82rem;
-      font-weight: 800;
-    }
-    .tab.active { background: var(--blue); color: white; }
-    .view { display: none; }
-    .view.active { display: block; }
+/* PACK STAGE */
+.pack-layout{display:grid;grid-template-columns:minmax(240px,1fr) minmax(230px,.75fr);gap:1rem;align-items:stretch;}
+.pack-stage{min-height:348px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(31,114,255,.08),transparent),var(--panel-2);display:grid;place-items:center;text-align:center;padding:1.2rem;overflow:hidden;position:relative;}
 
-    .pack-layout {
-      display: grid;
-      grid-template-columns: minmax(240px, 1fr) minmax(230px, .75fr);
-      gap: 1rem;
-      align-items: stretch;
-    }
-    .pack-stage {
-      min-height: 348px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background:
-        linear-gradient(180deg, rgba(31,114,255,.08), transparent),
-        var(--panel-2);
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 1.2rem;
-      overflow: hidden;
-    }
-    .pack {
-      width: 166px;
-      height: 232px;
-      border: 2px solid rgba(125,176,255,.9);
-      border-radius: 16px;
-      background:
-        linear-gradient(135deg, rgba(31,114,255,.72), transparent 34%),
-        linear-gradient(160deg, #182436, #0d121a);
-      box-shadow: 0 26px 60px rgba(31,114,255,.22);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .pack:hover { transform: translateY(-3px); box-shadow: 0 32px 72px rgba(31,114,255,.32); }
-    .pack.opening {
-      pointer-events: none;
-      animation: packShake .72s ease-in-out;
-    }
-    .pack::before {
-      content: "";
-      position: absolute;
-      inset: -35%;
-      background: linear-gradient(115deg, transparent 36%, rgba(255,255,255,.24) 48%, transparent 60%);
-      transform: translateX(-58%) rotate(8deg);
-      transition: transform .75s ease;
-    }
-    .pack:hover::before, .pack.opening::before { transform: translateX(58%) rotate(8deg); }
-    .pack-title { position: relative; z-index: 1; color: white; font-weight: 900; letter-spacing: .06em; font-size: .86rem; }
-    .pack-sub { position: relative; z-index: 1; color: #b7c5d9; font-size: .68rem; margin-top: .25rem; }
-    .pack-num {
-      position: absolute;
-      right: 8px;
-      bottom: -11px;
-      font-size: 4.8rem;
-      font-weight: 900;
-      color: rgba(255,255,255,.09);
-      line-height: 1;
-    }
-    .pack-lines {
-      position: absolute;
-      inset: 18px;
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 12px;
-    }
+/* Burst particles on open */
+.burst{position:absolute;inset:0;pointer-events:none;opacity:0;}
+.burst.go{animation:burstFade .9s ease forwards;}
+.burst span{
+  position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;
+  background:var(--blue-2);transform:translate(-50%,-50%);
+}
+@keyframes burstFade{0%{opacity:1;}100%{opacity:0;}}
 
-    .reveal { display: none; flex-direction: column; align-items: center; gap: .75rem; animation: pop .42s cubic-bezier(.2,.8,.2,1); }
-    .reveal-conf { color: #7db0ff; font-size: .68rem; font-weight: 900; letter-spacing: .13em; }
-    .flag-frame {
-      width: 178px;
-      aspect-ratio: 3 / 2;
-      border-radius: 13px;
-      border: 3px solid #7db0ff;
-      background: var(--panel-3);
-      overflow: hidden;
-      box-shadow: 0 0 0 7px rgba(31,114,255,.12), 0 24px 54px rgba(31,114,255,.2);
-    }
-    .flag-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .reveal-name { font-size: 1.65rem; font-weight: 900; }
-    .reveal-meta { color: var(--muted); font-size: .78rem; }
-    .rarity {
-      border-radius: 999px;
-      padding: .28rem .62rem;
-      color: #061018;
-      background: linear-gradient(135deg, #ffe58a, #17e68a);
-      font-size: .68rem;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-    .link-button {
-      border: 0;
-      background: transparent;
-      color: #7db0ff;
-      cursor: pointer;
-      font-weight: 800;
-      padding: .3rem;
-    }
+/* The pack itself */
+.pack{
+  width:166px;height:232px;border:2px solid rgba(125,176,255,.9);border-radius:16px;
+  background:linear-gradient(135deg,rgba(31,114,255,.72),transparent 34%),linear-gradient(160deg,#182436,#0d121a);
+  box-shadow:0 26px 60px rgba(31,114,255,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.pack:hover{transform:translateY(-3px);box-shadow:0 32px 72px rgba(31,114,255,.32);}
+.pack.shaking{animation:packShake .55s ease-in-out;}
+.pack.flashing::after{
+  content:"";position:absolute;inset:0;background:white;opacity:0;
+  animation:flashOut .35s ease forwards;
+}
+.pack.flying{animation:packFly .4s ease forwards;}
+@keyframes packShake{
+  0%,100%{transform:translateX(0) rotate(0);}
+  15%{transform:translateX(-6px) rotate(-2deg);}
+  30%{transform:translateX(6px) rotate(2deg);}
+  45%{transform:translateX(-8px) rotate(-3deg);}
+  60%{transform:translateX(8px) rotate(3deg);}
+  75%{transform:translateX(-4px) rotate(-1deg);}
+  90%{transform:translateX(4px) rotate(1deg);}
+}
+@keyframes flashOut{0%{opacity:0;}40%{opacity:.95;}100%{opacity:0;}}
+@keyframes packFly{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.3);}}
 
-    .side-panel {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel-2);
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-    .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
-    .metric {
-      min-height: 84px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(255,255,255,.025);
-      padding: .8rem;
-    }
-    .label { color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
-    .value { margin-top: .35rem; font-weight: 900; font-size: 1.2rem; }
-    .value.ok { color: var(--green); }
-    .value.warn { color: var(--amber); }
-    .value.bad { color: var(--red); }
-    .gauge-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .55rem; }
-    .gauge-count { font-size: 1rem; font-weight: 900; }
-    .gauge-count.full { color: var(--green); }
-    .track { height: 12px; border: 1px solid var(--border); border-radius: 999px; background: #0d1118; overflow: hidden; }
-    .fill { height: 100%; width: 0%; border-radius: inherit; background: linear-gradient(90deg, var(--blue), var(--blue-2), var(--green)); transition: width .55s ease; }
-    .milestones { display: flex; justify-content: space-between; color: var(--muted); font-size: .65rem; margin-top: .4rem; }
+.pack-title{position:relative;z-index:1;color:white;font-weight:900;letter-spacing:.06em;font-size:.86rem;}
+.pack-sub{position:relative;z-index:1;color:#b7c5d9;font-size:.68rem;margin-top:.25rem;}
+.pack-num{position:absolute;right:8px;bottom:-11px;font-size:4.8rem;font-weight:900;color:rgba(255,255,255,.09);line-height:1;}
+.pack-lines{position:absolute;inset:18px;border:1px solid rgba(255,255,255,.12);border-radius:12px;}
+.pack-hint{position:relative;z-index:1;margin-top:.6rem;color:#7db0ff;font-size:.62rem;font-weight:800;letter-spacing:.05em;opacity:.85;}
 
-    .primary {
-      width: 100%;
-      min-height: 52px;
-      border: 0;
-      border-radius: 12px;
-      color: white;
-      background: linear-gradient(135deg, var(--blue), #00a4ff);
-      cursor: pointer;
-      font-weight: 900;
-      box-shadow: 0 14px 32px rgba(31,114,255,.24);
-      transition: transform .15s ease, opacity .15s ease;
-    }
-    .primary:hover:not(:disabled) { transform: translateY(-1px); }
-    .primary:disabled {
-      cursor: not-allowed;
-      color: var(--muted);
-      background: var(--panel-3);
-      border: 1px solid var(--border);
-      box-shadow: none;
-    }
-    .primary.loading { opacity: .75; cursor: wait; }
-    .secondary {
-      min-height: 38px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      background: transparent;
-      cursor: pointer;
-      font-size: .8rem;
-      font-weight: 800;
-    }
+/* Card reveal — slides up from pack like FIFA/Pokemon TCG */
+.reveal{display:none;flex-direction:column;align-items:center;gap:.7rem;}
+.reveal.show{display:flex;animation:revealIn .55s cubic-bezier(.2,.8,.2,1);}
+@keyframes revealIn{
+  0%{opacity:0;transform:translateY(40px) scale(.82);}
+  60%{transform:translateY(-6px) scale(1.04);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+.reveal-conf{color:#7db0ff;font-size:.68rem;font-weight:900;letter-spacing:.13em;}
+.card-frame{
+  width:188px;aspect-ratio:5/7;border-radius:16px;position:relative;overflow:hidden;
+  border:3px solid var(--rarity-color, #7db0ff);
+  background:linear-gradient(160deg,#1b2433,#0c0f15);
+  box-shadow:0 0 0 7px var(--rarity-glow, rgba(31,114,255,.12)), 0 24px 54px rgba(31,114,255,.25);
+}
+.card-frame.epic{--rarity-color:var(--purple);--rarity-glow:rgba(162,89,255,.18);}
+.card-frame.legendary{--rarity-color:var(--gold);--rarity-glow:rgba(255,210,63,.22);}
+.card-frame .shine{
+  position:absolute;inset:0;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.35) 45%,rgba(255,255,255,.05) 55%,transparent 70%);
+  transform:translateX(-120%);
+  animation:shineSweep 1.4s ease-out .25s forwards;
+  pointer-events:none;
+}
+@keyframes shineSweep{to{transform:translateX(120%);}}
+.card-flag-wrap{position:absolute;top:14px;left:14px;right:14px;height:54%;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:var(--panel-3);}
+.card-flag-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-rarity-badge{
+  position:absolute;top:20px;right:20px;font-size:.58rem;font-weight:900;letter-spacing:.06em;
+  text-transform:uppercase;color:#0b0e13;background:var(--rarity-color,#7db0ff);
+  padding:.18rem .45rem;border-radius:6px;
+}
+.card-body{position:absolute;left:14px;right:14px;bottom:14px;text-align:left;}
+.card-name{font-size:1.05rem;font-weight:900;line-height:1.1;}
+.card-conf-line{color:var(--muted);font-size:.64rem;margin-top:.2rem;font-weight:700;letter-spacing:.04em;}
+.card-id-line{color:var(--rarity-color,#7db0ff);font-size:.6rem;margin-top:.3rem;font-weight:800;}
 
-    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-    .count { color: var(--muted); font-size: .84rem; font-weight: 700; }
-    .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: .8rem; }
-    .conf-sep {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      color: #7db0ff;
-      border-top: 1px solid var(--border);
-      padding-top: .75rem;
-      margin-top: .25rem;
-      font-size: .72rem;
-      font-weight: 900;
-      letter-spacing: .1em;
-    }
-    .conf-sep:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
-    .conf-num { border-radius: 999px; background: rgba(31,114,255,.16); padding: .13rem .48rem; font-size: .62rem; }
-    .slot {
-      min-height: 112px;
-      position: relative;
-      text-align: center;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel-2);
-      color: var(--muted);
-      padding: .85rem .45rem .7rem;
-      font-size: .74rem;
-      font-weight: 800;
-      transition: transform .2s ease, border-color .2s ease, color .2s ease;
-    }
-    .slot img {
-      width: 52px;
-      height: 35px;
-      object-fit: cover;
-      border-radius: 5px;
-      display: block;
-      margin: 0 auto .55rem;
-      filter: grayscale(1);
-      opacity: .2;
-      background: var(--panel-3);
-    }
-    .slot.got { color: white; border-color: rgba(125,176,255,.72); background: linear-gradient(180deg, rgba(31,114,255,.14), var(--panel-2)); }
-    .slot.got img { filter: none; opacity: 1; }
-    .slot-number {
-      display: none;
-      position: absolute;
-      top: 7px;
-      right: 7px;
-      color: white;
-      background: var(--blue);
-      border-radius: 7px;
-      padding: .13rem .36rem;
-      font-size: .58rem;
-      font-weight: 900;
-    }
-    .slot.got .slot-number { display: inline-block; }
+.reveal-meta{color:var(--muted);font-size:.78rem;}
+.link-button{border:0;background:transparent;color:#7db0ff;cursor:pointer;font-weight:800;padding:.3rem;font-size:.82rem;}
 
-    .leader-actions { display: flex; gap: .5rem; align-items: center; }
-    .leader-list { min-height: 210px; }
-    .leader-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: .75rem;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel-2);
-      padding: .82rem .95rem;
-      margin-bottom: .55rem;
-      font-size: .86rem;
-    }
-    .leader-row.me { border-color: rgba(125,176,255,.85); background: rgba(31,114,255,.1); }
-    .leader-left { display: flex; align-items: center; gap: .75rem; min-width: 0; }
-    .rank { width: 28px; flex: 0 0 28px; text-align: center; font-weight: 900; color: var(--amber); }
-    .addr { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
-    .score { color: #7db0ff; font-weight: 900; white-space: nowrap; }
-    .empty, .loading-text { color: var(--muted); text-align: center; padding: 2.2rem 0; font-size: .88rem; }
-    .loading-text { animation: pulse 1.4s ease-in-out infinite; }
+/* SIDE PANEL */
+.side-panel{border:1px solid var(--border);border-radius:14px;background:var(--panel-2);padding:1rem;display:flex;flex-direction:column;justify-content:space-between;gap:1rem;}
+.gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.55rem;}
+.label{color:var(--muted);font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
+.gauge-count{font-size:1rem;font-weight:900;}
+.gauge-count.full{color:var(--green);}
+.track{height:12px;border:1px solid var(--border);border-radius:999px;background:#0d1118;overflow:hidden;}
+.fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--blue-2),var(--green));transition:width .55s ease;}
+.milestones{display:flex;justify-content:space-between;color:var(--muted);font-size:.65rem;margin-top:.4rem;}
 
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 1.25rem;
-      z-index: 20;
-      transform: translate(-50%, 120px);
-      max-width: min(520px, calc(100% - 32px));
-      color: var(--green);
-      background: #111820;
-      border: 1px solid rgba(23,230,138,.34);
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      padding: .85rem 1rem;
-      font-size: .86rem;
-      font-weight: 800;
-      text-align: center;
-      transition: transform .28s ease;
-    }
-    .toast.show { transform: translate(-50%, 0); }
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-top: 1.5rem;
-      color: var(--muted);
-      font-size: .75rem;
-    }
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.metric{min-height:84px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);padding:.8rem;}
+.value{margin-top:.35rem;font-weight:900;font-size:1.2rem;}
+.value.ok{color:var(--green);}
+.value.warn{color:var(--amber);}
+.value.bad{color:var(--red);}
 
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
-    @keyframes pop { 0% { opacity: 0; transform: scale(.86); } 70% { transform: scale(1.035); } 100% { opacity: 1; transform: scale(1); } }
-    @keyframes packShake {
-      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-      14% { transform: translateY(-3px) rotate(-2deg) scale(1.02); }
-      28% { transform: translateY(2px) rotate(2deg) scale(1.03); }
-      42% { transform: translateY(-2px) rotate(-1deg) scale(1.04); }
-      62% { transform: translateY(1px) rotate(1deg) scale(1.05); }
-      82% { transform: translateY(-5px) rotate(0deg) scale(1.08); }
-    }
+.primary{width:100%;min-height:52px;border:0;border-radius:12px;color:white;background:linear-gradient(135deg,var(--blue),#00a4ff);cursor:pointer;font-weight:900;box-shadow:0 14px 32px rgba(31,114,255,.24);transition:transform .15s ease,opacity .15s ease;}
+.primary:hover:not(:disabled){transform:translateY(-1px);}
+.primary:disabled{cursor:not-allowed;color:var(--muted);background:var(--panel-3);border:1px solid var(--border);box-shadow:none;}
+.primary.loading{opacity:.75;cursor:wait;}
+.secondary{min-height:38px;border-radius:10px;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-size:.8rem;font-weight:800;}
+.secondary:hover{color:var(--text);border-color:#3a4658;}
 
-    @media (max-width: 760px) {
-      .hero-inner, .wallet-bar, .section-head { align-items: flex-start; flex-direction: column; }
-      .status-pill { align-self: flex-start; }
-      .shell { padding: 1rem; }
-      .tabs { grid-template-columns: 1fr; }
-      .pack-layout { grid-template-columns: 1fr; }
-      .pack-stage { min-height: 300px; }
-      .collection-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
-      .metric-row { grid-template-columns: 1fr; }
-    }
-  </style>
+/* COLLECTION */
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.count{color:var(--muted);font-size:.84rem;font-weight:700;}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:.8rem;}
+.conf-sep{grid-column:1/-1;display:flex;align-items:center;gap:.55rem;color:#7db0ff;border-top:1px solid var(--border);padding-top:.75rem;margin-top:.25rem;font-size:.72rem;font-weight:900;letter-spacing:.1em;}
+.conf-sep:first-child{border-top:0;margin-top:0;padding-top:0;}
+.conf-num{border-radius:999px;background:rgba(31,114,255,.16);padding:.13rem .48rem;font-size:.62rem;}
+.slot{min-height:112px;position:relative;text-align:center;border:1px solid var(--border);border-radius:12px;background:var(--panel-2);color:var(--muted);padding:.85rem .45rem .7rem;font-size:.74rem;font-weight:800;transition:transform .2s ease,border-color .2s ease,color .2s ease;}
+.slot img{width:52px;height:35px;object-fit:cover;border-radius:5px;display:block;margin:0 auto .55rem;filter:grayscale(1);opacity:.2;background:var(--panel-3);}
+.slot.got{color:white;border-color:rgba(125,176,255,.72);background:linear-gradient(180deg,rgba(31,114,255,.14),var(--panel-2));}
+.slot.got img{filter:none;opacity:1;}
+.slot.justgot{animation:slotPop .5s cubic-bezier(.2,.8,.2,1);}
+@keyframes slotPop{0%{transform:scale(.8);opacity:.4;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+.slot-number{display:none;position:absolute;top:7px;right:7px;color:white;background:var(--blue);border-radius:7px;padding:.13rem .36rem;font-size:.58rem;font-weight:900;}
+.slot.got .slot-number{display:inline-block;}
+
+/* LEADERBOARD */
+.leader-actions{display:flex;gap:.5rem;align-items:center;}
+.leader-list{min-height:210px;}
+.leader-row{display:flex;justify-content:space-between;align-items:center;gap:.75rem;border:1px solid var(--border);border-radius:12px;background:var(--panel-2);padding:.82rem .95rem;margin-bottom:.55rem;font-size:.86rem;}
+.leader-row.me{border-color:rgba(125,176,255,.85);background:rgba(31,114,255,.1);}
+.leader-left{display:flex;align-items:center;gap:.75rem;min-width:0;}
+.rank{width:28px;flex:0 0 28px;text-align:center;font-weight:900;color:var(--amber);}
+.rank.r1{color:var(--gold);}
+.rank.r2{color:#cfd6e0;}
+.rank.r3{color:#d18a52;}
+.addr{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);overflow:hidden;text-overflow:ellipsis;}
+.score{color:#7db0ff;font-weight:900;white-space:nowrap;}
+.empty,.loading-text{color:var(--muted);text-align:center;padding:2.2rem 0;font-size:.88rem;}
+.loading-text{animation:pulse 1.4s ease-in-out infinite;}
+
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:1.25rem;z-index:20;transform:translate(-50%,120px);max-width:min(520px,calc(100% - 32px));color:var(--green);background:#111820;border:1px solid rgba(23,230,138,.34);border-radius:12px;box-shadow:var(--shadow);padding:.85rem 1rem;font-size:.86rem;font-weight:800;text-align:center;transition:transform .28s ease;}
+.toast.show{transform:translate(-50%,0);}
+
+.footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;color:var(--muted);font-size:.75rem;}
+
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+
+@media (max-width:760px){
+  .hero-inner,.wallet-bar,.section-head{align-items:flex-start;flex-direction:column;}
+  .status-pill{align-self:flex-start;}
+  .shell{padding:1rem;}
+  .tabs{grid-template-columns:1fr;}
+  .pack-layout{grid-template-columns:1fr;}
+  .pack-stage{min-height:300px;}
+  .collection-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));}
+  .metric-row{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-  <header class="hero">
-    <div class="wrap hero-inner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"><div class="logo-mark"></div></div>
-        <div>
-          <h1>FOOT BASE</h1>
-          <div class="subtitle">Album World Cup 2026 - Gacha on-chain</div>
-          <div class="author">by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank" rel="noreferrer">irezroifer.base.eth</a></div>
-        </div>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><div class="logo-mark"></div></div>
+      <div>
+        <h1>FOOT BASE</h1>
+        <div class="subtitle">Album World Cup 2026 — Gacha on-chain</div>
+        <div class="author">by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank" rel="noreferrer">irezroifer.base.eth</a></div>
       </div>
-      <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
     </div>
-  </header>
+    <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
+  </div>
+</header>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <main class="wrap">
-    <section class="shell">
-      <div class="alert error" id="error"></div>
-      <div class="alert warn" id="network-warning">
-        <strong>Mauvais réseau</strong>
-        Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est actuellement sur <span id="current-network">un autre réseau</span>.
+<main class="wrap">
+  <section class="shell">
+    <div class="alert error" id="error"></div>
+    <div class="alert warn" id="network-warning">
+      <strong>Mauvais réseau</strong>
+      Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est actuellement sur <span id="current-network">un autre réseau</span>.
+    </div>
+
+    <div class="wallet-bar" id="wallet-bar">
+      <div class="wallet-left">
+        <span class="wallet-address" id="wallet-address">0x...</span>
+        <span class="tag" id="network-badge">Non connecté</span>
       </div>
-
-      <div class="wallet-bar" id="wallet-bar">
-        <div class="wallet-left">
-          <span class="wallet-address" id="wallet-address">0x...</span>
-          <span class="tag" id="network-badge">Non connecté</span>
-        </div>
-        <div class="wallet-right">
-          <span class="tag" id="eth-balance">0 ETH</span>
-          <a class="scan-link" id="scan-link" href="https://basescan.org" target="_blank" rel="noreferrer">Basescan</a>
-          <button class="secondary" type="button" id="disconnect-btn">Déconnecter</button>
-        </div>
+      <div class="wallet-right">
+        <span class="tag" id="eth-balance">0 ETH</span>
+        <a class="scan-link" id="scan-link" href="https://basescan.org" target="_blank" rel="noreferrer">Basescan</a>
+        <button class="secondary" type="button" id="disconnect-btn">Déconnecter</button>
       </div>
+    </div>
 
-      <nav class="tabs" aria-label="Navigation">
-        <button class="tab active" type="button" data-tab="0">Pack opener</button>
-        <button class="tab" type="button" data-tab="1">Ma collection</button>
-        <button class="tab" type="button" data-tab="2">Leaderboard</button>
-      </nav>
+    <nav class="tabs" aria-label="Navigation">
+      <button class="tab active" type="button" data-tab="0">Pack opener</button>
+      <button class="tab" type="button" data-tab="1">Ma collection</button>
+      <button class="tab" type="button" data-tab="2">Leaderboard</button>
+    </nav>
 
-      <div class="view active" id="view-0">
-        <div class="pack-layout">
-          <div class="pack-stage">
-            <button class="pack" id="pack" type="button" aria-label="Ouvrir un pack">
-              <span class="pack-lines"></span>
-              <span class="pack-title">MONDIAL 2026</span>
-              <span class="pack-sub">World Cup Edition</span>
-              <span class="pack-num">48</span>
-            </button>
+    <!-- PACK OPENER -->
+    <div class="view active" id="view-0">
+      <div class="pack-layout">
+        <div class="pack-stage">
+          <div class="burst" id="burst"></div>
 
-            <div class="reveal" id="reveal">
-              <div class="reveal-conf" id="reveal-conf"></div>
-              <div class="flag-frame"><img id="reveal-flag" alt=""></div>
-              <div class="reveal-name" id="reveal-name"></div>
-              <div class="rarity" id="reveal-rarity">Carte rare</div>
-              <div class="reveal-meta" id="reveal-meta"></div>
-              <button class="link-button" type="button" id="reset-pack">Ouvrir un autre pack</button>
+          <button class="pack" id="pack" type="button" aria-label="Ouvrir un pack">
+            <span class="pack-lines"></span>
+            <span class="pack-title">MONDIAL 2026</span>
+            <span class="pack-sub">World Cup Edition</span>
+            <span class="pack-num">48</span>
+            <span class="pack-hint" id="pack-hint">Cliquer pour ouvrir</span>
+          </button>
+
+          <div class="reveal" id="reveal">
+            <div class="reveal-conf" id="reveal-conf"></div>
+            <div class="card-frame" id="card-frame">
+              <div class="shine"></div>
+              <span class="card-rarity-badge" id="card-rarity-badge"></span>
+              <div class="card-flag-wrap"><img id="reveal-flag" alt=""></div>
+              <div class="card-body">
+                <div class="card-name" id="reveal-name"></div>
+                <div class="card-conf-line" id="card-conf-line"></div>
+                <div class="card-id-line" id="reveal-meta"></div>
+              </div>
+            </div>
+            <button class="link-button" type="button" id="reset-pack">Ouvrir un autre pack →</button>
+          </div>
+        </div>
+
+        <aside class="side-panel">
+          <div>
+            <div class="gauge-head">
+              <div class="label">Ta collection</div>
+              <div class="gauge-count" id="gauge-count">0 / 48</div>
+            </div>
+            <div class="track"><div class="fill" id="gauge-fill"></div></div>
+            <div class="milestones"><span>0</span><span>12</span><span>24</span><span>36</span><span>48</span></div>
+          </div>
+
+          <div class="metric-row">
+            <div class="metric">
+              <div class="label">Mints aujourd'hui</div>
+              <div class="value" id="daily-value">— / 2</div>
+            </div>
+            <div class="metric">
+              <div class="label">Réseau</div>
+              <div class="value" id="chain-value" style="font-size:.92rem;">Base</div>
             </div>
           </div>
 
-          <aside class="side-panel">
-            <div>
-              <div class="gauge-head">
-                <div class="label">Ta collection</div>
-                <div class="gauge-count" id="gauge-count">0 / 48</div>
-              </div>
-              <div class="track"><div class="fill" id="gauge-fill"></div></div>
-              <div class="milestones"><span>0</span><span>12</span><span>24</span><span>36</span><span>48</span></div>
-            </div>
-
-            <div class="metric-row">
-              <div class="metric">
-                <div class="label">Mints aujourd'hui</div>
-                <div class="value" id="daily-value">- / 2</div>
-              </div>
-              <div class="metric">
-                <div class="label">Réseau</div>
-                <div class="value" id="chain-value">Base</div>
-              </div>
-            </div>
-
+          <div>
             <button class="primary" id="main-btn" type="button">Connecter le wallet</button>
-            <button class="secondary" id="demo-btn" type="button">Tester en mode démo</button>
-          </aside>
-        </div>
-      </div>
-
-      <div class="view" id="view-1">
-        <div class="section-head">
-          <div class="label">Album WC2026 - 48 nations</div>
-          <div class="count" id="collection-count">0 / 48 pays</div>
-        </div>
-        <div class="collection-grid" id="collection-grid"></div>
-      </div>
-
-      <div class="view" id="view-2">
-        <div class="section-head">
-          <div class="label">Top collectionneurs</div>
-          <div class="leader-actions">
-            <button class="secondary" type="button" id="refresh-lb">Actualiser</button>
+            <div style="height:.5rem;"></div>
+            <button class="secondary" id="demo-btn" type="button" style="width:100%;">🎮 Tester en mode démo</button>
           </div>
-        </div>
-        <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div></div>
+        </aside>
       </div>
-    </section>
+    </div>
 
-    <footer class="footer">
-      <div>Base RPC - ERC-721 - cache local sécurisé</div>
-      <div>Contrat: <a href="https://basescan.org/address/0xfa0a2a71c0db19afb457648537eb45fb734a5c7a" target="_blank" rel="noreferrer">0xfa0a...5c7a</a></div>
-    </footer>
-  </main>
+    <!-- COLLECTION -->
+    <div class="view" id="view-1">
+      <div class="section-head">
+        <div class="label">Album WC2026 — 48 nations</div>
+        <div class="count" id="collection-count">0 / 48 pays</div>
+      </div>
+      <div class="collection-grid" id="collection-grid"></div>
+    </div>
 
-  <script>
-    const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-    const CONTRACT_ABI = [
-      "function mintPack() external payable",
-      "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
-      "function dailyMintCount(address addr) external view returns (uint256)",
-      "function nextTokenId() external view returns (uint256)",
-      "function ownerOf(uint256 tokenId) external view returns (address)",
-      "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
-    ];
+    <!-- LEADERBOARD -->
+    <div class="view" id="view-2">
+      <div class="section-head">
+        <div class="label">Top collectionneurs</div>
+        <div class="leader-actions">
+          <button class="secondary" type="button" id="refresh-lb">Actualiser</button>
+        </div>
+      </div>
+      <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div></div>
+    </div>
+  </section>
 
-    const SUPPORTED_CHAINS = {
-      8453: { name: "Base Mainnet", scan: "https://basescan.org", rpc: "https://mainnet.base.org" },
-      84532: { name: "Base Sepolia", scan: "https://sepolia.basescan.org", rpc: "https://sepolia.base.org" }
-    };
+  <footer class="footer">
+    <div>Base RPC · ERC-721 · cache local</div>
+    <div>Contrat: <a href="https://basescan.org/address/0xfa0a2a71c0db19afb457648537eb45fb734a5c7a" target="_blank" rel="noreferrer">0xfa0a...5c7a</a></div>
+  </footer>
+</main>
 
-    const DEFAULT_CHAIN_ID = 8453;
-    const DAILY_LIMIT = 2;
-    const TOTAL = 48;
-    const CACHE_KEY = address => `footbase:v5:collection:${address.toLowerCase()}`;
-    const DEMO_KEY = "footbase:v5:demo";
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════════════════
+const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+const CONTRACT_ABI = [
+  "function mintPack() external payable",
+  "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
+  "function dailyMintCount(address addr) external view returns (uint256)",
+  "function nextTokenId() external view returns (uint256)",
+  "function ownerOf(uint256 tokenId) external view returns (address)",
+  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+];
+const SUPPORTED = {
+  8453:  { name:"Base Mainnet", scan:"https://basescan.org" },
+  84532: { name:"Base Sepolia", scan:"https://sepolia.basescan.org" }
+};
+const DAILY_LIMIT = 2;
+const cacheKey = addr => `footbase_col_${addr.toLowerCase()}`;
 
-    const countries = [
-      { name: "Canada", code: "ca", conf: "CONCACAF" },
-      { name: "Curacao", code: "cw", conf: "CONCACAF" },
-      { name: "Etats-Unis", code: "us", conf: "CONCACAF" },
-      { name: "Haiti", code: "ht", conf: "CONCACAF" },
-      { name: "Mexique", code: "mx", conf: "CONCACAF" },
-      { name: "Panama", code: "pa", conf: "CONCACAF" },
-      { name: "Arabie saoudite", code: "sa", conf: "AFC" },
-      { name: "Australie", code: "au", conf: "AFC" },
-      { name: "Irak", code: "iq", conf: "AFC" },
-      { name: "Japon", code: "jp", conf: "AFC" },
-      { name: "Jordanie", code: "jo", conf: "AFC" },
-      { name: "Ouzbekistan", code: "uz", conf: "AFC" },
-      { name: "Qatar", code: "qa", conf: "AFC" },
-      { name: "Coree du Sud", code: "kr", conf: "AFC" },
-      { name: "Iran", code: "ir", conf: "AFC" },
-      { name: "Afrique du Sud", code: "za", conf: "CAF" },
-      { name: "Algerie", code: "dz", conf: "CAF" },
-      { name: "Cap-Vert", code: "cv", conf: "CAF" },
-      { name: "Cote d'Ivoire", code: "ci", conf: "CAF" },
-      { name: "Egypte", code: "eg", conf: "CAF" },
-      { name: "Ghana", code: "gh", conf: "CAF" },
-      { name: "Maroc", code: "ma", conf: "CAF" },
-      { name: "RD Congo", code: "cd", conf: "CAF" },
-      { name: "Senegal", code: "sn", conf: "CAF" },
-      { name: "Tunisie", code: "tn", conf: "CAF" },
-      { name: "Argentine", code: "ar", conf: "CONMEBOL" },
-      { name: "Bresil", code: "br", conf: "CONMEBOL" },
-      { name: "Colombie", code: "co", conf: "CONMEBOL" },
-      { name: "Equateur", code: "ec", conf: "CONMEBOL" },
-      { name: "Paraguay", code: "py", conf: "CONMEBOL" },
-      { name: "Uruguay", code: "uy", conf: "CONMEBOL" },
-      { name: "Nouvelle-Zelande", code: "nz", conf: "OFC" },
-      { name: "Allemagne", code: "de", conf: "UEFA" },
-      { name: "Angleterre", code: "gb-eng", fallbackCode: "gb", conf: "UEFA" },
-      { name: "Autriche", code: "at", conf: "UEFA" },
-      { name: "Belgique", code: "be", conf: "UEFA" },
-      { name: "Bosnie-Herzegovine", code: "ba", conf: "UEFA" },
-      { name: "Croatie", code: "hr", conf: "UEFA" },
-      { name: "Ecosse", code: "gb-sct", fallbackCode: "gb", conf: "UEFA" },
-      { name: "France", code: "fr", conf: "UEFA" },
-      { name: "Espagne", code: "es", conf: "UEFA" },
-      { name: "Norvege", code: "no", conf: "UEFA" },
-      { name: "Pays-Bas", code: "nl", conf: "UEFA" },
-      { name: "Portugal", code: "pt", conf: "UEFA" },
-      { name: "Suede", code: "se", conf: "UEFA" },
-      { name: "Suisse", code: "ch", conf: "UEFA" },
-      { name: "Tchequie", code: "cz", conf: "UEFA" },
-      { name: "Turquie", code: "tr", conf: "UEFA" }
-    ];
+// ══════════════════════════════════════════════════════════════════════════
+// 48 ÉQUIPES WORLD CUP 2026 — avec rareté façon trading card
+// ══════════════════════════════════════════════════════════════════════════
+const RARITY = {
+  legendary: { weight: 5,  label: "Légendaire" },  // ex: Brésil, France, Argentine...
+  epic:      { weight: 20, label: "Épique" },
+  common:    { weight: 75, label: "Commune" },
+};
 
-    const $ = selector => document.querySelector(selector);
-    const $$ = selector => Array.from(document.querySelectorAll(selector));
+const countries = [
+  // CONCACAF
+  {name:"Canada",             code:"ca", conf:"CONCACAF", rarity:"common"},
+  {name:"Curaçao",            code:"cw", conf:"CONCACAF", rarity:"common"},
+  {name:"États-Unis",         code:"us", conf:"CONCACAF", rarity:"epic"},
+  {name:"Haïti",              code:"ht", conf:"CONCACAF", rarity:"common"},
+  {name:"Mexique",            code:"mx", conf:"CONCACAF", rarity:"epic"},
+  {name:"Panama",             code:"pa", conf:"CONCACAF", rarity:"common"},
+  // AFC
+  {name:"Arabie Saoudite",    code:"sa", conf:"AFC", rarity:"common"},
+  {name:"Australie",          code:"au", conf:"AFC", rarity:"common"},
+  {name:"Irak",               code:"iq", conf:"AFC", rarity:"common"},
+  {name:"Japon",              code:"jp", conf:"AFC", rarity:"epic"},
+  {name:"Jordanie",           code:"jo", conf:"AFC", rarity:"common"},
+  {name:"Ouzbékistan",        code:"uz", conf:"AFC", rarity:"common"},
+  {name:"Qatar",              code:"qa", conf:"AFC", rarity:"common"},
+  {name:"Corée du Sud",       code:"kr", conf:"AFC", rarity:"epic"},
+  {name:"Iran",               code:"ir", conf:"AFC", rarity:"common"},
+  // CAF
+  {name:"Afrique du Sud",     code:"za", conf:"CAF", rarity:"common"},
+  {name:"Algérie",            code:"dz", conf:"CAF", rarity:"common"},
+  {name:"Cap-Vert",           code:"cv", conf:"CAF", rarity:"common"},
+  {name:"Côte d'Ivoire",      code:"ci", conf:"CAF", rarity:"epic"},
+  {name:"Égypte",             code:"eg", conf:"CAF", rarity:"common"},
+  {name:"Ghana",              code:"gh", conf:"CAF", rarity:"common"},
+  {name:"Maroc",              code:"ma", conf:"CAF", rarity:"legendary"},
+  {name:"RD Congo",           code:"cd", conf:"CAF", rarity:"common"},
+  {name:"Sénégal",            code:"sn", conf:"CAF", rarity:"epic"},
+  {name:"Tunisie",            code:"tn", conf:"CAF", rarity:"common"},
+  // CONMEBOL
+  {name:"Argentine",          code:"ar", conf:"CONMEBOL", rarity:"legendary"},
+  {name:"Brésil",             code:"br", conf:"CONMEBOL", rarity:"legendary"},
+  {name:"Colombie",           code:"co", conf:"CONMEBOL", rarity:"epic"},
+  {name:"Équateur",           code:"ec", conf:"CONMEBOL", rarity:"common"},
+  {name:"Paraguay",           code:"py", conf:"CONMEBOL", rarity:"common"},
+  {name:"Uruguay",            code:"uy", conf:"CONMEBOL", rarity:"epic"},
+  // OFC
+  {name:"Nouvelle-Zélande",   code:"nz", conf:"OFC", rarity:"common"},
+  // UEFA
+  {name:"Allemagne",          code:"de", conf:"UEFA", rarity:"legendary"},
+  {name:"Angleterre",         code:"gb", conf:"UEFA", rarity:"legendary", flagOverride:"https://flagcdn.com/w320/gb-eng.png"},
+  {name:"Autriche",           code:"at", conf:"UEFA", rarity:"common"},
+  {name:"Belgique",           code:"be", conf:"UEFA", rarity:"epic"},
+  {name:"Bosnie-Herzégovine", code:"ba", conf:"UEFA", rarity:"common"},
+  {name:"Croatie",            code:"hr", conf:"UEFA", rarity:"epic"},
+  {name:"Écosse",             code:"gb", conf:"UEFA", rarity:"common", flagOverride:"https://flagcdn.com/w320/gb-sct.png"},
+  {name:"France",             code:"fr", conf:"UEFA", rarity:"legendary"},
+  {name:"Espagne",            code:"es", conf:"UEFA", rarity:"legendary"},
+  {name:"Norvège",            code:"no", conf:"UEFA", rarity:"common"},
+  {name:"Pays-Bas",           code:"nl", conf:"UEFA", rarity:"epic"},
+  {name:"Portugal",           code:"pt", conf:"UEFA", rarity:"legendary"},
+  {name:"Suède",              code:"se", conf:"UEFA", rarity:"common"},
+  {name:"Suisse",             code:"ch", conf:"UEFA", rarity:"common"},
+  {name:"Tchéquie",           code:"cz", conf:"UEFA", rarity:"common"},
+  {name:"Turquie",            code:"tr", conf:"UEFA", rarity:"common"},
+];
+const TOTAL = countries.length; // 48
 
-    let provider = null;
-    let signer = null;
-    let contract = null;
-    let userAddress = "";
-    let activeChain = null;
-    let owned = new Set();
-    let demoMode = false;
-    let toastTimer = null;
-    let isBusy = false;
+function flagUrl(c) {
+  return c.flagOverride || `https://flagcdn.com/w320/${c.code}.png`;
+}
 
-    document.addEventListener("DOMContentLoaded", init);
+// ══════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════
+let provider, signer, contract, userAddress = null;
+let owned = new Set();      // countryId (1-based) possédés
+let demoMode = false;       // mode test sans wallet
+let demoDailyCount = 0;
 
-    function init() {
-      buildCollectionGrid();
-      bindEvents();
-      setButton("connect");
-      updateUI();
+// ══════════════════════════════════════════════════════════════════════════
+// CACHE localStorage
+// ══════════════════════════════════════════════════════════════════════════
+function cacheLoad(addr) {
+  try { return new Set(JSON.parse(localStorage.getItem(cacheKey(addr)) || "[]")); }
+  catch { return new Set(); }
+}
+function cacheSave(addr, set) {
+  try { localStorage.setItem(cacheKey(addr), JSON.stringify([...set])); } catch {}
+}
 
-      if (!window.ethereum) {
-        $("#app-status").textContent = "Demo ready";
-        return;
-      }
+// ══════════════════════════════════════════════════════════════════════════
+// DOM REFS
+// ══════════════════════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const elPack       = $('pack');
+const elPackHint   = $('pack-hint');
+const elReveal     = $('reveal');
+const elBurst      = $('burst');
+const elCardFrame  = $('card-frame');
+const elBtn        = $('main-btn');
+const elDemoBtn     = $('demo-btn');
+const elDisconnect = $('disconnect-btn');
 
-      window.ethereum.request({ method: "eth_accounts" })
-        .then(accounts => {
-          if (accounts && accounts.length) setupProvider(false);
-        })
-        .catch(() => {});
+// ══════════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildCollectionGrid();
+  bindEvents();
 
-      window.ethereum.on?.("accountsChanged", accounts => {
-        accounts && accounts.length ? setupProvider(false) : disconnectUI();
-      });
-      window.ethereum.on?.("chainChanged", () => setupProvider(false));
+  if (window.ethereum) {
+    window.ethereum.request({ method: 'eth_accounts' }).then(acc => {
+      if (acc.length > 0) setupProvider(false);
+    }).catch(() => {});
+    window.ethereum.on('accountsChanged', acc => acc.length ? setupProvider(false) : disconnectWallet());
+    window.ethereum.on('chainChanged', () => setupProvider(false));
+  }
+});
+
+function bindEvents() {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => switchTab(parseInt(t.dataset.tab, 10)));
+  });
+  elPack.addEventListener('click', handlePackClick);
+  $('reset-pack').addEventListener('click', resetPackView);
+  $('refresh-lb').addEventListener('click', loadLeaderboard);
+  elDisconnect.addEventListener('click', disconnectWallet);
+  elDemoBtn.addEventListener('click', toggleDemoMode);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// DEMO MODE — pour tester sans wallet / sans contrat déployé
+// ══════════════════════════════════════════════════════════════════════════
+function toggleDemoMode() {
+  demoMode = !demoMode;
+  if (demoMode) {
+    userAddress = "demo.local";
+    owned = cacheLoad(userAddress);
+    demoDailyCount = parseInt(sessionStorage.getItem('footbase_demo_daily') || '0', 10);
+    $('app-status').textContent = 'Mode démo';
+    elDemoBtn.textContent = '✕ Quitter le mode démo';
+    elBtn.disabled = false;
+    updateDailyUI(demoDailyCount);
+    updateCollectionUI();
+    showToast('Mode démo activé — les mints sont simulés localement');
+  } else {
+    userAddress = null;
+    owned = new Set();
+    $('app-status').textContent = 'Drop live';
+    elDemoBtn.textContent = '🎮 Tester en mode démo';
+    setBtnState('connect');
+    updateCollectionUI();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// PROVIDER / WALLET
+// ══════════════════════════════════════════════════════════════════════════
+async function setupProvider(requestAccounts = true) {
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    if (requestAccounts) await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
+    demoMode = false;
+
+    const net = await provider.getNetwork();
+    const info = SUPPORTED[net.chainId];
+    const ok = !!info;
+
+    $('network-badge').textContent = ok ? info.name : `Chain ${net.chainId}`;
+    $('network-badge').className = 'tag' + (ok ? ' ok' : ' bad');
+    $('scan-link').href = (ok ? info.scan : 'https://basescan.org') + '/address/' + userAddress;
+    $('wallet-address').textContent = userAddress.slice(0,6) + '…' + userAddress.slice(-4);
+    $('wallet-bar').classList.add('show');
+    $('network-warning').classList.toggle('show', !ok);
+    if (!ok) $('current-network').textContent = `Chain ID ${net.chainId}`;
+    $('chain-value').textContent = ok ? info.name.replace('Base ', '') : '—';
+
+    if (ok) {
+      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+      owned = cacheLoad(userAddress);
+      updateCollectionUI();
+      await refreshOnChain();
+    } else {
+      setBtnState('connect');
     }
+  } catch (e) {
+    handleError(e, 'connexion');
+  }
+}
 
-    function bindEvents() {
-      $("#main-btn").addEventListener("click", connectOrMint);
-      $("#pack").addEventListener("click", connectOrMint);
-      $("#demo-btn").addEventListener("click", mintDemo);
-      $("#reset-pack").addEventListener("click", resetPackView);
-      $("#disconnect-btn").addEventListener("click", disconnectUI);
-      $("#refresh-lb").addEventListener("click", loadLeaderboard);
-      $$(".tab").forEach(button => {
-        button.addEventListener("click", () => switchTab(Number(button.dataset.tab)));
-      });
+function disconnectWallet() {
+  userAddress = null; provider = null; signer = null; contract = null;
+  demoMode = false; owned = new Set();
+  $('wallet-bar').classList.remove('show');
+  $('network-warning').classList.remove('show');
+  setBtnState('connect');
+  updateDailyUI(0, true);
+  updateCollectionUI();
+  resetPackView();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// PACK CLICK → CONNECT OR MINT
+// ══════════════════════════════════════════════════════════════════════════
+function handlePackClick() {
+  if (elReveal.classList.contains('show')) return; // déjà ouvert, attend reset
+  if (demoMode) { runDemoMint(); return; }
+  if (!userAddress) {
+    if (!window.ethereum) {
+      showError('<strong>Aucun wallet détecté</strong>Installe MetaMask ou Rabby, ou utilise le mode démo pour tester.');
+      return;
     }
+    setupProvider(true);
+    return;
+  }
+  runRealMint();
+}
 
-    async function waitForEthers() {
-      for (let i = 0; i < 40; i += 1) {
-        if (window.ethers) return true;
-        await delay(100);
-      }
-      return false;
+function mainButtonClick() {
+  if (demoMode) { runDemoMint(); return; }
+  if (!userAddress) { setupProvider(true); return; }
+  runRealMint();
+}
+elBtn.addEventListener('click', mainButtonClick);
+
+// ══════════════════════════════════════════════════════════════════════════
+// PACK OPENING ANIMATION SEQUENCE (Pokémon TCG / FIFA style)
+// ══════════════════════════════════════════════════════════════════════════
+function playPackAnimation(onPeak, onDone) {
+  elPackHint.style.opacity = '0';
+  elPack.classList.add('shaking');
+
+  setTimeout(() => {
+    elPack.classList.remove('shaking');
+    elPack.classList.add('flashing');
+    spawnBurst();
+    if (onPeak) onPeak();
+  }, 550);
+
+  setTimeout(() => {
+    elPack.classList.add('flying');
+  }, 700);
+
+  setTimeout(() => {
+    elPack.style.display = 'none';
+    if (onDone) onDone();
+  }, 1050);
+}
+
+function spawnBurst() {
+  elBurst.innerHTML = '';
+  const n = 18;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    const angle = (i / n) * Math.PI * 2;
+    const dist = 70 + Math.random() * 60;
+    const x = Math.cos(angle) * dist;
+    const y = Math.sin(angle) * dist;
+    s.style.transform = `translate(-50%,-50%) translate(${x}px,${y}px)`;
+    s.style.background = i % 3 === 0 ? '#17e68a' : i % 3 === 1 ? '#1f72ff' : '#ffd23f';
+    elBurst.appendChild(s);
+  }
+  elBurst.classList.remove('go');
+  void elBurst.offsetWidth; // reflow
+  elBurst.classList.add('go');
+}
+
+function resetPackView() {
+  elReveal.classList.remove('show');
+  elPack.style.display = '';
+  elPack.classList.remove('flying', 'flashing');
+  elPackHint.style.opacity = '1';
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// DEMO MINT — tirage local pondéré par rareté, sans blockchain
+// ══════════════════════════════════════════════════════════════════════════
+function runDemoMint() {
+  if (demoDailyCount >= DAILY_LIMIT) {
+    showError('<strong>Limite journalière (démo)</strong>2 mints max par jour en mode démo. Réinitialise via "Quitter le mode démo" puis reviens.');
+    return;
+  }
+  hideError();
+  playPackAnimation(null, () => {
+    const cId = weightedRandomCountryId();
+    owned.add(cId);
+    cacheSave(userAddress, owned);
+    demoDailyCount++;
+    sessionStorage.setItem('footbase_demo_daily', String(demoDailyCount));
+    updateDailyUI(demoDailyCount);
+    updateCollectionUI();
+    showReveal(cId);
+    showToast('🎉 Pack ouvert (démo) !');
+  });
+}
+
+function weightedRandomCountryId() {
+  // Tirage pondéré par rareté façon booster de cartes
+  const r = Math.random() * 100;
+  let pool;
+  if (r < RARITY.legendary.weight) pool = countries.filter(c => c.rarity === 'legendary');
+  else if (r < RARITY.legendary.weight + RARITY.epic.weight) pool = countries.filter(c => c.rarity === 'epic');
+  else pool = countries.filter(c => c.rarity === 'common');
+  if (!pool.length) pool = countries;
+  const picked = pool[Math.floor(Math.random() * pool.length)];
+  return countries.indexOf(picked) + 1;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// REAL MINT — on-chain via le smart contract
+// ══════════════════════════════════════════════════════════════════════════
+async function runRealMint() {
+  try {
+    const daily = await contract.dailyMintCount(userAddress);
+    if (daily.toNumber() >= DAILY_LIMIT) {
+      showError('<strong>Limite journalière atteinte</strong>2 mints max par jour. Reviens demain !');
+      return;
     }
+  } catch (e) { /* on continue, le contrat tranchera */ }
 
-    async function setupProvider(requestAccounts = true) {
-      hideError();
-      demoMode = false;
+  hideError();
+  setBtnState('loading', 'Signature requise…');
 
-      if (!window.ethereum) {
-        showError("Aucun wallet detecte", "Installe MetaMask, Rabby ou Coinbase Wallet pour minter on-chain. Le mode demo fonctionne tout de suite.");
-        setButton("connect");
-        return;
-      }
+  let tx;
+  try {
+    tx = await contract.mintPack({ gasLimit: 300000 });
+  } catch (e) {
+    handleError(e, 'mint'); 
+    return;
+  }
 
-      if (!(await waitForEthers())) {
-        showError("Web3 indisponible", "ethers.js n'a pas pu charger. Verifie ta connexion internet puis recharge la page.");
-        setButton("connect");
-        return;
-      }
+  // Lance l'animation pendant que la tx se confirme
+  let cId = null;
+  let confirmed = false;
+  setBtnState('loading', 'Ouverture du pack…');
 
-      try {
-        setButton("loading", requestAccounts ? "Connexion au wallet..." : "Lecture du wallet...");
-        provider = new ethers.providers.Web3Provider(window.ethereum, "any");
-        if (requestAccounts) await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        userAddress = await signer.getAddress();
-
-        const network = await provider.getNetwork();
-        activeChain = Number(network.chainId);
-        const chainInfo = SUPPORTED_CHAINS[activeChain];
-
-        $("#wallet-address").textContent = compactAddress(userAddress);
-        $("#wallet-bar").style.display = "flex";
-        $("#scan-link").href = `${chainInfo?.scan || SUPPORTED_CHAINS[DEFAULT_CHAIN_ID].scan}/address/${userAddress}`;
-        $("#network-badge").textContent = chainInfo?.name || `Chain ${activeChain}`;
-        $("#network-badge").className = `tag ${chainInfo ? "ok" : "bad"}`;
-        $("#chain-value").textContent = chainInfo ? "Base" : `Chain ${activeChain}`;
-        $("#chain-value").className = `value ${chainInfo ? "ok" : "bad"}`;
-        $("#network-warning").style.display = chainInfo ? "none" : "block";
-        $("#current-network").textContent = chainInfo ? chainInfo.name : `Chain ${activeChain}`;
-        $("#app-status").textContent = chainInfo ? "Drop live" : "Wrong network";
-
-        if (!chainInfo) {
-          contract = null;
-          setButton("wrong-network");
-          return;
-        }
-
-        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-        owned = loadCollection(CACHE_KEY(userAddress));
-        updateUI();
-        setButton("mint");
-        await refreshAll();
-      } catch (error) {
-        handleError(error, "connexion");
-      }
-    }
-
-    async function connectOrMint() {
-      if (isBusy) return;
-      hideError();
-
-      if (userAddress && !contract && !SUPPORTED_CHAINS[activeChain]) {
-        await switchToBase();
-        return;
-      }
-
-      if (!userAddress || !contract) {
-        await setupProvider(true);
-        return;
-      }
-
-      await mintOnChain();
-    }
-
-    async function switchToBase() {
-      if (!window.ethereum) return setupProvider(true);
-      const chain = SUPPORTED_CHAINS[DEFAULT_CHAIN_ID];
-      setButton("loading", "Changement vers Base...");
-
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: `0x${DEFAULT_CHAIN_ID.toString(16)}` }]
-        });
-      } catch (error) {
-        if (error && error.code === 4902) {
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: `0x${DEFAULT_CHAIN_ID.toString(16)}`,
-              chainName: chain.name,
-              nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-              rpcUrls: [chain.rpc],
-              blockExplorerUrls: [chain.scan]
-            }]
-          });
-        } else {
-          handleError(error, "reseau");
-          return;
-        }
-      }
-
-      await setupProvider(false);
-    }
-
-    async function mintOnChain() {
-      if (!contract || !userAddress) return setupProvider(true);
-
-      isBusy = true;
-      startPackAnimation();
-      setButton("loading", "Signature requise...");
-
-      try {
-        const daily = await contract.dailyMintCount(userAddress).catch(() => null);
-        if (daily && daily.toNumber() >= DAILY_LIMIT) {
-          stopPackAnimation();
-          setButton("limit");
-          showError("Limite journaliere atteinte", `${DAILY_LIMIT} mints maximum par jour. Reviens demain.`);
-          return;
-        }
-
-        const tx = await contract.mintPack({ gasLimit: 300000 });
-        setButton("loading", "Validation on-chain...");
-        const receipt = await tx.wait();
-        const mintedCountry = await readMintedCountry(receipt);
-        await delay(350);
-
-        if (mintedCountry) {
-          owned.add(mintedCountry);
-          saveCollection(CACHE_KEY(userAddress), owned);
-          showReveal(mintedCountry);
-        } else {
-          showReveal(null);
-        }
-
-        showToast("Pack ouvert avec succes.");
-        updateUI();
-        await refreshAll();
-      } catch (error) {
-        stopPackAnimation();
-        handleError(error, "mint");
-      } finally {
-        isBusy = false;
-        if ($("#main-btn").classList.contains("loading")) setButton("mint");
-      }
-    }
-
-    async function readMintedCountry(receipt) {
+  playPackAnimation(null, async () => {
+    try {
+      const receipt = await tx.wait();
       const iface = new ethers.utils.Interface(CONTRACT_ABI);
-
-      for (const log of receipt.logs || []) {
+      for (const log of receipt.logs) {
         try {
-          const parsed = iface.parseLog(log);
-          const from = parsed.args.from?.toLowerCase();
-          const to = parsed.args.to?.toLowerCase();
-          const isMint = parsed.name === "Transfer" && from === ethers.constants.AddressZero.toLowerCase();
-
-          if (isMint && to === userAddress.toLowerCase()) {
-            const countryId = await contract.tokenToCountry(parsed.args.tokenId);
-            return normalizeCountryId(countryId.toNumber());
+          const p = iface.parseLog(log);
+          if (p.name === 'Transfer' && p.args.from === ethers.constants.AddressZero) {
+            const raw = await contract.tokenToCountry(p.args.tokenId.toNumber());
+            cId = raw.toNumber();
+            break;
           }
-        } catch (_) {}
+        } catch {}
       }
+      confirmed = true;
 
-      return null;
-    }
-
-    async function refreshAll() {
-      if (!provider || !contract || !userAddress) return;
-      await Promise.allSettled([refreshBalance(), refreshDailyLimit(), refreshCollection()]);
-      updateUI();
-    }
-
-    async function refreshBalance() {
-      const balance = await provider.getBalance(userAddress);
-      $("#eth-balance").textContent = `${Number(ethers.utils.formatEther(balance)).toFixed(4)} ETH`;
-    }
-
-    async function refreshDailyLimit() {
-      const daily = await contract.dailyMintCount(userAddress);
-      const used = daily.toNumber();
-      const left = Math.max(0, DAILY_LIMIT - used);
-      $("#daily-value").textContent = `${used} / ${DAILY_LIMIT}`;
-      $("#daily-value").className = `value ${left === 0 ? "bad" : left === 1 ? "warn" : "ok"}`;
-      setButton(left === 0 ? "limit" : "mint", left);
-    }
-
-    async function refreshCollection() {
-      const receivedFilter = contract.filters.Transfer(null, userAddress);
-      const receivedEvents = await queryFilterSafe(contract, receivedFilter);
-      const tokenIds = [...new Set(receivedEvents.map(event => event.args.tokenId.toString()))];
-
-      const countryIds = await Promise.all(tokenIds.map(async tokenId => {
-        try {
-          const owner = await contract.ownerOf(tokenId);
-          if (owner.toLowerCase() !== userAddress.toLowerCase()) return null;
-          const countryId = await contract.tokenToCountry(tokenId);
-          return normalizeCountryId(countryId.toNumber());
-        } catch (_) {
-          return null;
-        }
-      }));
-
-      owned = new Set(countryIds.filter(Boolean));
-      saveCollection(CACHE_KEY(userAddress), owned);
-    }
-
-    async function loadLeaderboard() {
-      const list = $("#leader-list");
-      const button = $("#refresh-lb");
-      list.innerHTML = '<div class="loading-text">Lecture on-chain...</div>';
-      button.disabled = true;
-
-      try {
-        if (!(await waitForEthers())) throw new Error("ethers.js indisponible");
-        const chain = SUPPORTED_CHAINS[activeChain] || SUPPORTED_CHAINS[DEFAULT_CHAIN_ID];
-        const readProvider = provider || new ethers.providers.JsonRpcProvider(chain.rpc);
-        const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
-        const events = await queryFilterSafe(readContract, readContract.filters.Transfer(ethers.constants.AddressZero));
-        const scores = new Map();
-
-        events.forEach(event => {
-          const address = event.args.to.toLowerCase();
-          scores.set(address, (scores.get(address) || 0) + 1);
-        });
-
-        const rows = [...scores.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
-        if (!rows.length) {
-          list.innerHTML = '<div class="empty">Aucun mint trouve pour l instant.</div>';
-          return;
-        }
-
-        list.innerHTML = rows.map(([address, score], index) => {
-          const isMe = userAddress && address === userAddress.toLowerCase();
-          return `<div class="leader-row ${isMe ? "me" : ""}">
-            <div class="leader-left">
-              <div class="rank">${index + 1}</div>
-              <div class="addr">${compactAddress(address)}${isMe ? " - toi" : ""}</div>
-            </div>
-            <div class="score">${score} NFT</div>
-          </div>`;
-        }).join("");
-      } catch (_) {
-        list.innerHTML = '<div class="empty">Impossible de charger le leaderboard. Reessaie dans un instant.</div>';
-      } finally {
-        button.disabled = false;
+      if (cId !== null) {
+        owned.add(cId);
+        cacheSave(userAddress, owned);
       }
-    }
-
-    async function queryFilterSafe(readContract, filter) {
-      try {
-        return await readContract.queryFilter(filter);
-      } catch (_) {
-        const latest = await readContract.provider.getBlockNumber();
-        const chunkSize = 100000;
-        const fromBlock = Math.max(0, latest - 900000);
-        const events = [];
-
-        for (let from = fromBlock; from <= latest; from += chunkSize + 1) {
-          const to = Math.min(latest, from + chunkSize);
-          const chunk = await readContract.queryFilter(filter, from, to).catch(() => []);
-          events.push(...chunk);
-        }
-
-        return events;
-      }
-    }
-
-    async function mintDemo() {
-      if (isBusy) return;
-      isBusy = true;
-      if (!demoMode) owned = loadCollection(DEMO_KEY);
-      demoMode = true;
-      hideError();
-      setButton("loading", "Ouverture du pack...");
-      startPackAnimation();
-      await delay(780);
-
-      const pool = countries.map((_, index) => index + 1).filter(id => !owned.has(id));
-      const countryId = pool.length ? pool[Math.floor(Math.random() * pool.length)] : Math.floor(Math.random() * TOTAL) + 1;
-
-      owned.add(countryId);
-      saveCollection(DEMO_KEY, owned);
-      $("#wallet-bar").style.display = "flex";
-      $("#wallet-address").textContent = "mode-demo";
-      $("#network-badge").textContent = "Demo locale";
-      $("#network-badge").className = "tag ok";
-      $("#eth-balance").textContent = "- ETH";
-      $("#chain-value").textContent = "Demo";
-      $("#chain-value").className = "value ok";
-      $("#daily-value").textContent = `${Math.min(owned.size, DAILY_LIMIT)} / ${DAILY_LIMIT}`;
-      $("#daily-value").className = "value ok";
-      $("#network-warning").style.display = "none";
-      $("#app-status").textContent = "Demo active";
-      showReveal(countryId);
-      updateUI();
-      setButton("demo");
-      showToast("Pack demo ouvert.");
-      isBusy = false;
-    }
-
-    function buildCollectionGrid() {
-      const grid = $("#collection-grid");
-      const confs = [...new Set(countries.map(country => country.conf))];
-
-      grid.innerHTML = confs.map(conf => {
-        const group = countries.filter(country => country.conf === conf);
-        const cards = group.map(country => {
-          const id = countries.indexOf(country) + 1;
-          const fallback = country.fallbackCode || "un";
-          return `<div class="slot" id="slot-${id}">
-            <img src="${flagUrl(country, 80)}" alt="Drapeau ${escapeHtml(country.name)}" loading="lazy" onerror="this.onerror=null;this.src='${flagUrl({ code: fallback }, 80)}';">
-            <div>${escapeHtml(country.name)}</div>
-            <span class="slot-number">#${id}</span>
-          </div>`;
-        }).join("");
-
-        return `<div class="conf-sep">${conf}<span class="conf-num">${group.length}</span></div>${cards}`;
-      }).join("");
-    }
-
-    function updateUI() {
-      const count = owned.size;
-      const percent = Math.min(100, Math.round((count / TOTAL) * 100));
-
-      $("#gauge-fill").style.width = `${percent}%`;
-      $("#gauge-count").textContent = `${count} / ${TOTAL}`;
-      $("#gauge-count").className = `gauge-count ${count === TOTAL ? "full" : ""}`;
-      $("#collection-count").textContent = `${count} / ${TOTAL} pays`;
-
-      countries.forEach((_, index) => {
-        const id = index + 1;
-        const slot = $(`#slot-${id}`);
-        if (slot) slot.classList.toggle("got", owned.has(id));
-      });
-    }
-
-    function showReveal(countryId) {
-      stopPackAnimation();
-      $("#pack").style.display = "none";
-      $("#reveal").style.display = "flex";
-      const normalizedId = normalizeCountryId(countryId);
-
-      if (!normalizedId) {
-        $("#reveal-flag").removeAttribute("src");
-        $("#reveal-conf").textContent = "";
-        $("#reveal-name").textContent = "Pays surprise";
-        $("#reveal-rarity").textContent = "Mint confirme";
-        $("#reveal-meta").textContent = "World Cup 2026";
-        return;
-      }
-
-      const country = countries[normalizedId - 1];
-      $("#reveal-flag").src = flagUrl(country, 160);
-      $("#reveal-flag").alt = `Drapeau ${country.name}`;
-      $("#reveal-flag").onerror = () => {
-        $("#reveal-flag").onerror = null;
-        $("#reveal-flag").src = flagUrl({ code: country.fallbackCode || "un" }, 160);
-      };
-      $("#reveal-conf").textContent = country.conf;
-      $("#reveal-name").textContent = country.name;
-      $("#reveal-rarity").textContent = owned.has(normalizedId) ? "Nouvelle carte" : "Carte revelee";
-      $("#reveal-meta").textContent = `Carte #${normalizedId} - World Cup 2026`;
-    }
-
-    function resetPackView() {
-      stopPackAnimation();
-      $("#pack").style.display = "";
-      $("#reveal").style.display = "none";
-    }
-
-    function startPackAnimation() {
+      updateCollectionUI();
+      showReveal(cId);
+      showToast('🎉 Pack ouvert avec succès !');
+      await refreshOnChain();
+    } catch (e) {
+      handleError(e, 'confirmation');
       resetPackView();
-      $("#pack").classList.remove("opening");
-      void $("#pack").offsetWidth;
-      $("#pack").classList.add("opening");
+    } finally {
+      setBtnState('mint');
     }
+  });
+}
 
-    function stopPackAnimation() {
-      $("#pack").classList.remove("opening");
-    }
+// ══════════════════════════════════════════════════════════════════════════
+// REVEAL — affiche la carte façon trading card avec rareté
+// ══════════════════════════════════════════════════════════════════════════
+function showReveal(cId) {
+  const frame = elCardFrame;
+  frame.classList.remove('epic', 'legendary');
 
-    function switchTab(tabIndex) {
-      $$(".tab").forEach(tab => tab.classList.toggle("active", Number(tab.dataset.tab) === tabIndex));
-      $$(".view").forEach((view, index) => view.classList.toggle("active", index === tabIndex));
-      if (tabIndex === 2) loadLeaderboard();
-    }
+  if (cId !== null && cId >= 1 && cId <= TOTAL) {
+    const c = countries[cId - 1];
+    $('reveal-flag').src = flagUrl(c);
+    $('reveal-flag').alt = c.name;
+    $('reveal-conf').textContent = RARITY[c.rarity]?.label.toUpperCase() || '';
+    $('reveal-name').textContent = c.name;
+    $('card-conf-line').textContent = c.conf;
+    $('reveal-meta').textContent = `Carte #${cId} · World Cup 2026`;
+    $('card-rarity-badge').textContent = RARITY[c.rarity]?.label || 'Commune';
+    if (c.rarity === 'epic') frame.classList.add('epic');
+    if (c.rarity === 'legendary') frame.classList.add('legendary');
 
-    function setButton(state, detail = "") {
-      const button = $("#main-btn");
-      button.disabled = false;
-      button.classList.remove("loading");
+    // Highlight dans l'album
+    const slot = $(`s${cId}`);
+    if (slot) { slot.classList.remove('justgot'); void slot.offsetWidth; slot.classList.add('justgot'); }
+  } else {
+    $('reveal-flag').src = '';
+    $('reveal-name').textContent = 'Pays surprise';
+    $('reveal-conf').textContent = '';
+    $('card-conf-line').textContent = '';
+    $('reveal-meta').textContent = 'World Cup 2026';
+    $('card-rarity-badge').textContent = '';
+  }
 
-      if (state === "loading") {
-        button.textContent = detail || "Chargement...";
-        button.disabled = true;
-        button.classList.add("loading");
-      } else if (state === "mint") {
-        button.textContent = detail === 1 ? "Ouvrir un pack - dernier mint du jour" : "Ouvrir un pack gratuit";
-      } else if (state === "limit") {
-        button.textContent = "Limite atteinte - reviens demain";
-        button.disabled = true;
-      } else if (state === "wrong-network") {
-        button.textContent = "Changer vers Base";
-      } else if (state === "demo") {
-        button.textContent = "Mode demo actif - ouvrir avec le pack";
-      } else {
-        button.textContent = "Connecter le wallet";
-      }
-    }
+  elReveal.classList.add('show');
+}
 
-    function disconnectUI() {
-      provider = null;
-      signer = null;
-      contract = null;
-      userAddress = "";
-      activeChain = null;
-      demoMode = false;
-      owned = new Set();
-      isBusy = false;
-      $("#wallet-bar").style.display = "none";
-      $("#network-warning").style.display = "none";
-      $("#daily-value").textContent = `- / ${DAILY_LIMIT}`;
-      $("#daily-value").className = "value";
-      $("#eth-balance").textContent = "0 ETH";
-      $("#chain-value").textContent = "Base";
-      $("#chain-value").className = "value";
-      $("#app-status").textContent = "Drop live";
-      resetPackView();
-      setButton("connect");
-      updateUI();
-    }
+// ══════════════════════════════════════════════════════════════════════════
+// REFRESH ON-CHAIN (vraie collection + solde + limite quotidienne)
+// ══════════════════════════════════════════════════════════════════════════
+async function refreshOnChain() {
+  if (!contract || !userAddress || demoMode) return;
 
-    function loadCollection(key) {
-      try {
-        const raw = localStorage.getItem(key);
-        const ids = raw ? JSON.parse(raw) : [];
-        return new Set(ids.map(Number).filter(normalizeCountryId));
-      } catch (_) {
-        return new Set();
-      }
-    }
+  try {
+    const bal = await provider.getBalance(userAddress);
+    $('eth-balance').textContent = parseFloat(ethers.utils.formatEther(bal)).toFixed(4) + ' ETH';
+  } catch {}
 
-    function saveCollection(key, collection) {
-      try {
-        localStorage.setItem(key, JSON.stringify([...collection].sort((a, b) => a - b)));
-      } catch (_) {}
-    }
+  try {
+    const daily = await contract.dailyMintCount(userAddress);
+    updateDailyUI(daily.toNumber());
+  } catch { setBtnState('mint'); }
 
-    function normalizeCountryId(value) {
-      const id = Number(value);
-      return Number.isInteger(id) && id >= 1 && id <= TOTAL ? id : null;
-    }
+  try {
+    const mintFilter = contract.filters.Transfer(ethers.constants.AddressZero, userAddress);
+    const mintEvts = await contract.queryFilter(mintFilter);
+    const sentFilter = contract.filters.Transfer(userAddress);
+    const sentEvts = await contract.queryFilter(sentFilter);
+    const sentIds = new Set(sentEvts.map(e => e.args.tokenId.toString()));
 
-    function flagUrl(country, size) {
-      return `https://flagcdn.com/w${size}/${country.code}.png`;
-    }
+    const ownedIds = mintEvts.map(e => e.args.tokenId).filter(id => !sentIds.has(id.toString()));
+    const results = await Promise.all(
+      ownedIds.map(id => contract.tokenToCountry(id).then(v => v.toNumber()).catch(() => null))
+    );
 
-    function compactAddress(address) {
-      if (!address || address.length < 12) return address || "";
-      return `${address.slice(0, 6)}...${address.slice(-4)}`;
-    }
+    owned = new Set();
+    results.forEach(c => { if (c !== null) owned.add(c); });
+    cacheSave(userAddress, owned);
+    updateCollectionUI();
+  } catch (e) { console.error('refresh collection:', e); }
 
-    function showToast(message) {
-      const toast = $("#toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
-    }
+  hideError();
+}
 
-    function showError(title, message) {
-      const error = $("#error");
-      error.innerHTML = `<strong>${escapeHtml(title)}</strong>${escapeHtml(message)}`;
-      error.style.display = "block";
-    }
+// ══════════════════════════════════════════════════════════════════════════
+// UI UPDATES
+// ══════════════════════════════════════════════════════════════════════════
+function updateDailyUI(used, reset) {
+  if (reset) { $('daily-value').textContent = '— / ' + DAILY_LIMIT; $('daily-value').className = 'value'; return; }
+  const left = Math.max(0, DAILY_LIMIT - used);
+  const el = $('daily-value');
+  el.textContent = `${used} / ${DAILY_LIMIT}`;
+  el.className = 'value ' + (left === 0 ? 'bad' : left === 1 ? 'warn' : 'ok');
+  setBtnState(left === 0 ? 'limit' : 'mint', null, left);
+}
 
-    function hideError() {
-      $("#error").style.display = "none";
-    }
+function updateCollectionUI() {
+  const count = owned.size;
+  const pct = Math.round((count / TOTAL) * 100);
 
-    function handleError(error, context) {
-      const message = error?.reason || error?.data?.message || error?.message || "Erreur inconnue";
-      const lower = String(message).toLowerCase();
+  $('gauge-fill').style.width = pct + '%';
+  const gc = $('gauge-count');
+  gc.textContent = `${count} / ${TOTAL}`;
+  gc.classList.toggle('full', count === TOTAL);
 
-      if (error?.code === 4001 || error?.code === "ACTION_REJECTED") {
-        showError("Action annulee", "Tu as refuse la demande dans ton wallet.");
-      } else if (error?.code === -32002) {
-        showError("Demande deja ouverte", "Regarde dans ton wallet, une confirmation est deja en attente.");
-      } else if (lower.includes("daily") || lower.includes("limit")) {
-        showError("Limite journaliere", `${DAILY_LIMIT} mints maximum par jour.`);
-        setButton("limit");
-        return;
-      } else if (lower.includes("network") || lower.includes("chain")) {
-        showError("Probleme de reseau", "Verifie que ton wallet est connecte a Base Mainnet ou Base Sepolia.");
-      } else {
-        showError(`Erreur ${context}`, message);
-      }
+  $('collection-count').textContent = `${count} / ${TOTAL} pays`;
+  countries.forEach((_, i) => {
+    const id = i + 1;
+    const el = $(`s${id}`);
+    if (!el) return;
+    el.classList.toggle('got', owned.has(id));
+  });
+}
 
-      setButton(userAddress && contract ? "mint" : "connect");
-    }
+function buildCollectionGrid() {
+  const grid = $('collection-grid');
+  const confs = [...new Set(countries.map(c => c.conf))];
+  let html = '';
+  confs.forEach(conf => {
+    const group = countries.filter(c => c.conf === conf);
+    html += `<div class="conf-sep">${conf}<span class="conf-num">${group.length}</span></div>`;
+    group.forEach(c => {
+      const id = countries.indexOf(c) + 1;
+      html += `<div class="slot" id="s${id}">
+        <img src="${flagUrl(c)}" alt="${c.name}" loading="lazy">
+        <div>${c.name}</div>
+        <span class="slot-number">#${id}</span>
+      </div>`;
+    });
+  });
+  grid.innerHTML = html;
+}
 
-    function escapeHtml(value) {
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
+// ══════════════════════════════════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════════════════════════════════
+async function loadLeaderboard() {
+  const list = $('leader-list');
+  const btn = $('refresh-lb');
+  list.innerHTML = '<div class="loading-text">Lecture on-chain…</div>';
+  btn.disabled = true;
 
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-  </script>
+  if (demoMode) {
+    list.innerHTML = `
+      <div class="leader-row me">
+        <div class="leader-left"><div class="rank r1">1</div><div class="addr">demo.local 👈</div></div>
+        <div class="score">${owned.size} NFT</div>
+      </div>
+      <div class="empty">Mode démo — classement non on-chain.</div>`;
+    btn.disabled = false;
+    return;
+  }
+
+  const prov = provider || new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
+  try {
+    const rc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, prov);
+    const evs = await rc.queryFilter(rc.filters.Transfer(ethers.constants.AddressZero));
+    const scores = {};
+    evs.forEach(e => { const a = e.args.to.toLowerCase(); scores[a] = (scores[a] || 0) + 1; });
+    const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]).slice(0, 20);
+
+    if (!sorted.length) { list.innerHTML = '<div class="empty">Aucun mint encore — sois le premier !</div>'; btn.disabled = false; return; }
+
+    const rankClass = i => i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
+    const isMe = a => userAddress && a === userAddress.toLowerCase();
+
+    list.innerHTML = sorted.map(([a, n], i) => `
+      <div class="leader-row ${isMe(a) ? 'me' : ''}">
+        <div class="leader-left"><div class="rank ${rankClass(i)}">${i + 1}</div><div class="addr">${a.slice(0,6)}…${a.slice(-4)}${isMe(a) ? ' 👈' : ''}</div></div>
+        <div class="score">${n} NFT</div>
+      </div>`).join('');
+  } catch {
+    list.innerHTML = '<div class="empty">Erreur de lecture. Réessaie.</div>';
+  }
+  btn.disabled = false;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════════════════════
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
+  document.querySelectorAll('.view').forEach((v, j) => v.classList.toggle('active', j === i));
+  if (i === 2) loadLeaderboard();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// BUTTON STATE
+// ══════════════════════════════════════════════════════════════════════════
+function setBtnState(state, label, left) {
+  elBtn.disabled = false;
+  elBtn.classList.remove('loading');
+  if (state === 'connect') elBtn.textContent = 'Connecter le wallet';
+  else if (state === 'mint') elBtn.textContent = left === 1 ? 'Ouvrir un pack · dernier du jour 🎲' : 'Ouvrir un pack (gratuit) 🎲';
+  else if (state === 'limit') { elBtn.textContent = 'Limite atteinte — revenez demain'; elBtn.disabled = true; }
+  else if (state === 'loading') { elBtn.classList.add('loading'); elBtn.disabled = true; elBtn.textContent = label || 'Chargement…'; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ERRORS / TOAST
+// ══════════════════════════════════════════════════════════════════════════
+function showError(html) { const e = $('error'); e.innerHTML = html; e.classList.add('show'); }
+function hideError() { $('error').classList.remove('show'); }
+
+let toastTimer;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function handleError(e, ctx) {
+  setBtnState('mint');
+  if (e.code === 4001 || e.code === 'ACTION_REJECTED') { showError('<strong>Transaction annulée</strong>Tu as refusé la signature.'); return; }
+  if (e.code === -32002) { showError('<strong>Demande en cours</strong>Vérifie ton wallet, une demande est déjà ouverte.'); return; }
+  const m = e.reason || e.data?.message || e.message || 'Erreur inconnue';
+  if (m.includes('daily') || m.includes('limit')) { showError('<strong>Limite journalière</strong>2 mints max par jour.'); setBtnState('limit'); return; }
+  showError(`<strong>Erreur (${ctx})</strong>${m}`);
+}
+</script>
 </body>
 </html>
