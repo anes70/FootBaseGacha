@@ -1,882 +1,231 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="color-scheme" content="dark" />
-  <title>FOOT BASE — World Cup 2026 Gacha</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-  <style>
-    /* ---- VARIABLES & RESET ---- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    :root {
-      --bg: #070b10;
-      --panel: rgba(18, 26, 38, 0.85);
-      --panel-border: rgba(255, 255, 255, 0.08);
-      --text: #f0f6ff;
-      --muted: #8a9bb5;
-      --blue: #2d7aff;
-      --blue-glow: rgba(45, 122, 255, 0.4);
-      --green: #1fe89a;
-      --gold: #ffd23f;
-      --purple: #a259ff;
-      --red: #ff5570;
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      --radius: 18px;
-      --font: 'Inter', system-ui, sans-serif;
-    }
-    body {
-      background: var(--bg);
-      background-image: radial-gradient(circle at 30% 10%, rgba(45, 122, 255, 0.15), transparent 60%),
-                        radial-gradient(circle at 80% 90%, rgba(31, 232, 154, 0.08), transparent 50%);
-      color: var(--text);
-      font-family: var(--font);
-      min-height: 100vh;
-      padding-bottom: 3rem;
-      line-height: 1.5;
-    }
-    button {
-      font: inherit;
-      border: none;
-      cursor: pointer;
-      background: transparent;
-      color: inherit;
-    }
-    a {
-      color: var(--blue);
-      text-decoration: none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>FOOT BASE — World Cup 2026 Gacha Pack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080a0d; --panel:#12161d; --panel-2:#191f29; --panel-3:#222a36; --border:#2a3442;
+  --text:#f7fbff; --muted:#98a4b7; --blue:#1f72ff; --blue-2:#00b7ff;
+  --green:#17e68a; --amber:#f6b84b; --red:#ff5570; --purple:#a259ff; --gold:#ffd23f;
+  --shadow:0 22px 70px rgba(0,0,0,.42);
+  --font:"Inter",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(31,114,255,.18), transparent 34rem),
+    linear-gradient(180deg,#0a0d12 0%,var(--bg) 34rem);
+  color:var(--text);font-family:var(--font);padding-bottom:3rem;
+}
+button,input{font:inherit;}
+button{-webkit-tap-highlight-color:transparent;}
 
-    /* ---- WRAPPER ---- */
-    .wrap {
-      max-width: 1024px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
+.wrap{width:min(980px,calc(100% - 32px));margin:0 auto;}
 
-    /* ---- HEADER ---- */
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 30px 30px;
-      mask-image: linear-gradient(180deg, #000 0%, transparent 80%);
-      pointer-events: none;
-    }
-    .hero-inner {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2rem 0 3rem;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .logo {
-      width: 58px;
-      height: 58px;
-      border-radius: 16px;
-      background: linear-gradient(145deg, var(--blue), #00c8b0);
-      display: grid;
-      place-items: center;
-      box-shadow: 0 12px 40px var(--blue-glow);
-      flex-shrink: 0;
-    }
-    .logo-mark {
-      width: 28px;
-      height: 28px;
-      border: 3px solid #fff;
-      border-radius: 50%;
-      position: relative;
-    }
-    .logo-mark::after {
-      content: '';
-      position: absolute;
-      inset: 6px;
-      background: #fff;
-      border-radius: 50%;
-    }
-    .brand h1 {
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #fff 40%, var(--blue));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .brand .sub {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-top: 0.1rem;
-    }
-    .brand .author {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-    .brand .author a {
-      font-weight: 700;
-      color: #7db0ff;
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-    }
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border: 1px solid rgba(31, 232, 154, 0.3);
-      background: rgba(31, 232, 154, 0.08);
-      border-radius: 999px;
-      padding: 0.4rem 1rem 0.4rem 0.7rem;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--green);
-      white-space: nowrap;
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse-dot 1.6s ease-in-out infinite;
-    }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
+.hero{border-bottom:1px solid rgba(255,255,255,.06);overflow:hidden;position:relative;}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:22px 22px;mask-image:linear-gradient(180deg,#000 0%,transparent 85%);pointer-events:none;
+}
+.hero-inner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:1.25rem;padding:2rem 0 3rem;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:.95rem;min-width:0;}
+.logo{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),#08d8b4);box-shadow:0 16px 38px rgba(31,114,255,.32);flex:0 0 auto;}
+.logo-mark{width:27px;height:27px;border:4px solid white;border-radius:50%;position:relative;}
+.logo-mark::after{content:"";position:absolute;inset:7px;border-radius:50%;background:white;}
+h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:1;}
+.subtitle{margin-top:.35rem;color:var(--muted);font-size:.9rem;}
+.author{margin-top:.45rem;color:var(--muted);font-size:.78rem;}
+.author a,.footer a{color:#7db0ff;text-decoration:none;font-weight:700;}
+.status-pill{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgba(23,230,138,.32);color:var(--green);background:rgba(23,230,138,.09);border-radius:999px;padding:.48rem .75rem;font-size:.74rem;font-weight:800;white-space:nowrap;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.4s ease-in-out infinite;}
 
-    /* ---- BUTTONS ---- */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-weight: 800;
-      border-radius: 12px;
-      padding: 0.65rem 1.4rem;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
-    }
-    .btn-primary {
-      background: linear-gradient(145deg, var(--blue), #0066ff);
-      color: #fff;
-      box-shadow: 0 8px 28px var(--blue-glow);
-    }
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 36px var(--blue-glow);
-    }
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      filter: grayscale(0.4);
-    }
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.12);
-      color: var(--muted);
-    }
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-    }
-    .btn-ghost {
-      color: var(--muted);
-      padding: 0.4rem 0.8rem;
-      font-size: 0.8rem;
-    }
-    .btn-ghost:hover {
-      color: #fff;
-    }
-    .btn-sm {
-      padding: 0.35rem 0.9rem;
-      font-size: 0.75rem;
-    }
+.shell{position:relative;z-index:2;margin-top:-1.35rem;background:rgba(18,22,29,.94);border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:var(--shadow);padding:1.35rem;backdrop-filter:blur(16px);}
 
-    /* ---- SHELL (main card) ---- */
-    .shell {
-      position: relative;
-      z-index: 2;
-      margin-top: -1.5rem;
-      background: var(--panel);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--panel-border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 1.6rem;
-    }
+.alert{display:none;border-radius:12px;border:1px solid;padding:.9rem 1rem;margin-bottom:1rem;line-height:1.45;font-size:.86rem;}
+.alert strong{display:block;margin-bottom:.2rem;}
+.alert.error{color:#ffd5dc;background:rgba(255,85,112,.09);border-color:rgba(255,85,112,.32);}
+.alert.warn{color:#ffe3ad;background:rgba(246,184,75,.09);border-color:rgba(246,184,75,.34);}
+.alert.show{display:block;}
 
-    /* ---- ALERTS ---- */
-    .alert {
-      display: none;
-      padding: 0.9rem 1.2rem;
-      border-radius: 12px;
-      margin-bottom: 1rem;
-      font-size: 0.85rem;
-      border: 1px solid;
-      line-height: 1.5;
-    }
-    .alert.show { display: block; }
-    .alert-error {
-      background: rgba(255, 85, 112, 0.08);
-      border-color: rgba(255, 85, 112, 0.3);
-      color: #ffb3c1;
-    }
-    .alert-warn {
-      background: rgba(246, 184, 75, 0.08);
-      border-color: rgba(246, 184, 75, 0.3);
-      color: #fad48a;
-    }
+.wallet-bar{display:none;align-items:center;justify-content:space-between;gap:.75rem;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:.8rem .95rem;margin-bottom:1rem;font-size:.82rem;flex-wrap:wrap;}
+.wallet-bar.show{display:flex;}
+.wallet-left,.wallet-right{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+.wallet-address{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
+.tag{display:inline-flex;align-items:center;min-height:25px;border-radius:8px;padding:.23rem .55rem;background:var(--panel-3);color:var(--text);font-size:.72rem;font-weight:800;}
+.tag.ok{color:var(--green);background:rgba(23,230,138,.1);border:1px solid rgba(23,230,138,.2);}
+.tag.bad{color:var(--red);background:rgba(255,85,112,.1);border:1px solid rgba(255,85,112,.22);}
+.scan-link{color:#7db0ff;text-decoration:none;font-weight:800;}
 
-    /* ---- WALLET BAR ---- */
-    .wallet-bar {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 0.6rem 1rem;
-      margin-bottom: 1.2rem;
-      font-size: 0.8rem;
-    }
-    .wallet-bar.show { display: flex; }
-    .wallet-left {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
-    .wallet-address {
-      font-family: monospace;
-      color: var(--muted);
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.15rem 0.6rem;
-      border-radius: 8px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--muted);
-    }
-    .tag.ok {
-      background: rgba(31, 232, 154, 0.12);
-      color: var(--green);
-      border: 1px solid rgba(31, 232, 154, 0.2);
-    }
-    .tag.bad {
-      background: rgba(255, 85, 112, 0.12);
-      color: var(--red);
-      border: 1px solid rgba(255, 85, 112, 0.2);
-    }
-    .wallet-right {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-    }
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin-bottom:1.25rem;border-radius:12px;background:var(--panel-2);border:1px solid var(--border);}
+.tab{border:0;color:var(--muted);background:transparent;min-height:42px;border-radius:9px;cursor:pointer;font-size:.82rem;font-weight:800;}
+.tab.active{background:var(--blue);color:white;}
+.view{display:none;}
+.view.active{display:block;}
 
-    /* ---- TABS ---- */
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
-      padding: 4px;
-      margin-bottom: 1.5rem;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .tab {
-      padding: 0.7rem 0;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 0.85rem;
-      color: var(--muted);
-      transition: all 0.2s ease;
-    }
-    .tab.active {
-      background: var(--blue);
-      color: #fff;
-      box-shadow: 0 4px 16px var(--blue-glow);
-    }
-    .tab:hover:not(.active) {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.06);
-    }
+.pack-layout{display:grid;grid-template-columns:minmax(240px,1fr) minmax(230px,.75fr);gap:1rem;align-items:stretch;}
+.pack-stage{min-height:348px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(31,114,255,.08),transparent),var(--panel-2);display:grid;place-items:center;text-align:center;padding:1.2rem;overflow:hidden;position:relative;}
 
-    .view { display: none; }
-    .view.active { display: block; }
+.burst{position:absolute;inset:0;pointer-events:none;opacity:0;}
+.burst.go{animation:burstFade .9s ease forwards;}
+.burst span{
+  position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;
+  background:var(--blue-2);transform:translate(-50%,-50%);
+}
+@keyframes burstFade{0%{opacity:1;}100%{opacity:0;}}
 
-    /* ---- PACK LAYOUT ---- */
-    .pack-layout {
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 1.5rem;
-      align-items: stretch;
-    }
-    .pack-stage {
-      position: relative;
-      min-height: 360px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 16px;
-      background: linear-gradient(160deg, rgba(45, 122, 255, 0.06), transparent 60%);
-      display: grid;
-      place-items: center;
-      padding: 1.5rem;
-      overflow: hidden;
-    }
+.pack{
+  width:166px;height:232px;border:2px solid rgba(125,176,255,.9);border-radius:16px;
+  background:linear-gradient(135deg,rgba(31,114,255,.72),transparent 34%),linear-gradient(160deg,#182436,#0d121a);
+  box-shadow:0 26px 60px rgba(31,114,255,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.pack:hover{transform:translateY(-3px);box-shadow:0 32px 72px rgba(31,114,255,.32);}
+.pack.shaking{animation:packShake .55s ease-in-out;}
+.pack.flashing::after{
+  content:"";position:absolute;inset:0;background:white;opacity:0;
+  animation:flashOut .35s ease forwards;
+}
+.pack.flying{animation:packFly .4s ease forwards;}
+@keyframes packShake{
+  0%,100%{transform:translateX(0) rotate(0);}
+  15%{transform:translateX(-6px) rotate(-2deg);}
+  30%{transform:translateX(6px) rotate(2deg);}
+  45%{transform:translateX(-8px) rotate(-3deg);}
+  60%{transform:translateX(8px) rotate(3deg);}
+  75%{transform:translateX(-4px) rotate(-1deg);}
+  90%{transform:translateX(4px) rotate(1deg);}
+}
+@keyframes flashOut{0%{opacity:0;}40%{opacity:.95;}100%{opacity:0;}}
+@keyframes packFly{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.3);}}
 
-    /* ---- PACK ---- */
-    .pack {
-      width: 170px;
-      height: 238px;
-      border: 2px solid rgba(125, 176, 255, 0.8);
-      border-radius: 18px;
-      background: linear-gradient(145deg, #1c2a42, #0d1421);
-      box-shadow: 0 20px 50px rgba(45, 122, 255, 0.25);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-    .pack:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 28px 70px rgba(45, 122, 255, 0.4);
-    }
-    .pack .pack-lines {
-      position: absolute;
-      inset: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      pointer-events: none;
-    }
-    .pack .pack-title {
-      font-size: 1rem;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      color: #fff;
-      text-shadow: 0 0 20px rgba(45, 122, 255, 0.4);
-      position: relative;
-      z-index: 1;
-    }
-    .pack .pack-sub {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-top: 0.2rem;
-      position: relative;
-      z-index: 1;
-    }
-    .pack .pack-num {
-      position: absolute;
-      right: 6px;
-      bottom: -14px;
-      font-size: 5rem;
-      font-weight: 900;
-      color: rgba(255, 255, 255, 0.04);
-      line-height: 1;
-      pointer-events: none;
-    }
-    .pack .pack-hint {
-      position: relative;
-      z-index: 1;
-      margin-top: 0.7rem;
-      font-size: 0.6rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      color: var(--blue);
-      opacity: 0.8;
-    }
-    /* pack animations */
-    .pack.shaking {
-      animation: shake 0.6s ease-in-out;
-    }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0) rotate(0); }
-      15% { transform: translateX(-8px) rotate(-2deg); }
-      30% { transform: translateX(8px) rotate(2deg); }
-      45% { transform: translateX(-10px) rotate(-3deg); }
-      60% { transform: translateX(10px) rotate(3deg); }
-      80% { transform: translateX(-4px) rotate(-1deg); }
-    }
-    .pack.flashing::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: #fff;
-      opacity: 0;
-      animation: flash 0.4s ease forwards;
-    }
-    @keyframes flash {
-      0% { opacity: 0; }
-      40% { opacity: 0.9; }
-      100% { opacity: 0; }
-    }
-    .pack.flying {
-      animation: fly 0.5s ease forwards;
-    }
-    @keyframes fly {
-      0% { opacity: 1; transform: scale(1); }
-      100% { opacity: 0; transform: scale(1.3) translateY(-40px); }
-    }
+.pack-title{position:relative;z-index:1;color:white;font-weight:900;letter-spacing:.06em;font-size:.86rem;}
+.pack-sub{position:relative;z-index:1;color:#b7c5d9;font-size:.68rem;margin-top:.25rem;}
+.pack-num{position:absolute;right:8px;bottom:-11px;font-size:4.8rem;font-weight:900;color:rgba(255,255,255,.09);line-height:1;}
+.pack-lines{position:absolute;inset:18px;border:1px solid rgba(255,255,255,.12);border-radius:12px;}
+.pack-hint{position:relative;z-index:1;margin-top:.6rem;color:#7db0ff;font-size:.62rem;font-weight:800;letter-spacing:.05em;opacity:.85;}
 
-    /* ---- BURST ---- */
-    .burst {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0;
-    }
-    .burst.go {
-      animation: burstAnim 0.9s ease forwards;
-    }
-    @keyframes burstAnim {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    .burst span {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--blue);
-      transform: translate(-50%, -50%);
-    }
+.reveal{display:none;flex-direction:column;align-items:center;gap:.7rem;}
+.reveal.show{display:flex;animation:revealIn .55s cubic-bezier(.2,.8,.2,1);}
+@keyframes revealIn{
+  0%{opacity:0;transform:translateY(40px) scale(.82);}
+  60%{transform:translateY(-6px) scale(1.04);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+.reveal-conf{color:#7db0ff;font-size:.68rem;font-weight:900;letter-spacing:.13em;}
+.card-frame{
+  width:188px;aspect-ratio:5/7;border-radius:16px;position:relative;overflow:hidden;
+  border:3px solid var(--rarity-color, #7db0ff);
+  background:linear-gradient(160deg,#1b2433,#0c0f15);
+  box-shadow:0 0 0 7px var(--rarity-glow, rgba(31,114,255,.12)), 0 24px 54px rgba(31,114,255,.25);
+}
+.card-frame.epic{--rarity-color:var(--purple);--rarity-glow:rgba(162,89,255,.18);}
+.card-frame.legendary{--rarity-color:var(--gold);--rarity-glow:rgba(255,210,63,.22);}
+.card-frame .shine{
+  position:absolute;inset:0;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.35) 45%,rgba(255,255,255,.05) 55%,transparent 70%);
+  transform:translateX(-120%);
+  animation:shineSweep 1.4s ease-out .25s forwards;
+  pointer-events:none;
+}
+@keyframes shineSweep{to{transform:translateX(120%);}}
+.card-flag-wrap{position:absolute;top:14px;left:14px;right:14px;height:54%;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:var(--panel-3);}
+.card-flag-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-rarity-badge{
+  position:absolute;top:20px;right:20px;font-size:.58rem;font-weight:900;letter-spacing:.06em;
+  text-transform:uppercase;color:#0b0e13;background:var(--rarity-color,#7db0ff);
+  padding:.18rem .45rem;border-radius:6px;
+}
+.card-body{position:absolute;left:14px;right:14px;bottom:14px;text-align:left;}
+.card-name{font-size:1.05rem;font-weight:900;line-height:1.1;}
+.card-conf-line{color:var(--muted);font-size:.64rem;margin-top:.2rem;font-weight:700;letter-spacing:.04em;}
+.card-id-line{color:var(--rarity-color,#7db0ff);font-size:.6rem;margin-top:.3rem;font-weight:800;}
 
-    /* ---- REVEAL CARD ---- */
-    .reveal {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.8rem;
-    }
-    .reveal.show {
-      display: flex;
-      animation: revealIn 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
-    }
-    @keyframes revealIn {
-      0% { opacity: 0; transform: scale(0.8) translateY(30px); }
-      60% { transform: scale(1.02) translateY(-4px); }
-      100% { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    .reveal-conf {
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      color: var(--blue);
-      text-transform: uppercase;
-    }
-    .card-frame {
-      width: 190px;
-      aspect-ratio: 5 / 7;
-      border-radius: 18px;
-      position: relative;
-      overflow: hidden;
-      border: 3px solid var(--rarity-color, #7db0ff);
-      background: linear-gradient(160deg, #1b263a, #0b111e);
-      box-shadow: 0 0 0 6px var(--rarity-glow, rgba(45,122,255,0.15)), 0 24px 50px rgba(0,0,0,0.5);
-    }
-    .card-frame .shine {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.05) 55%, transparent 75%);
-      transform: translateX(-120%);
-      animation: shineSweep 1.2s ease-out 0.3s forwards;
-      pointer-events: none;
-    }
-    @keyframes shineSweep {
-      to { transform: translateX(120%); }
-    }
-    .card-flag-wrap {
-      position: absolute;
-      top: 14px;
-      left: 14px;
-      right: 14px;
-      height: 54%;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: #0e1624;
-    }
-    .card-flag-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .card-rarity-badge {
-      position: absolute;
-      top: 18px;
-      right: 18px;
-      font-size: 0.55rem;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #0b0e13;
-      background: var(--rarity-color, #7db0ff);
-      padding: 0.2rem 0.5rem;
-      border-radius: 8px;
-    }
-    .card-body {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 14px;
-      text-align: left;
-    }
-    .card-name {
-      font-size: 1.1rem;
-      font-weight: 900;
-      line-height: 1.2;
-    }
-    .card-conf {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: var(--muted);
-      margin-top: 0.1rem;
-      letter-spacing: 0.04em;
-    }
-    .card-id {
-      font-size: 0.6rem;
-      font-weight: 800;
-      color: var(--rarity-color, #7db0ff);
-      margin-top: 0.2rem;
-    }
-    .card-frame.epic { --rarity-color: var(--purple); --rarity-glow: rgba(162,89,255,0.2); }
-    .card-frame.legendary { --rarity-color: var(--gold); --rarity-glow: rgba(255,210,63,0.25); }
+.reveal-meta{color:var(--muted);font-size:.78rem;}
+.link-button{border:0;background:transparent;color:#7db0ff;cursor:pointer;font-weight:800;padding:.3rem;font-size:.82rem;}
 
-    .link-button {
-      background: transparent;
-      color: var(--blue);
-      font-weight: 800;
-      font-size: 0.85rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    .link-button:hover {
-      background: rgba(45, 122, 255, 0.1);
-    }
+.side-panel{border:1px solid var(--border);border-radius:14px;background:var(--panel-2);padding:1rem;display:flex;flex-direction:column;justify-content:space-between;gap:1rem;}
+.gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.55rem;}
+.label{color:var(--muted);font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
+.gauge-count{font-size:1rem;font-weight:900;}
+.gauge-count.full{color:var(--green);}
+.track{height:12px;border:1px solid var(--border);border-radius:999px;background:#0d1118;overflow:hidden;}
+.fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--blue-2),var(--green));transition:width .55s ease;}
+.milestones{display:flex;justify-content:space-between;color:var(--muted);font-size:.65rem;margin-top:.4rem;}
 
-    /* ---- SIDE PANEL ---- */
-    .side-panel {
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.02);
-      padding: 1.2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.2rem;
-    }
-    .gauge-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    .label {
-      font-size: 0.7rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-    }
-    .gauge-count {
-      font-size: 1rem;
-      font-weight: 900;
-    }
-    .gauge-count.full { color: var(--green); }
-    .track {
-      height: 10px;
-      border-radius: 999px;
-      background: #0d1522;
-      border: 1px solid rgba(255,255,255,0.06);
-      overflow: hidden;
-    }
-    .fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--blue), #00d4b0);
-      transition: width 0.6s ease;
-    }
-    .milestones {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.6rem;
-      color: var(--muted);
-      margin-top: 0.2rem;
-    }
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.metric{min-height:84px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);padding:.8rem;}
+.value{margin-top:.35rem;font-weight:900;font-size:1.2rem;}
+.value.ok{color:var(--green);}
+.value.warn{color:var(--amber);}
+.value.bad{color:var(--red);}
 
-    .metric-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.6rem;
-    }
-    .metric {
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.02);
-      padding: 0.8rem;
-    }
-    .metric .value {
-      font-size: 1.1rem;
-      font-weight: 900;
-      margin-top: 0.2rem;
-    }
-    .value.ok { color: var(--green); }
-    .value.warn { color: #f6b84b; }
-    .value.bad { color: var(--red); }
+.primary{width:100%;min-height:52px;border:0;border-radius:12px;color:white;background:linear-gradient(135deg,var(--blue),#00a4ff);cursor:pointer;font-weight:900;box-shadow:0 14px 32px rgba(31,114,255,.24);transition:transform .15s ease,opacity .15s ease;}
+.primary:hover:not(:disabled){transform:translateY(-1px);}
+.primary:disabled{cursor:not-allowed;color:var(--muted);background:var(--panel-3);border:1px solid var(--border);box-shadow:none;}
+.primary.loading{opacity:.75;cursor:wait;}
+.secondary{min-height:38px;border-radius:10px;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-size:.8rem;font-weight:800;}
+.secondary:hover{color:var(--text);border-color:#3a4658;}
 
-    .side-panel .btn {
-      width: 100%;
-    }
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.count{color:var(--muted);font-size:.84rem;font-weight:700;}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:.8rem;}
+.slot{min-height:112px;position:relative;text-align:center;border:1px solid var(--border);border-radius:12px;background:var(--panel-2);color:var(--muted);padding:.85rem .45rem .7rem;font-size:.74rem;font-weight:800;transition:transform .2s ease,border-color .2s ease,color .2s ease;}
+.slot img{width:52px;height:35px;object-fit:cover;border-radius:5px;display:block;margin:0 auto .55rem;filter:grayscale(1);opacity:.2;background:var(--panel-3);}
+.slot.got{color:white;border-color:rgba(125,176,255,.72);background:linear-gradient(180deg,rgba(31,114,255,.14),var(--panel-2));}
+.slot.got img{filter:none;opacity:1;}
+.slot.justgot{animation:slotPop .5s cubic-bezier(.2,.8,.2,1);}
+@keyframes slotPop{0%{transform:scale(.8);opacity:.4;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
 
-    /* ---- COLLECTION ---- */
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-bottom: 1.2rem;
-    }
-    .collection-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 0.8rem;
-    }
-    .conf-sep {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      color: var(--blue);
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding-top: 0.8rem;
-      margin-top: 0.2rem;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-    }
-    .conf-sep:first-child {
-      border-top: 0;
-      padding-top: 0;
-    }
-    .conf-num {
-      background: rgba(45,122,255,0.15);
-      padding: 0.1rem 0.5rem;
-      border-radius: 999px;
-      font-size: 0.6rem;
-    }
-    .slot {
-      min-height: 110px;
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.02);
-      text-align: center;
-      padding: 0.7rem 0.3rem;
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--muted);
-      transition: all 0.3s ease;
-    }
-    .slot img {
-      width: 48px;
-      height: 32px;
-      object-fit: cover;
-      border-radius: 6px;
-      display: block;
-      margin: 0 auto 0.5rem;
-      filter: grayscale(1) opacity(0.3);
-      background: #0d1522;
-    }
-    .slot.got {
-      color: #fff;
-      border-color: rgba(125,176,255,0.4);
-      background: rgba(45,122,255,0.08);
-    }
-    .slot.got img {
-      filter: none;
-      opacity: 1;
-    }
-    .slot.justgot {
-      animation: slotPop 0.5s cubic-bezier(0.2,0.9,0.3,1);
-    }
-    @keyframes slotPop {
-      0% { transform: scale(0.8); opacity: 0.3; }
-      60% { transform: scale(1.06); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .slot-number {
-      display: none;
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: var(--blue);
-      color: #fff;
-      font-size: 0.55rem;
-      font-weight: 900;
-      padding: 0.1rem 0.4rem;
-      border-radius: 6px;
-    }
-    .slot.got .slot-number {
-      display: inline-block;
-    }
+.leader-actions{display:flex;gap:.5rem;align-items:center;}
+.leader-list{min-height:210px;}
+.empty,.loading-text{color:var(--muted);text-align:center;padding:2.2rem 0;font-size:.88rem;}
+.loading-text{animation:pulse 1.4s ease-in-out infinite;}
 
-    /* ---- LEADERBOARD ---- */
-    .leader-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-    .leader-list {
-      min-height: 200px;
-    }
-    .leader-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.7rem 1rem;
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.02);
-      margin-bottom: 0.5rem;
-      font-size: 0.85rem;
-    }
-    .leader-row.me {
-      border-color: var(--blue);
-      background: rgba(45,122,255,0.08);
-    }
-    .leader-left {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      min-width: 0;
-    }
-    .rank {
-      width: 28px;
-      text-align: center;
-      font-weight: 900;
-      color: var(--muted);
-    }
-    .rank.r1 { color: var(--gold); }
-    .rank.r2 { color: #cfd6e0; }
-    .rank.r3 { color: #d18a52; }
-    .addr {
-      font-family: monospace;
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .score {
-      font-weight: 900;
-      color: var(--blue);
-    }
-    .empty {
-      text-align: center;
-      padding: 2.5rem 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
+.toast{position:fixed;left:50%;bottom:1.25rem;z-index:20;transform:translate(-50%,120px);max-width:min(520px,calc(100% - 32px));color:var(--green);background:#111820;border:1px solid rgba(23,230,138,.34);border-radius:12px;box-shadow:var(--shadow);padding:.85rem 1rem;font-size:.86rem;font-weight:800;text-align:center;transition:transform .28s ease;}
+.toast.show{transform:translate(-50%,0);}
 
-    /* ---- TOAST ---- */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 1.5rem;
-      transform: translate(-50%, 120px);
-      max-width: min(520px, calc(100% - 2rem));
-      background: #141e2e;
-      border: 1px solid rgba(31,232,154,0.3);
-      border-radius: 14px;
-      padding: 0.8rem 1.2rem;
-      font-weight: 800;
-      font-size: 0.85rem;
-      color: var(--green);
-      box-shadow: var(--shadow);
-      text-align: center;
-      transition: transform 0.3s cubic-bezier(0.2,0.9,0.3,1);
-      z-index: 30;
-    }
-    .toast.show { transform: translate(-50%, 0); }
+.footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;color:var(--muted);font-size:.75rem;}
 
-    /* ---- FOOTER ---- */
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-top: 2rem;
-      color: var(--muted);
-      font-size: 0.75rem;
-    }
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
-    /* ---- RESPONSIVE ---- */
-    @media (max-width: 800px) {
-      .pack-layout {
-        grid-template-columns: 1fr;
-      }
-      .side-panel .btn {
-        width: auto;
-      }
-    }
-    @media (max-width: 600px) {
-      .hero-inner { flex-direction: column; align-items: flex-start; }
-      .header-actions { width: 100%; justify-content: space-between; }
-      .tabs { grid-template-columns: 1fr; }
-      .wallet-bar { flex-direction: column; align-items: stretch; }
-      .wallet-left, .wallet-right { justify-content: center; }
-      .collection-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-      .metric-row { grid-template-columns: 1fr; }
-      .shell { padding: 1rem; }
-    }
-  </style>
+@media (max-width:760px){
+  .hero-inner,.wallet-bar,.section-head{align-items:flex-start;flex-direction:column;}
+  .status-pill{align-self:flex-start;}
+  .shell{padding:1rem;}
+  .tabs{grid-template-columns:1fr;}
+  .pack-layout{grid-template-columns:1fr;}
+  .pack-stage{min-height:300px;}
+  .collection-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));}
+  .metric-row{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
 
 <header class="hero">
   <div class="wrap hero-inner">
     <div class="brand">
-      <div class="logo"><div class="logo-mark"></div></div>
+      <div class="logo" aria-hidden="true"><div class="logo-mark"></div></div>
       <div>
         <h1>FOOT BASE</h1>
-        <div class="sub">Album World Cup 2026 · Gacha on-chain</div>
+        <div class="subtitle">Album World Cup 2026 — Gacha on-chain</div>
         <div class="author">by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank" rel="noreferrer">irezroifer.base.eth</a></div>
       </div>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary btn-sm" id="mute-btn" type="button">🔊 Son</button>
+    <div style="display:flex;align-items:center;gap:.6rem;">
+      <button class="secondary" id="mute-btn" type="button" title="Activer/couper le son" style="min-height:36px;padding:0 .8rem;">🔇 Son OFF</button>
       <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
     </div>
   </div>
@@ -884,16 +233,16 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<audio id="bgm" src="http://googleusercontent.com/file_content/0" preload="auto" loop></audio>
+
 <main class="wrap">
   <section class="shell">
-    <!-- Alertes -->
-    <div class="alert alert-error" id="error"></div>
-    <div class="alert alert-warn" id="network-warning">
-      <strong>⚠️ Mauvais réseau</strong>
-      Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est sur <span id="current-network">un autre réseau</span>.
+    <div class="alert error" id="error"></div>
+    <div class="alert warn" id="network-warning">
+      <strong>Mauvais réseau</strong>
+      Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est actuellement sur <span id="current-network">un autre réseau</span>.
     </div>
 
-    <!-- Wallet Bar -->
     <div class="wallet-bar" id="wallet-bar">
       <div class="wallet-left">
         <span class="wallet-address" id="wallet-address">0x...</span>
@@ -901,19 +250,17 @@
       </div>
       <div class="wallet-right">
         <span class="tag" id="eth-balance">0 ETH</span>
-        <a class="btn-ghost" id="scan-link" href="https://basescan.org" target="_blank" rel="noreferrer">Basescan</a>
-        <button class="btn btn-secondary btn-sm" id="disconnect-btn">Déconnecter</button>
+        <a class="scan-link" id="scan-link" href="https://basescan.org" target="_blank" rel="noreferrer">Basescan</a>
+        <button class="secondary" type="button" id="disconnect-btn">Déconnecter</button>
       </div>
     </div>
 
-    <!-- Tabs -->
     <nav class="tabs" aria-label="Navigation">
       <button class="tab active" type="button" data-tab="0">Pack opener</button>
       <button class="tab" type="button" data-tab="1">Ma collection</button>
       <button class="tab" type="button" data-tab="2">Leaderboard</button>
     </nav>
 
-    <!-- VIEW 0 : Pack opener -->
     <div class="view active" id="view-0">
       <div class="pack-layout">
         <div class="pack-stage">
@@ -930,11 +277,11 @@
             <div class="card-frame" id="card-frame">
               <div class="shine"></div>
               <span class="card-rarity-badge" id="card-rarity-badge"></span>
-              <div class="card-flag-wrap"><img id="reveal-flag" alt="drapeau"></div>
+              <div class="card-flag-wrap"><img id="reveal-flag" alt=""></div>
               <div class="card-body">
                 <div class="card-name" id="reveal-name"></div>
-                <div class="card-conf" id="card-conf-line"></div>
-                <div class="card-id" id="reveal-meta"></div>
+                <div class="card-conf-line" id="card-conf-line"></div>
+                <div class="card-id-line" id="reveal-meta"></div>
               </div>
             </div>
             <button class="link-button" type="button" id="reset-pack">Ouvrir un autre pack →</button>
@@ -943,8 +290,8 @@
         <aside class="side-panel">
           <div>
             <div class="gauge-head">
-              <span class="label">Ta collection</span>
-              <span class="gauge-count" id="gauge-count">0 / 48</span>
+              <div class="label">Ta collection</div>
+              <div class="gauge-count" id="gauge-count">0 / 48</div>
             </div>
             <div class="track"><div class="fill" id="gauge-fill"></div></div>
             <div class="milestones"><span>0</span><span>12</span><span>24</span><span>36</span><span>48</span></div>
@@ -956,33 +303,31 @@
             </div>
             <div class="metric">
               <div class="label">Réseau</div>
-              <div class="value" id="chain-value" style="font-size:0.9rem;">Base</div>
+              <div class="value" id="chain-value" style="font-size:.92rem;">Base</div>
             </div>
           </div>
           <div>
-            <button class="btn btn-primary" id="main-btn" type="button">Connecter le wallet</button>
-            <div style="height:0.6rem;"></div>
-            <button class="btn btn-secondary" id="demo-btn" type="button" style="width:100%;">🎮 Tester en mode démo</button>
+            <button class="primary" id="main-btn" type="button">Connecter le wallet</button>
+            <div style="height:.5rem;"></div>
+            <button class="secondary" id="demo-btn" type="button" style="width:100%;">🎮 Tester en mode démo</button>
           </div>
         </aside>
       </div>
     </div>
 
-    <!-- VIEW 1 : Collection -->
     <div class="view" id="view-1">
       <div class="section-head">
-        <span class="label">Album WC2026 — 48 nations</span>
-        <span class="count" id="collection-count">0 / 48 pays</span>
+        <div class="label">Album WC2026 — 48 nations</div>
+        <div class="count" id="collection-count">0 / 48 pays</div>
       </div>
       <div class="collection-grid" id="collection-grid"></div>
     </div>
 
-    <!-- VIEW 2 : Leaderboard -->
     <div class="view" id="view-2">
       <div class="section-head">
-        <span class="label">Top collectionneurs</span>
+        <div class="label">Top collectionneurs</div>
         <div class="leader-actions">
-          <button class="btn btn-secondary btn-sm" id="refresh-lb">Actualiser</button>
+          <button class="secondary" type="button" id="refresh-lb">Actualiser</button>
         </div>
       </div>
       <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div></div>
@@ -996,817 +341,220 @@
 </main>
 
 <script>
-// ============================================================
-// 1. CONFIGURATION
-// ============================================================
+// --- DONNÉES & CONFIGURATION ---
 const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
-const CONTRACT_ABI = [
-  "function mintPack() external payable",
-  "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
-  "function dailyMintCount(address addr) external view returns (uint256)",
-  "function nextTokenId() external view returns (uint256)",
-  "function ownerOf(uint256 tokenId) external view returns (address)",
-  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
-];
-const SUPPORTED = {
-  8453:  { name: "Base Mainnet", scan: "https://basescan.org" },
-  84532: { name: "Base Sepolia", scan: "https://sepolia.basescan.org" }
-};
 const DAILY_LIMIT = 2;
-const cacheKey = addr => `footbase_col_${addr.toLowerCase()}`;
+
+const RARITY = {
+  legendary: { weight: 5,  label: "Légendaire" },
+  epic:      { weight: 20, label: "Épique" },
+  common:    { weight: 75, label: "Commune" },
+};
 
 const countries = [
-  { name: "Canada", code: "ca", conf: "CONCACAF", rarity: "common" },
-  { name: "Curaçao", code: "cw", conf: "CONCACAF", rarity: "common" },
-  { name: "États-Unis", code: "us", conf: "CONCACAF", rarity: "epic" },
-  { name: "Haïti", code: "ht", conf: "CONCACAF", rarity: "common" },
-  { name: "Mexique", code: "mx", conf: "CONCACAF", rarity: "epic" },
-  { name: "Panama", code: "pa", conf: "CONCACAF", rarity: "common" },
-  { name: "Arabie Saoudite", code: "sa", conf: "AFC", rarity: "common" },
-  { name: "Australie", code: "au", conf: "AFC", rarity: "common" },
-  { name: "Irak", code: "iq", conf: "AFC", rarity: "common" },
-  { name: "Japon", code: "jp", conf: "AFC", rarity: "epic" },
-  { name: "Jordanie", code: "jo", conf: "AFC", rarity: "common" },
-  { name: "Ouzbékistan", code: "uz", conf: "AFC", rarity: "common" },
-  { name: "Qatar", code: "qa", conf: "AFC", rarity: "common" },
-  { name: "Corée du Sud", code: "kr", conf: "AFC", rarity: "epic" },
-  { name: "Iran", code: "ir", conf: "AFC", rarity: "common" },
-  { name: "Afrique du Sud", code: "za", conf: "CAF", rarity: "common" },
-  { name: "Algérie", code: "dz", conf: "CAF", rarity: "common" },
-  { name: "Cap-Vert", code: "cv", conf: "CAF", rarity: "common" },
-  { name: "Côte d'Ivoire", code: "ci", conf: "CAF", rarity: "epic" },
-  { name: "Égypte", code: "eg", conf: "CAF", rarity: "common" },
-  { name: "Ghana", code: "gh", conf: "CAF", rarity: "common" },
-  { name: "Maroc", code: "ma", conf: "CAF", rarity: "legendary" },
-  { name: "RD Congo", code: "cd", conf: "CAF", rarity: "common" },
-  { name: "Sénégal", code: "sn", conf: "CAF", rarity: "epic" },
-  { name: "Tunisie", code: "tn", conf: "CAF", rarity: "common" },
-  { name: "Argentine", code: "ar", conf: "CONMEBOL", rarity: "legendary" },
-  { name: "Brésil", code: "br", conf: "CONMEBOL", rarity: "legendary" },
-  { name: "Colombie", code: "co", conf: "CONMEBOL", rarity: "epic" },
-  { name: "Équateur", code: "ec", conf: "CONMEBOL", rarity: "common" },
-  { name: "Paraguay", code: "py", conf: "CONMEBOL", rarity: "common" },
-  { name: "Uruguay", code: "uy", conf: "CONMEBOL", rarity: "epic" },
-  { name: "Nouvelle-Zélande", code: "nz", conf: "OFC", rarity: "common" },
-  { name: "Allemagne", code: "de", conf: "UEFA", rarity: "legendary" },
-  { name: "Angleterre", code: "gb", conf: "UEFA", rarity: "legendary", flagOverride: "https://flagcdn.com/w320/gb-eng.png" },
-  { name: "Autriche", code: "at", conf: "UEFA", rarity: "common" },
-  { name: "Belgique", code: "be", conf: "UEFA", rarity: "epic" },
-  { name: "Bosnie-Herzégovine", code: "ba", conf: "UEFA", rarity: "common" },
-  { name: "Croatie", code: "hr", conf: "UEFA", rarity: "epic" },
-  { name: "Écosse", code: "gb", conf: "UEFA", rarity: "common", flagOverride: "https://flagcdn.com/w320/gb-sct.png" },
-  { name: "France", code: "fr", conf: "UEFA", rarity: "legendary" },
-  { name: "Espagne", code: "es", conf: "UEFA", rarity: "legendary" },
-  { name: "Norvège", code: "no", conf: "UEFA", rarity: "common" },
-  { name: "Pays-Bas", code: "nl", conf: "UEFA", rarity: "epic" },
-  { name: "Portugal", code: "pt", conf: "UEFA", rarity: "legendary" },
-  { name: "Suède", code: "se", conf: "UEFA", rarity: "common" },
-  { name: "Suisse", code: "ch", conf: "UEFA", rarity: "common" },
-  { name: "Tchéquie", code: "cz", conf: "UEFA", rarity: "common" },
-  { name: "Turquie", code: "tr", conf: "UEFA", rarity: "common" }
+  {name:"Canada", code:"ca", conf:"CONCACAF", rarity:"common"},
+  {name:"Curaçao", code:"cw", conf:"CONCACAF", rarity:"common"},
+  {name:"États-Unis", code:"us", conf:"CONCACAF", rarity:"epic"},
+  {name:"Haïti", code:"ht", conf:"CONCACAF", rarity:"common"},
+  {name:"Mexique", code:"mx", conf:"CONCACAF", rarity:"epic"},
+  {name:"Panama", code:"pa", conf:"CONCACAF", rarity:"common"},
+  {name:"Arabie Saoudite", code:"sa", conf:"AFC", rarity:"common"},
+  {name:"Australie", code:"au", conf:"AFC", rarity:"common"},
+  {name:"Irak", code:"iq", conf:"AFC", rarity:"common"},
+  {name:"Japon", code:"jp", conf:"AFC", rarity:"epic"},
+  {name:"Jordanie", code:"jo", conf:"AFC", rarity:"common"},
+  {name:"Ouzbékistan", code:"uz", conf:"AFC", rarity:"common"},
+  {name:"Qatar", code:"qa", conf:"AFC", rarity:"common"},
+  {name:"Corée du Sud", code:"kr", conf:"AFC", rarity:"epic"},
+  {name:"Iran", code:"ir", conf:"AFC", rarity:"common"},
+  {name:"Afrique du Sud", code:"za", conf:"CAF", rarity:"common"},
+  {name:"Algérie", code:"dz", conf:"CAF", rarity:"common"},
+  {name:"Cap-Vert", code:"cv", conf:"CAF", rarity:"common"},
+  {name:"Côte d'Ivoire", code:"ci", conf:"CAF", rarity:"epic"},
+  {name:"Égypte", code:"eg", conf:"CAF", rarity:"common"},
+  {name:"Ghana", code:"gh", conf:"CAF", rarity:"common"},
+  {name:"Maroc", code:"ma", conf:"CAF", rarity:"legendary"},
+  {name:"RD Congo", code:"cd", conf:"CAF", rarity:"common"},
+  {name:"Sénégal", code:"sn", conf:"CAF", rarity:"epic"},
+  {name:"Tunisie", code:"tn", conf:"CAF", rarity:"common"},
+  {name:"Argentine", code:"ar", conf:"CONMEBOL", rarity:"legendary"},
+  {name:"Brésil", code:"br", conf:"CONMEBOL", rarity:"legendary"},
+  {name:"Colombie", code:"co", conf:"CONMEBOL", rarity:"epic"},
+  {name:"Équateur", code:"ec", conf:"CONMEBOL", rarity:"common"},
+  {name:"Paraguay", code:"py", conf:"CONMEBOL", rarity:"common"},
+  {name:"Uruguay", code:"uy", conf:"CONMEBOL", rarity:"epic"},
+  {name:"Nouvelle-Zélande", code:"nz", conf:"OFC", rarity:"common"},
+  {name:"Allemagne", code:"de", conf:"UEFA", rarity:"legendary"},
+  {name:"Angleterre", code:"gb", conf:"UEFA", rarity:"legendary", flagOverride:"https://flagcdn.com/w320/gb-eng.png"},
+  {name:"Autriche", code:"at", conf:"UEFA", rarity:"common"},
+  {name:"Belgique", code:"be", conf:"UEFA", rarity:"epic"},
+  {name:"Bosnie-Herzégovine", code:"ba", conf:"UEFA", rarity:"common"},
+  {name:"Croatie", code:"hr", conf:"UEFA", rarity:"epic"},
+  {name:"Écosse", code:"gb", conf:"UEFA", rarity:"common", flagOverride:"https://flagcdn.com/w320/gb-sct.png"},
+  {name:"France", code:"fr", conf:"UEFA", rarity:"legendary"},
+  {name:"Espagne", code:"es", conf:"UEFA", rarity:"legendary"},
+  {name:"Norvège", code:"no", conf:"UEFA", rarity:"common"},
+  {name:"Pays-Bas", code:"nl", conf:"UEFA", rarity:"epic"},
+  {name:"Portugal", code:"pt", conf:"UEFA", rarity:"legendary"},
+  {name:"Suède", code:"se", conf:"UEFA", rarity:"common"},
+  {name:"Suisse", code:"ch", conf:"UEFA", rarity:"common"},
+  {name:"Tchéquie", code:"cz", conf:"UEFA", rarity:"common"},
+  {name:"Turquie", code:"tr", conf:"UEFA", rarity:"common"},
 ];
-const TOTAL = countries.length;
+
 function flagUrl(c) {
   return c.flagOverride || `https://flagcdn.com/w320/${c.code}.png`;
 }
 
-// ============================================================
-// 2. AUDIO ENGINE (Web Audio API)
-// ============================================================
-class AudioEngine {
-  constructor() {
-    this.enabled = true;
-    this.ctx = null;
-    this.initialized = false;
-    this.bgmGain = null;
-    this.bgmOsc = null;
-    this.bgmInterval = null;
-    this.bgmPlaying = false;
-    this.muted = false;
-  }
-
-  init() {
-    if (this.initialized) return;
-    try {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-      this.initialized = true;
-    } catch (e) {
-      console.warn("Web Audio not supported");
-    }
-  }
-
-  // Son de "kick" (percussion courte)
-  playKick() {
-    if (!this.enabled || this.muted) return;
-    this.init();
-    if (!this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      // Bruit blanc filtré + enveloppe
-      const bufferSize = this.ctx.sampleRate * 0.12;
-      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        const env = Math.exp(-i / (this.ctx.sampleRate * 0.04));
-        data[i] = (Math.random() * 2 - 1) * env;
-      }
-      const source = this.ctx.createBufferSource();
-      source.buffer = buffer;
-      const gain = this.ctx.createGain();
-      gain.gain.setValueAtTime(0.3, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-      const filter = this.ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 800;
-      source.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.ctx.destination);
-      source.start(now);
-      source.stop(now + 0.12);
-    } catch (e) { /* ignore */ }
-  }
-
-  // Son de "révélation" (arpège ascendant)
-  playReveal() {
-    if (!this.enabled || this.muted) return;
-    this.init();
-    if (!this.ctx) return;
-    try {
-      const notes = [523, 659, 784, 1047];
-      const now = this.ctx.currentTime;
-      notes.forEach((freq, i) => {
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.15, now + i * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.2);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start(now + i * 0.08);
-        osc.stop(now + i * 0.08 + 0.2);
-      });
-    } catch (e) { /* ignore */ }
-  }
-
-  // Musique d'ambiance (loop d'ondes)
-  toggleBgm() {
-    if (!this.enabled) return;
-    this.init();
-    if (!this.ctx) return;
-    if (this.bgmPlaying) {
-      this.stopBgm();
-    } else {
-      this.startBgm();
-    }
-  }
-
-  startBgm() {
-    if (this.bgmPlaying || !this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      // Créer un gain principal pour la BGM
-      if (!this.bgmGain) {
-        this.bgmGain = this.ctx.createGain();
-        this.bgmGain.gain.value = 0.08;
-        this.bgmGain.connect(this.ctx.destination);
-      }
-      // Oscillateur grave
-      const osc = this.ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = 110; // La
-      const gain1 = this.ctx.createGain();
-      gain1.gain.value = 0.4;
-      osc.connect(gain1);
-      gain1.connect(this.bgmGain);
-      osc.start(now);
-      osc.stop(now + 60);
-      // Deuxième oscillateur (arpège lent)
-      const osc2 = this.ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.value = 220;
-      const gain2 = this.ctx.createGain();
-      gain2.gain.value = 0.2;
-      osc2.connect(gain2);
-      gain2.connect(this.bgmGain);
-      osc2.start(now);
-      osc2.stop(now + 60);
-
-      // On garde une référence pour les arrêter
-      this.bgmOsc = [osc, osc2];
-      this.bgmPlaying = true;
-
-      // Relancer toutes les 60 secondes
-      this.bgmInterval = setInterval(() => {
-        if (this.bgmPlaying && this.ctx) {
-          this.restartBgm();
-        }
-      }, 58000);
-    } catch (e) { /* ignore */ }
-  }
-
-  restartBgm() {
-    if (!this.ctx) return;
-    try {
-      const now = this.ctx.currentTime;
-      const osc = this.ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = 110;
-      const gain1 = this.ctx.createGain();
-      gain1.gain.value = 0.4;
-      osc.connect(gain1);
-      gain1.connect(this.bgmGain);
-      osc.start(now);
-      osc.stop(now + 58);
-      const osc2 = this.ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.value = 220;
-      const gain2 = this.ctx.createGain();
-      gain2.gain.value = 0.2;
-      osc2.connect(gain2);
-      gain2.connect(this.bgmGain);
-      osc2.start(now);
-      osc2.stop(now + 58);
-      this.bgmOsc = [osc, osc2];
-    } catch (e) { /* ignore */ }
-  }
-
-  stopBgm() {
-    this.bgmPlaying = false;
-    if (this.bgmInterval) {
-      clearInterval(this.bgmInterval);
-      this.bgmInterval = null;
-    }
-    if (this.bgmOsc) {
-      this.bgmOsc.forEach(o => {
-        try { o.stop(); } catch (e) {}
-      });
-      this.bgmOsc = null;
-    }
-    if (this.bgmGain) {
-      try { this.bgmGain.disconnect(); } catch (e) {}
-      this.bgmGain = null;
-    }
-  }
-
-  toggleMute() {
-    this.muted = !this.muted;
-    if (this.muted) this.stopBgm();
-    return this.muted;
-  }
-
-  // Nettoyage
-  dispose() {
-    this.stopBgm();
-    if (this.ctx) {
-      try { this.ctx.close(); } catch (e) {}
-      this.ctx = null;
-      this.initialized = false;
-    }
-  }
-}
-
-const audio = new AudioEngine();
-
-// ============================================================
-// 3. ÉTATS & VARIABLES GLOBALES
-// ============================================================
-let provider, signer, contract, userAddress = null;
+// --- VARIABLES D'ÉTAT ---
 let owned = new Set();
 let demoMode = false;
-let demoDailyCount = 0;
-
-// Cache local
-function cacheLoad(addr) {
-  try { return new Set(JSON.parse(localStorage.getItem(cacheKey(addr)) || "[]")); }
-  catch { return new Set(); }
-}
-function cacheSave(addr, set) {
-  try { localStorage.setItem(cacheKey(addr), JSON.stringify([...set])); } catch {}
-}
-const dailyKey = addr => `footbase_daily_${addr.toLowerCase()}`;
-function todayStr() { return new Date().toISOString().slice(0, 10); }
-function getLocalDailyCount(addr) {
-  try {
-    const raw = JSON.parse(localStorage.getItem(dailyKey(addr)) || 'null');
-    if (!raw || raw.date !== todayStr()) return 0;
-    return raw.count;
-  } catch { return 0; }
-}
-function incrementLocalDailyCount(addr) {
-  const count = getLocalDailyCount(addr) + 1;
-  localStorage.setItem(dailyKey(addr), JSON.stringify({ date: todayStr(), count }));
-  return count;
-}
-
-// DOM shortcuts
+let isMuted = true;
 const $ = id => document.getElementById(id);
-const elPack = $('pack');
-const elPackHint = $('pack-hint');
-const elReveal = $('reveal');
-const elBurst = $('burst');
-const elCardFrame = $('card-frame');
-const elBtn = $('main-btn');
-const elDemoBtn = $('demo-btn');
-const elDisconnect = $('disconnect-btn');
-const elMuteBtn = $('mute-btn');
 
-// ============================================================
-// 4. FONCTIONS MÉTIER
-// ============================================================
-function getRarityWeight(rarity) {
-  const map = { common: 75, epic: 20, legendary: 5 };
-  return map[rarity] || 75;
-}
+// --- ELEMENTS DOM ---
+const elPack       = $('pack');
+const elPackHint   = $('pack-hint');
+const elReveal     = $('reveal');
+const elBurst      = $('burst');
+const elBgm        = $('bgm');
+const elMuteBtn    = $('mute-btn');
+const elDemoBtn    = $('demo-btn');
+const elToast      = $('toast');
 
-// Sélection aléatoire pondérée
-function pickRandomCountry() {
-  const totalWeight = countries.reduce((acc, c) => acc + getRarityWeight(c.rarity), 0);
-  let r = Math.random() * totalWeight;
-  for (const c of countries) {
-    r -= getRarityWeight(c.rarity);
-    if (r <= 0) return c;
+// --- LOGIQUE AUDIO ---
+elBgm.volume = 0.5;
+
+elMuteBtn.addEventListener('click', () => {
+  isMuted = !isMuted;
+  if(isMuted) {
+    elBgm.pause();
+    elMuteBtn.innerText = "🔇 Son OFF";
+  } else {
+    elBgm.play().catch(e => console.log("Lecture bloquée par le navigateur :", e));
+    elMuteBtn.innerText = "🔊 Son ON";
   }
-  return countries[0];
+});
+
+// --- GESTION DES ONGLETS ---
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', (e) => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(`view-${e.target.dataset.tab}`).classList.add('active');
+    if(e.target.dataset.tab === '1') renderCollection();
+  });
+});
+
+// --- MODE DÉMO ---
+elDemoBtn.addEventListener('click', () => {
+  demoMode = !demoMode;
+  elDemoBtn.innerText = demoMode ? "🟢 Mode Démo Actif" : "🎮 Tester en mode démo";
+  showToast(demoMode ? "Mode Démo activé ! Ouvre des packs gratuitement." : "Mode Démo désactivé.");
+  if(!demoMode) owned.clear();
+  updateUI();
+  renderCollection();
+});
+
+// --- LOGIQUE GACHA (OUVERTURE DE PACK) ---
+elPack.addEventListener('click', () => {
+  if(!demoMode) {
+    showToast("Active le mode démo pour tester, ou connecte un wallet !");
+    return;
+  }
+
+  // Animation de tremblement
+  elPack.classList.add('shaking');
+  elPackHint.innerText = "Ouverture...";
+
+  setTimeout(() => {
+    // Retrait du tremblement, ajout de l'envol et du flash
+    elPack.classList.remove('shaking');
+    elPack.classList.add('flashing', 'flying');
+    elBurst.classList.add('go');
+
+    setTimeout(() => {
+      elPack.style.display = 'none';
+      tirerCarteDemo();
+    }, 400);
+
+  }, 550);
+});
+
+function tirerCarteDemo() {
+  // Tirage au sort basé sur le poids (Rarity)
+  const rand = Math.random() * 100;
+  let rarity = 'common';
+  if(rand > 75 && rand <= 95) rarity = 'epic';
+  if(rand > 95) rarity = 'legendary';
+
+  const filtered = countries.filter(c => c.rarity === rarity);
+  const winner = filtered[Math.floor(Math.random() * filtered.length)];
+  const winnerIndex = countries.indexOf(winner);
+
+  // Affichage des infos
+  $('reveal-name').innerText = winner.name;
+  $('reveal-flag').src = flagUrl(winner);
+  $('card-rarity-badge').innerText = RARITY[winner.rarity].label;
+  $('card-conf-line').innerText = winner.conf;
+  $('card-frame').className = `card-frame ${winner.rarity}`;
+
+  // Révélation
+  elReveal.style.display = 'flex';
+  elReveal.classList.add('show');
+
+  // Ajout à la collection démo
+  if (demoMode) owned.add(winnerIndex);
+  updateUI();
 }
 
-function getRarityClass(rarity) {
-  if (rarity === 'legendary') return 'legendary';
-  if (rarity === 'epic') return 'epic';
-  return '';
-}
+// Reset pour ouvrir un autre pack
+$('reset-pack').addEventListener('click', () => {
+  elReveal.style.display = 'none';
+  elReveal.classList.remove('show');
+  
+  elPack.style.display = 'flex';
+  elPack.classList.remove('flashing', 'flying');
+  elBurst.classList.remove('go');
+  elPackHint.innerText = "Cliquer pour ouvrir";
+});
 
-function formatRarityLabel(rarity) {
-  const map = { common: 'Commune', epic: 'Épique', legendary: 'Légendaire' };
-  return map[rarity] || rarity;
-}
-
-// ============================================================
-// 5. AFFICHAGE
-// ============================================================
-function updateGauge() {
-  const total = owned.size;
-  const pct = Math.min(100, (total / TOTAL) * 100);
-  $('gauge-count').textContent = `${total} / ${TOTAL}`;
-  $('gauge-count').classList.toggle('full', total === TOTAL);
-  $('gauge-fill').style.width = pct + '%';
-  $('collection-count').textContent = `${total} / ${TOTAL} pays`;
-}
-
-function updateCollectionGrid() {
+// --- RENDU UI ---
+function renderCollection() {
   const grid = $('collection-grid');
   grid.innerHTML = '';
-  let currentConf = '';
-  countries.forEach((c, idx) => {
-    const got = owned.has(idx);
-    if (c.conf !== currentConf) {
-      currentConf = c.conf;
-      const sep = document.createElement('div');
-      sep.className = 'conf-sep';
-      sep.innerHTML = `<span>${c.conf}</span><span class="conf-num">${countries.filter(x => x.conf === c.conf).length}</span>`;
-      grid.appendChild(sep);
-    }
+  
+  countries.forEach((c, i) => {
+    const isOwned = owned.has(i);
     const slot = document.createElement('div');
-    slot.className = `slot ${got ? 'got' : ''}`;
-    if (got) {
-      // on garde le numéro mais on ne l'affiche pas
-      const num = document.createElement('span');
-      num.className = 'slot-number';
-      num.textContent = idx + 1;
-      slot.appendChild(num);
-    }
-    const img = document.createElement('img');
-    img.src = flagUrl(c);
-    img.alt = c.name;
-    img.loading = 'lazy';
-    slot.appendChild(img);
-    const name = document.createElement('div');
-    name.textContent = c.name;
-    slot.appendChild(name);
+    slot.className = `slot ${isOwned ? 'got' : ''}`;
+    slot.innerHTML = `
+      <img src="${flagUrl(c)}" alt="${c.name}" loading="lazy">
+      ${c.name}
+    `;
     grid.appendChild(slot);
   });
 }
 
-function updateDailyDisplay(addr) {
-  const count = getLocalDailyCount(addr);
-  const el = $('daily-value');
-  el.textContent = `${count} / ${DAILY_LIMIT}`;
-  el.className = 'value' + (count >= DAILY_LIMIT ? ' bad' : ' ok');
+function updateUI() {
+  const count = owned.size;
+  $('gauge-count').innerText = `${count} / 48`;
+  $('gauge-fill').style.width = `${(count / 48) * 100}%`;
+  $('collection-count').innerText = `${count} / 48 pays`;
+  $('daily-value').innerText = demoMode ? "∞ / 2" : "— / 2";
 }
 
-function renderLeaderboard(entries) {
-  const list = $('leader-list');
-  if (!entries || entries.length === 0) {
-    list.innerHTML = '<div class="empty">Aucun collectionneur pour le moment.</div>';
-    return;
-  }
-  list.innerHTML = '';
-  entries.slice(0, 20).forEach((e, i) => {
-    const row = document.createElement('div');
-    row.className = 'leader-row' + (e.address === userAddress ? ' me' : '');
-    const rank = document.createElement('span');
-    rank.className = `rank ${i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : ''}`;
-    rank.textContent = i + 1;
-    const addrSpan = document.createElement('span');
-    addrSpan.className = 'addr';
-    addrSpan.textContent = e.address.slice(0, 6) + '...' + e.address.slice(-4);
-    const score = document.createElement('span');
-    score.className = 'score';
-    score.textContent = e.count;
-    const left = document.createElement('div');
-    left.className = 'leader-left';
-    left.append(rank, addrSpan);
-    row.append(left, score);
-    list.appendChild(row);
-  });
+function showToast(msg) {
+  elToast.innerText = msg;
+  elToast.classList.add('show');
+  setTimeout(() => elToast.classList.remove('show'), 3000);
 }
 
-function showToast(msg, duration = 2800) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._hide);
-  t._hide = setTimeout(() => t.classList.remove('show'), duration);
-}
+// Initialisation
+updateUI();
+renderCollection();
 
-// ============================================================
-// 6. CŒUR DU PACK (ouverture)
-// ============================================================
-function resetPackUI() {
-  elReveal.classList.remove('show');
-  elPack.style.display = 'flex';
-  elPackHint.textContent = 'Cliquer pour ouvrir';
-  elPack.disabled = false;
-}
-
-function revealPack(countryIdx) {
-  const c = countries[countryIdx];
-  if (!c) return;
-  // Son
-  audio.playKick();
-  setTimeout(() => audio.playReveal(), 300);
-
-  // Animations
-  elPack.classList.add('shaking', 'flashing');
-  setTimeout(() => {
-    elPack.classList.remove('shaking', 'flashing');
-    elPack.classList.add('flying');
-    setTimeout(() => {
-      elPack.style.display = 'none';
-      // Burst
-      elBurst.innerHTML = '';
-      for (let i = 0; i < 30; i++) {
-        const span = document.createElement('span');
-        const angle = Math.random() * 2 * Math.PI;
-        const dist = 60 + Math.random() * 200;
-        span.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-        span.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
-        span.style.background = ['#2d7aff', '#1fe89a', '#ffd23f', '#a259ff'][Math.floor(Math.random() * 4)];
-        span.style.width = (4 + Math.random() * 6) + 'px';
-        span.style.height = span.style.width;
-        span.style.left = '50%';
-        span.style.top = '50%';
-        span.style.transform = 'translate(-50%, -50%)';
-        span.style.animation = `burstFly ${0.5 + Math.random() * 0.4}s ease-out forwards`;
-        elBurst.appendChild(span);
-      }
-      elBurst.classList.add('go');
-      setTimeout(() => {
-        elBurst.classList.remove('go');
-        elBurst.innerHTML = '';
-      }, 900);
-    }, 400);
-  }, 600);
-
-  // Afficher la carte
-  setTimeout(() => {
-    const rarityClass = getRarityClass(c.rarity);
-    elCardFrame.className = 'card-frame' + (rarityClass ? ' ' + rarityClass : '');
-    $('card-rarity-badge').textContent = formatRarityLabel(c.rarity);
-    $('reveal-flag').src = flagUrl(c);
-    $('reveal-name').textContent = c.name;
-    $('card-conf-line').textContent = c.conf;
-    $('reveal-meta').textContent = `#${countryIdx + 1} · ${c.rarity}`;
-    $('reveal-conf').textContent = '★ NOUVEAU PAYS !';
-    elReveal.classList.add('show');
-    elPackHint.textContent = 'Pack ouvert';
-  }, 900);
-
-  // Ajouter à la collection si mode démo ou réel
-  if (demoMode || userAddress) {
-    owned.add(countryIdx);
-    updateGauge();
-    updateCollectionGrid();
-    if (userAddress) {
-      cacheSave(userAddress, owned);
-      incrementLocalDailyCount(userAddress);
-      updateDailyDisplay(userAddress);
-    } else if (demoMode) {
-      demoDailyCount++;
-      updateDailyDisplay('demo');
-    }
-  }
-}
-
-// ============================================================
-// 7. CONNEXION WALLET & INTERACTIONS
-// ============================================================
-async function connectWallet() {
-  if (window.ethereum) {
-    try {
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
-      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-      // Réseau
-      const network = await provider.getNetwork();
-      const chainId = network.chainId;
-      const supported = SUPPORTED[chainId];
-      if (!supported) {
-        $('network-warning').classList.add('show');
-        $('current-network').textContent = chainId;
-      } else {
-        $('network-warning').classList.remove('show');
-        $('scan-link').href = supported.scan + '/address/' + CONTRACT_ADDRESS;
-        $('network-badge').textContent = supported.name;
-        $('network-badge').className = 'tag ok';
-        $('chain-value').textContent = supported.name;
-      }
-      // Mise à jour UI
-      $('wallet-bar').classList.add('show');
-      $('wallet-address').textContent = userAddress.slice(0, 8) + '...' + userAddress.slice(-6);
-      $('main-btn').textContent = 'Ouvrir un pack';
-      $('main-btn').disabled = false;
-      // Solde ETH
-      const balance = await provider.getBalance(userAddress);
-      $('eth-balance').textContent = ethers.utils.formatEther(balance).slice(0, 6) + ' ETH';
-      // Charger collection
-      owned = cacheLoad(userAddress);
-      // Rafraîchir depuis la blockchain si possible
-      try {
-        // On peut énumérer les tokens possédés via le contrat (simplifié ici)
-        // Pour l'exemple, on laisse le cache.
-      } catch (e) {}
-      updateGauge();
-      updateCollectionGrid();
-      updateDailyDisplay(userAddress);
-      // Leaderboard
-      refreshLeaderboard();
-      showToast('Wallet connecté !');
-      // Démarrer la musique si elle n'est pas muette
-      if (!audio.muted) audio.startBgm();
-    } catch (e) {
-      console.error(e);
-      showToast('Erreur de connexion : ' + e.message, 4000);
-    }
-  } else {
-    showToast('⚠️ MetaMask non détecté. Installe-le pour jouer.', 4000);
-  }
-}
-
-async function mintPack() {
-  if (!userAddress && !demoMode) {
-    showToast('Connecte ton wallet d\'abord.', 3000);
-    return;
-  }
-  if (demoMode) {
-    // Mode démo : tirage aléatoire
-    const c = pickRandomCountry();
-    const idx = countries.indexOf(c);
-    revealPack(idx);
-    return;
-  }
-  // Réel
-  if (!contract) {
-    showToast('Contrat non initialisé.', 3000);
-    return;
-  }
-  try {
-    $('main-btn').disabled = true;
-    $('main-btn').textContent = '⏳ Mint en cours...';
-    // Vérifier limite quotidienne (via contrat)
-    const daily = await contract.dailyMintCount(userAddress);
-    if (daily.toNumber() >= DAILY_LIMIT) {
-      showToast('Limite quotidienne atteinte (2 mints/jour).', 3000);
-      $('main-btn').disabled = false;
-      $('main-btn').textContent = 'Ouvrir un pack';
-      return;
-    }
-    // Mint
-    const tx = await contract.mintPack({ gasLimit: 300000 });
-    await tx.wait();
-    // Récupérer le tokenId (simplifié : dernier token)
-    const nextId = await contract.nextTokenId();
-    const tokenId = nextId.sub(1);
-    const countryIdx = await contract.tokenToCountry(tokenId);
-    const idx = countryIdx.toNumber();
-    // Ajouter à la collection
-    owned.add(idx);
-    cacheSave(userAddress, owned);
-    incrementLocalDailyCount(userAddress);
-    updateGauge();
-    updateCollectionGrid();
-    updateDailyDisplay(userAddress);
-    // Afficher la carte
-    revealPack(idx);
-    showToast('🎉 Pack ouvert !', 2000);
-    $('main-btn').disabled = false;
-    $('main-btn').textContent = 'Ouvrir un pack';
-  } catch (e) {
-    console.error(e);
-    showToast('Erreur lors du mint : ' + e.message, 4000);
-    $('main-btn').disabled = false;
-    $('main-btn').textContent = 'Ouvrir un pack';
-  }
-}
-
-function disconnectWallet() {
-  userAddress = null;
-  provider = null;
-  signer = null;
-  contract = null;
-  owned.clear();
-  $('wallet-bar').classList.remove('show');
-  $('main-btn').textContent = 'Connecter le wallet';
-  $('main-btn').disabled = false;
-  $('network-badge').textContent = 'Déconnecté';
-  $('network-badge').className = 'tag bad';
-  $('eth-balance').textContent = '0 ETH';
-  $('chain-value').textContent = 'Base';
-  updateGauge();
-  updateCollectionGrid();
-  $('leader-list').innerHTML = '<div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div>';
-  // Arrêter la musique
-  audio.stopBgm();
-  showToast('Déconnecté.');
-}
-
-// ============================================================
-// 8. LEADERBOARD (simulé)
-// ============================================================
-async function refreshLeaderboard() {
-  // Simulation : on génère des adresses aléatoires avec des collections
-  // Dans une vraie implémentation, on interrogerait le contrat.
-  const entries = [];
-  const count = 8 + Math.floor(Math.random() * 12);
-  for (let i = 0; i < count; i++) {
-    const addr = '0x' + Array.from({length: 40}, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
-    const ownedCount = 1 + Math.floor(Math.random() * 48);
-    entries.push({ address: addr, count: ownedCount });
-  }
-  // Ajouter l'utilisateur s'il est connecté
-  if (userAddress) {
-    const existing = entries.find(e => e.address === userAddress);
-    if (!existing) {
-      entries.push({ address: userAddress, count: owned.size });
-    } else {
-      existing.count = owned.size;
-    }
-  }
-  entries.sort((a, b) => b.count - a.count);
-  renderLeaderboard(entries);
-}
-
-// ============================================================
-// 9. INITIALISATION & ÉVÉNEMENTS
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-  // Tabs
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      const idx = this.dataset.tab;
-      document.getElementById('view-' + idx).classList.add('active');
-    });
-  });
-
-  // Pack click
-  elPack.addEventListener('click', function(e) {
-    e.preventDefault();
-    if (this.disabled) return;
-    // Vérifier si on peut ouvrir
-    if (!userAddress && !demoMode) {
-      showToast('Connecte ton wallet ou active le mode démo.', 3000);
-      return;
-    }
-    // Désactiver le pack pendant l'animation
-    this.disabled = true;
-    mintPack();
-  });
-
-  // Reset pack (après révélation)
-  $('reset-pack').addEventListener('click', function() {
-    resetPackUI();
-    elPack.disabled = false;
-  });
-
-  // Main button
-  $('main-btn').addEventListener('click', function() {
-    if (!userAddress) {
-      connectWallet();
-    } else {
-      mintPack();
-    }
-  });
-
-  // Demo button
-  $('demo-btn').addEventListener('click', function() {
-    if (demoMode) {
-      demoMode = false;
-      this.textContent = '🎮 Tester en mode démo';
-      // Arrêter la musique si elle jouait
-      if (!userAddress) audio.stopBgm();
-      showToast('Mode démo désactivé.', 2000);
-      return;
-    }
-    demoMode = true;
-    demoDailyCount = 0;
-    owned = new Set();
-    // Charger un jeu de démo (quelques pays aléatoires)
-    const num = 3 + Math.floor(Math.random() * 8);
-    for (let i = 0; i < num; i++) {
-      const c = pickRandomCountry();
-      const idx = countries.indexOf(c);
-      owned.add(idx);
-    }
-    updateGauge();
-    updateCollectionGrid();
-    updateDailyDisplay('demo');
-    // Activer la musique en démo si pas muet
-    if (!audio.muted) audio.startBgm();
-    this.textContent = '🛑 Quitter le mode démo';
-    showToast('🎮 Mode démo activé !', 2500);
-  });
-
-  // Disconnect
-  $('disconnect-btn').addEventListener('click', function() {
-    if (demoMode) {
-      demoMode = false;
-      $('demo-btn').textContent = '🎮 Tester en mode démo';
-      owned.clear();
-      updateGauge();
-      updateCollectionGrid();
-      showToast('Mode démo désactivé.');
-      return;
-    }
-    disconnectWallet();
-  });
-
-  // Mute button
-  elMuteBtn.addEventListener('click', function() {
-    const muted = audio.toggleMute();
-    this.textContent = muted ? '🔇 Muet' : '🔊 Son';
-    if (muted) {
-      showToast('Son coupé', 1500);
-    } else {
-      showToast('Son activé', 1500);
-      // Démarrer la musique si connecté ou en démo
-      if (userAddress || demoMode) audio.startBgm();
-    }
-  });
-
-  // Refresh leaderboard
-  $('refresh-lb').addEventListener('click', function() {
-    refreshLeaderboard();
-    showToast('Leaderboard actualisé.', 1500);
-  });
-
-  // Initialisation de l'audio au premier clic utilisateur
-  document.addEventListener('click', function initAudio() {
-    audio.init();
-    document.removeEventListener('click', initAudio);
-  }, { once: true });
-
-  // Initialisation UI
-  updateGauge();
-  updateCollectionGrid();
-  // Vérifier si déjà connecté (par ex. page reload)
-  if (window.ethereum && window.ethereum.selectedAddress) {
-    connectWallet();
-  }
-});
-
-// ============================================================
-// 10. STYLES D'ANIMATION POUR LE BURST
-// ============================================================
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-@keyframes burstFly {
-  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-  100% { opacity: 0; transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1.2); }
-}
-`;
-document.head.appendChild(styleSheet);
-
-// ============================================================
-// 11. NETTOYAGE
-// ============================================================
-window.addEventListener('beforeunload', function() {
-  audio.dispose();
-});
 </script>
 </body>
 </html>
