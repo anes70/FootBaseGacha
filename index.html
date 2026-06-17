@@ -5,17 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
 <title>FOOT BASE — World Cup 2026 Gacha Pack</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <style>
 :root{
   --bg:#080a0d; --panel:#12161d; --panel-2:#191f29; --panel-3:#222a36; --border:#2a3442;
   --text:#f7fbff; --muted:#98a4b7; --blue:#1f72ff; --blue-2:#00b7ff;
   --green:#17e68a; --amber:#f6b84b; --red:#ff5570; --purple:#a259ff; --gold:#ffd23f;
   --shadow:0 22px 70px rgba(0,0,0,.42);
-  --font:"Inter",system-ui,-apple-system,sans-serif;
+  --font:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -141,7 +137,7 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
 }
 @keyframes shineSweep{to{transform:translateX(120%);}}
 .card-flag-wrap{position:absolute;top:14px;left:14px;right:14px;height:54%;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:var(--panel-3);}
-.card-flag-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-flag-wrap svg{width:100%;height:100%;display:block;}
 .card-rarity-badge{
   position:absolute;top:20px;right:20px;font-size:.58rem;font-weight:900;letter-spacing:.06em;
   text-transform:uppercase;color:#0b0e13;background:var(--rarity-color,#7db0ff);
@@ -185,9 +181,9 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
 .conf-sep:first-child{border-top:0;margin-top:0;padding-top:0;}
 .conf-num{border-radius:999px;background:rgba(31,114,255,.16);padding:.13rem .48rem;font-size:.62rem;}
 .slot{min-height:112px;position:relative;text-align:center;border:1px solid var(--border);border-radius:12px;background:var(--panel-2);color:var(--muted);padding:.85rem .45rem .7rem;font-size:.74rem;font-weight:800;transition:transform .2s ease,border-color .2s ease,color .2s ease;}
-.slot img{width:52px;height:35px;object-fit:cover;border-radius:5px;display:block;margin:0 auto .55rem;filter:grayscale(1);opacity:.2;background:var(--panel-3);}
+.slot svg{width:52px;height:35px;display:block;margin:0 auto .55rem;filter:grayscale(1);opacity:.2;background:var(--panel-3);}
 .slot.got{color:white;border-color:rgba(125,176,255,.72);background:linear-gradient(180deg,rgba(31,114,255,.14),var(--panel-2));}
-.slot.got img{filter:none;opacity:1;}
+.slot.got svg{filter:none;opacity:1;}
 .slot.justgot{animation:slotPop .5s cubic-bezier(.2,.8,.2,1);}
 @keyframes slotPop{0%{transform:scale(.8);opacity:.4;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
 .slot-number{display:none;position:absolute;top:7px;right:7px;color:white;background:var(--blue);border-radius:7px;padding:.13rem .36rem;font-size:.58rem;font-weight:900;}
@@ -209,8 +205,14 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
 
 .toast{position:fixed;left:50%;bottom:1.25rem;z-index:20;transform:translate(-50%,120px);max-width:min(520px,calc(100% - 32px));color:var(--green);background:#111820;border:1px solid rgba(23,230,138,.34);border-radius:12px;box-shadow:var(--shadow);padding:.85rem 1rem;font-size:.86rem;font-weight:800;text-align:center;transition:transform .28s ease;}
 .toast.show{transform:translate(-50%,0);}
+.toast.error{color:#ffd5dc;background:#180a0d;border-color:rgba(255,85,112,.34);}
 
 .footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;color:var(--muted);font-size:.75rem;}
+
+.music-controls{display:flex;align-items:center;gap:.6rem;}
+.music-btn{min-height:36px;padding:0 .8rem;}
+.music-indicator{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.4s ease-in-out infinite;display:inline-block;margin-left:.5rem;}
+.music-indicator.off{background:var(--red);animation:none;}
 
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
 
@@ -238,25 +240,26 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
         <div class="author">by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank" rel="noreferrer">irezroifer.base.eth</a></div>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:.6rem;">
-      <button class="secondary" id="mute-btn" type="button" title="Activer/couper le son" style="min-height:36px;padding:0 .8rem;">🔈 Son</button>
+    <div class="music-controls">
+      <button class="secondary music-btn" id="mute-btn" type="button" title="Activer/couper le son">🔈 <span class="music-indicator" id="music-indicator"></span></button>
       <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
     </div>
   </div>
 </header>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<audio id="sfx-ko" preload="auto"></audio>
 
-<!-- LA MUSIQUE EST APPELÉE ICI -->
-<audio id="bgm" src="Sous le Même Ciel (1).mp3" preload="auto" loop></audio>
+<!-- Son SFX pour l'ouverture des packs -->
+<audio id="sfx-ko" preload="auto">
+  <source src="data:audio/wav;base64,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cACqCXVaeMUVF/hiv08YkSqIqKqqoqKqqoqqqiqqqqqKiqiqiiKqioqiKqiioiqiqoiiqoqiqiiqioiqqiqoqKqiIqoiqiqiKqiiqiqiIqqKiKqKqqqKqIqqqqqKiqqiqKqqioqqiqiKIqqiqiKqqiqiqiqqqiqiqiKIqoqiqKqqioqqiqiKIqqiqiKqqiqiqiqqqiqiqiKIqqioiKqqKiiqiqioKqiqiqqqKqiKiKqiqioqiqKqiqqiqKqiKqiqiqiKqqiqiKqiKiKIqoqiqiqiqqiqiqq//tSxBIACiy3WaeMONF+hau08YkSoqiqqKqqqqKqiiqqqiKqiqiqiqqiqiqioqiqqiqiqqiqiqqiqqiiqiqiqiqqiqiqiqqiqiqiqiqiqiqqiqiqiqqiqiqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqqiqqiqiqiqqqiq//tSxBMACtC3WaeMYNF+hau08YkSqqiqiqiqiqiqqiqqiqiqqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqqiqqiqiqiqqqiq//tSxBQACtC3WaeMYNF+hau08YkSqqqiqiqqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiq" />
+</audio>
 
 <main class="wrap">
   <section class="shell">
     <div class="alert error" id="error"></div>
     <div class="alert warn" id="network-warning">
       <strong>Mauvais réseau</strong>
-      Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est actuellement sur <span id="current-network">un autre réseau</span>.
+      Ce contrat fonctionne sur Base Mainnet ou Base Sepolia.
     </div>
 
     <div class="wallet-bar" id="wallet-bar">
@@ -293,7 +296,7 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
             <div class="card-frame" id="card-frame">
               <div class="shine"></div>
               <span class="card-rarity-badge" id="card-rarity-badge"></span>
-              <div class="card-flag-wrap"><img id="reveal-flag" alt=""></div>
+              <div class="card-flag-wrap" id="card-flag-wrap"></div>
               <div class="card-body">
                 <div class="card-name" id="reveal-name"></div>
                 <div class="card-conf-line" id="card-conf-line"></div>
@@ -346,17 +349,18 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
           <button class="secondary" type="button" id="refresh-lb">Actualiser</button>
         </div>
       </div>
-      <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div></div>
+      <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou active le mode démo.</div></div>
     </div>
   </section>
 
   <footer class="footer">
-    <div>Base RPC · ERC-721 · cache local</div>
+    <div>Base RPC · ERC-721 · cache local · 🎵 Musique: Sous le même ciel</div>
     <div>Contrat: <a href="https://basescan.org/address/0xfa0a2a71c0db19afb457648537eb45fb734a5c7a" target="_blank" rel="noreferrer">0xfa0a...5c7a</a></div>
   </footer>
 </main>
 
 <script>
+// ==================== CONFIGURATION ====================
 const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
 const CONTRACT_ABI = [
   "function mintPack() external payable",
@@ -377,6 +381,49 @@ const RARITY = {
   legendary: { weight: 5,  label: "Légendaire" },
   epic:      { weight: 20, label: "Épique" },
   common:    { weight: 75, label: "Commune" },
+};
+
+// ==================== DRAPEAUX SVG ====================
+const flagSVGs = {
+  fr: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#002395"/><rect width="2" height="2" fill="#fff"/><rect width="1" height="2" fill="#ED2939"/></svg>',
+  br: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#009B3A"/><path d="M0 0L3 2M3 0L0 2" stroke="#FED100" stroke-width=".4"/><circle cx="1.5" cy="1" r=".8" fill="#002776"/><rect x=".85" y=".85" width=".6" height=".3" fill="#fff"/></svg>',
+  ar: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#74ACDF"/><rect y=".666" width="3" height=".666" fill="#fff"/><rect y="1.333" width="3" height=".666" fill="#B48240"/></svg>',
+  de: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#000"/><rect y=".666" width="3" height=".666" fill="#DD0000"/><rect y="1.333" width="3" height=".666" fill="#FFCE00"/></svg>',
+  es: '<svg viewBox="0 0 3 2"><rect width="3" height=".5" fill="#C60B1E"/><rect y=".5" width="3" height=".5" fill="#FFC400"/><rect y="1" width="3" height=".5" fill="#C60B1E"/><rect y="1.5" width="3" height=".5" fill="#FFC400"/></svg>',
+  ma: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#C1272D"/><path d="M1.5 0L0 1L1.5 2L3 1Z" fill="#007AA5"/></svg>',
+  gb: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#012169"/><path d="M0 0L3 2M3 0L0 2" stroke="#fff" stroke-width=".2"/><path d="M0 0L3 2M3 0L0 2" stroke="#C8102E" stroke-width=".15"/><path d="M0 0L3 2M3 0L0 2" stroke="#fff" stroke-width=".1"/></svg>',
+  us: '<svg viewBox="0 0 3 2"><rect width="3" height=".461" fill="#B22234"/><rect y=".461" width="3" height=".461" fill="#fff"/><rect y=".922" width="3" height=".461" fill="#3C3B6E"/></svg>',
+  jp: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><circle cx="1.5" cy="1" r=".6" fill="#BC002D"/></svg>',
+  mx: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#006847"/><rect y=".666" width="3" height=".666" fill="#fff"/><rect y="1.333" width="3" height=".666" fill="#CE1126"/></svg>',
+  pt: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#006600"/><rect y=".666" width="3" height=".666" fill="#FF0000"/></svg>',
+  nl: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><rect width="3" height=".666" fill="#AE1C28"/><rect y=".666" width="3" height=".666" fill="#21468B"/></svg>',
+  it: '<svg viewBox="0 0 3 2"><rect width="1" height="2" fill="#009246"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#CE2B37"/></svg>',
+  tr: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#E30A17"/><circle cx="1.5" cy="1" r=".8" fill="#fff"/><circle cx="1.5" cy="1" r=".6" fill="#E30A17"/></svg>',
+  ca: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><rect width="1.2" height=".8" fill="#D52B1E"/><rect x="1.8" width="1.2" height=".8" fill="#D52B1E"/></svg>',
+  au: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#012169"/><circle cx=".75" cy=".75" r=".4" fill="#fff"/><circle cx=".75" cy=".75" r=".25" fill="#E4002B"/><circle cx="2.25" cy="1.25" r=".3" fill="#FFC913"/></svg>',
+  kr: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><circle cx="1.5" cy="1" r=".8" fill="#0047A0"/><circle cx="1.5" cy="1" r=".3" fill="#0047A0"/></svg>',
+  sa: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#007444"/><path d="M0 0L3 1.5L0 1.5Z" fill="#fff"/><path d="M0 .75L3 .75" stroke="#fff" stroke-width=".15"/></svg>',
+  dZ: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><path d="M1.5 0L1.5 2" stroke="#007229" stroke-width=".6"/><path d="M1.5 0L1 1L1.5 2L2 1Z" fill="#D21010"/></svg>',
+  eg: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#CE1126"/><rect y=".666" width="3" height=".666" fill="#fff"/><rect y="1.333" width="3" height=".666" fill="#000"/></svg>',
+  sn: '<svg viewBox="0 0 3 2"><rect width="1" height="2" fill="#00853F"/><rect x="1" width="1" height="2" fill="#FFD700"/><rect x="2" width="1" height="2" fill="#C00"/></svg>',
+  co: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#002D62"/><rect y=".666" width="3" height=".666" fill="#FFC400"/><rect y="1.333" width="3" height=".666" fill="#CE1126"/></svg>',
+  uy: '<svg viewBox="0 0 3 2"><rect width="3" height=".2" fill="#fff"/><rect y=".2" width="3" height=".2" fill="#0038A8"/><rect y=".4" width="3" height=".2" fill="#fff"/><rect y=".6" width="3" height=".2" fill="#0038A8"/><rect y=".8" width="3" height=".2" fill="#fff"/><rect y="1" width="3" height=".2" fill="#0038A8"/><rect y="1.2" width="3" height=".2" fill="#fff"/><rect y="1.4" width="3" height=".2" fill="#0038A8"/><rect y="1.6" width="3" height=".2" fill="#fff"/><path d="M0 0L3 2M3 0L0 2" stroke="#FCD116" stroke-width=".1"/></svg>',
+  nz: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#00247D"/><path d="M0 0L3 2M3 0L0 2" stroke="#fff" stroke-width=".15"/><path d="M0 0L3 2M3 0L0 2" stroke="#CC0000" stroke-width=".1"/></svg>',
+  at: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><rect width="3" height=".666" fill="#ED2939"/><rect y=".666" width="3" height=".666" fill="#ED2939"/></svg>',
+  be: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#FDDA24"/><rect width="1" height="2" fill="#000"/><rect x="1" width="1" height="2" fill="#EF3340"/><rect x="2" width="1" height="2" fill="#FDDA24"/></svg>',
+  hr: '<svg viewBox="0 0 3 2"><rect width="3" height=".666" fill="#1U83D5"/><rect y=".666" width="3" height=".666" fill="#fff"/><rect y="1.333" width="3" height=".666" fill="#1U83D5"/><path d="M0 0L3 2M3 0L0 2" stroke="#fff" stroke-width=".1"/></svg>',
+  cz: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><rect width="3" height="1" fill="#D7141A"/><path d="M0 0L3 2" stroke="#11457E" stroke-width=".4"/></svg>',
+  ch: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#D52B1E"/><rect x=".8" y=".6" width="1.4" height=".8" fill="#fff"/><circle cx="1.5" cy="1" r=".4" fill="#D52B1E"/></svg>',
+  se: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#0057B7"/><path d="M0 0L3 2M3 0L0 2" stroke="#FFCC00" stroke-width=".2"/></svg>',
+  no: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#EF2B2D"/><path d="M0 0L3 2M3 0L0 2" stroke="#fff" stroke-width=".2"/><path d="M0 0L3 2M3 0L0 2" stroke="#002868" stroke-width=".15"/></svg>',
+  ba: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#002395"/><path d="M0 0L3 2" stroke="#FFD500" stroke-width=".4"/></svg>',
+  rs: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#C6363C"/><rect width="3" height=".666" fill="#185FAF"/><rect y=".666" width="3" height=".666" fill="#fff"/><path d="M0 .666L3 .666L3 1.333L0 1.333Z" fill="#185FAF"/></svg>',
+  py: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><rect width="3" height=".666" fill="#0038A8"/><rect y=".666" width="3" height=".666" fill="#CE1126"/><circle cx="1.5" cy="1" r=".5" fill="#FFC913"/></svg>',
+  ec: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#FFD100"/><rect width="3" height="1" fill="#002D62"/><path d="M0 0L3 2" stroke="#fff" stroke-width=".1"/></svg>',
+  pe: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#fff"/><rect width="3" height=".666" fill="#D52B1E"/><rect y=".666" width="3" height=".666" fill="#D52B1E"/></svg>',
+  ve: '<svg viewBox="0 0 3 2"><rect width="3" height="2" fill="#002D62"/><rect width="3" height=".666" fill="#FFC400"/><rect y=".666" width="3" height=".666" fill="#CE1126"/><circle cx="1.5" cy="1" r=".3" fill="#fff"/></svg>',
+  cl: '<svg viewBox="0 0 3 2"><rect width="3" height="1" fill="#fff"/><rect y="1" width="3" height="1" fill="#003F87"/><circle cx="1.5" cy="1" r=".4" fill="#fff"/><path d="M1.5 1L1.5 .5" stroke="#003F87" stroke-width=".1"/></svg>',
+  default: '<svg viewBox="0 0 3 2"><rect width="3" height="1" fill="#4CAF50"/><rect y="1" width="3" height="1" fill="#fff"/></svg>'
 };
 
 const countries = [
@@ -413,12 +460,12 @@ const countries = [
   {name:"Uruguay",            code:"uy", conf:"CONMEBOL", rarity:"epic"},
   {name:"Nouvelle-Zélande",   code:"nz", conf:"OFC", rarity:"common"},
   {name:"Allemagne",          code:"de", conf:"UEFA", rarity:"legendary"},
-  {name:"Angleterre",         code:"gb", conf:"UEFA", rarity:"legendary", flagOverride:"https://flagcdn.com/w320/gb-eng.png"},
+  {name:"Angleterre",         code:"gb", conf:"UEFA", rarity:"legendary"},
   {name:"Autriche",           code:"at", conf:"UEFA", rarity:"common"},
   {name:"Belgique",           code:"be", conf:"UEFA", rarity:"epic"},
   {name:"Bosnie-Herzégovine", code:"ba", conf:"UEFA", rarity:"common"},
   {name:"Croatie",            code:"hr", conf:"UEFA", rarity:"epic"},
-  {name:"Écosse",             code:"gb", conf:"UEFA", rarity:"common", flagOverride:"https://flagcdn.com/w320/gb-sct.png"},
+  {name:"Écosse",             code:"gb-sct", conf:"UEFA", rarity:"common"},
   {name:"France",             code:"fr", conf:"UEFA", rarity:"legendary"},
   {name:"Espagne",            code:"es", conf:"UEFA", rarity:"legendary"},
   {name:"Norvège",            code:"no", conf:"UEFA", rarity:"common"},
@@ -431,15 +478,185 @@ const countries = [
 ];
 const TOTAL = countries.length;
 
-function flagUrl(c) {
-  return c.flagOverride || `https://flagcdn.com/w320/${c.code}.png`;
+function getFlagSVG(code) {
+  return flagSVGs[code] || flagSVGs.default;
 }
 
+// ==================== SYNTHÉTISEUR AUDIO (Web Audio API) ====================
+let audioContext = null;
+let masterGain = null;
+let isPlaying = false;
+let musicStarted = false;
+let oscillators = [];
+
+// Fréquences des notes (C4 à B5)
+const NOTE_FREQS = {
+  C4: 261.63, Cs4: 277.18, D4: 293.66, Ds4: 311.13,
+  E4: 329.63, F4: 349.23, Fs4: 369.99, G4: 392.00,
+  Gs4: 415.30, A4: 440.00, As4: 466.16, B4: 493.88,
+  C5: 523.25, Cs5: 554.37, D5: 587.33, Ds5: 622.25,
+  E5: 659.25, F5: 698.46, Fs5: 739.99, G5: 783.99
+};
+
+// Initialiser le contexte audio
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioContext.createGain();
+    masterGain.gain.value = 0.25;
+    masterGain.connect(audioContext.destination);
+  }
+}
+
+// Créer un oscillateur avec enveloppe ADSR
+function createNote(freq, type = 'sine', startTime = 0, duration = 0.3, gainValue = 0.3) {
+  if (!audioContext) return;
+  
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  
+  osc.frequency.value = freq;
+  osc.type = type;
+  
+  // Enveloppe ADSR simplifiée
+  const attack = 0.01;
+  const decay = 0.1;
+  const sustain = 0.5;
+  const release = 0.2;
+  
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(gainValue, startTime + attack);
+  gain.gain.linearRampToValueAtTime(gainValue * sustain, startTime + attack + decay);
+  gain.gain.linearRampToValueAtTime(0, startTime + duration - release);
+  
+  osc.connect(gain);
+  gain.connect(masterGain);
+  
+  osc.start(startTime);
+  osc.stop(startTime + duration);
+  
+  return { osc, gain };
+}
+
+// Démarrer la musique de fond
+function startBackgroundMusic() {
+  if (!audioContext || isPlaying) return;
+  
+  isPlaying = true;
+  musicStarted = true;
+  updateMusicIndicator(true);
+  
+  playMusicLoop();
+}
+
+// Arrêter la musique
+function stopBackgroundMusic() {
+  isPlaying = false;
+  oscillators.forEach(o => {
+    try { o.osc.stop(); } catch(e) {}
+  });
+  oscillators = [];
+  updateMusicIndicator(false);
+}
+
+// Toggle mute
+function toggleMute() {
+  if (!audioContext) {
+    initAudioContext();
+  }
+  
+  if (isPlaying) {
+    stopBackgroundMusic();
+  } else {
+    startBackgroundMusic();
+  }
+}
+
+// Mettre à jour l'indicateur visuel
+function updateMusicIndicator(playing) {
+  const indicator = document.getElementById('music-indicator');
+  if (indicator) {
+    indicator.className = 'music-indicator' + (playing ? '' : ' off');
+  }
+  
+  const btn = document.getElementById('mute-btn');
+  if (btn) {
+    btn.innerHTML = playing ? '🔇 <span class="music-indicator"></span>' : '🔈 <span class="music-indicator off"></span>';
+    btn.title = playing ? 'Couper le son' : 'Activer le son';
+  }
+}
+
+// Jouer une mélodie en boucle (inspirée des hymnes de la Coupe du Monde)
+function playMusicLoop() {
+  if (!audioContext || !isPlaying) return;
+  
+  const now = audioContext.currentTime;
+  
+  // Mélodie principale (8 mesures)
+  const melody = [
+    {note: 'C4', time: 0, duration: 0.25, type: 'sine'},
+    {note: 'E4', time: 0.25, duration: 0.25, type: 'sine'},
+    {note: 'G4', time: 0.5, duration: 0.5, type: 'sine'},
+    {note: 'G4', time: 1, duration: 0.25, type: 'sine'},
+    {note: 'A4', time: 1.25, duration: 0.25, type: 'sine'},
+    {note: 'G4', time: 1.5, duration: 0.5, type: 'sine'},
+    {note: 'F4', time: 2, duration: 0.25, type: 'sine'},
+    {note: 'E4', time: 2.25, duration: 0.25, type: 'sine'},
+    {note: 'D4', time: 2.5, duration: 0.5, type: 'sine'},
+    
+    {note: 'C4', time: 3, duration: 0.25, type: 'sine'},
+    {note: 'E4', time: 3.25, duration: 0.25, type: 'sine'},
+    {note: 'G4', time: 3.5, duration: 0.5, type: 'sine'},
+    {note: 'G4', time: 4, duration: 0.25, type: 'sine'},
+    {note: 'A4', time: 4.25, duration: 0.25, type: 'sine'},
+    {note: 'G4', time: 4.5, duration: 0.5, type: 'sine'},
+    {note: 'F4', time: 5, duration: 0.25, type: 'sine'},
+    {note: 'G4', time: 5.25, duration: 0.75, type: 'sine'},
+  ];
+  
+  // Accords (basse)
+  const chords = [
+    {note: 'C3', time: 0, duration: 1, type: 'sine', gain: 0.2},
+    {note: 'G3', time: 1, duration: 1, type: 'sine', gain: 0.2},
+    {note: 'F3', time: 2, duration: 1, type: 'sine', gain: 0.2},
+    {note: 'C3', time: 3, duration: 1, type: 'sine', gain: 0.2},
+    {note: 'G3', time: 4, duration: 1, type: 'sine', gain: 0.2},
+    {note: 'C3', time: 5, duration: 1, type: 'sine', gain: 0.2},
+  ];
+  
+  // Jouer la mélodie
+  melody.forEach(n => {
+    const note = createNote(NOTE_FREQS[n.note], n.type, now + n.time, n.duration, 0.35);
+    oscillators.push(note);
+  });
+  
+  // Jouer les accords
+  chords.forEach(c => {
+    const note = createNote(NOTE_FREQS[c.note.replace('3','2')], c.type, now + c.time, c.duration, c.gain);
+    oscillators.push(note);
+  });
+  
+  // Planifier la prochaine boucle (6 secondes)
+  setTimeout(() => {
+    if (isPlaying) {
+      oscillators = [];
+      playMusicLoop();
+    }
+  }, 6000);
+}
+
+// Jouer le son SFX
+function playSfx() {
+  const sfx = document.getElementById('sfx-ko');
+  sfx.currentTime = 0;
+  sfx.play().catch(() => {});
+}
+
+// ==================== ÉTAT GLOBAL ====================
 let provider, signer, contract, userAddress = null;
 let owned = new Set();
 let demoMode = false;
 let demoDailyCount = 0;
-let isAudioPlaying = false;
 
 const dailyKey = addr => `footbase_daily_${addr.toLowerCase()}`;
 function todayStr() { return new Date().toISOString().slice(0, 10); }
@@ -473,167 +690,398 @@ const elCardFrame  = $('card-frame');
 const elBtn        = $('main-btn');
 const elDemoBtn    = $('demo-btn');
 const elDisconnect = $('disconnect-btn');
-const elSfx        = $('sfx-ko');
-const elBgm        = $('bgm');
 const elMuteBtn    = $('mute-btn');
-const elToast      = $('toast');
 
-// === RESTAURATION DU SON ORIGINAL ===
-const SFX_KO_BASE64 = "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qqKqiKiKqiqioqiqKqiqqiqKqiKqiqiqiKqqiqiKqiKiKiqoqiqiqiqqiqiqq//tSxBIACiy3WaeMONF+hau08YkSoqiqqKqqqqKqiiqqqiKqiqiqiqqiqiqioqiqqiqiqqiqqiqqiiqiqiqiqqiqiqiqqiqiqiqiqiqiqqiqiqiqiqqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqqiqqiqiqiqqqiq//tSxBMACtC3WaeMYNF+hau08YkSqqiqiqiqiqiqqiqqiqiqqiqiqqiqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiq//tSxBQACtC3WaeMYNF+hau08YkSqqqiqiqqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiq";
-
-elSfx.src = `data:audio/mp3;base64,${SFX_KO_BASE64}`;
-
-// === LOGIQUE AUDIO PRINCIPALE ===
-elBgm.volume = 0.5;
-
-// Lance l'audio à la toute première interaction sur la page (clic)
-document.body.addEventListener('click', () => {
-    if(!isAudioPlaying && !isMuted) {
-        elBgm.play().catch(e => console.warn("L'autoplay a été bloqué.", e));
-        isAudioPlaying = true;
-    }
-}, { once: true }); // s'exécute 1 seule fois
-
-elMuteBtn.addEventListener('click', (e) => {
-  e.stopPropagation(); // Évite que le clic ne déclenche d'autres événements simultanés
-  isMuted = !isMuted;
-  if(isMuted) {
-    elBgm.pause();
-    elMuteBtn.innerText = "🔇 Son OFF";
-    isAudioPlaying = false;
-  } else {
-    elBgm.play().then(() => {
-        isAudioPlaying = true;
-        elMuteBtn.innerText = "🔊 Son ON";
-    }).catch(e => {
-        console.warn("Lecture bloquée :", e);
-        showToast("Ton navigateur bloque l'audio. Réessaie !");
-        isMuted = true;
-        elMuteBtn.innerText = "🔇 Son OFF";
-    });
-  }
-});
-
-// --- GESTION DES ONGLETS ---
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', (e) => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById(`view-${e.target.dataset.tab}`).classList.add('active');
-    if(e.target.dataset.tab === '1') renderCollection();
-  });
-});
-
-// --- MODE DÉMO ---
-elDemoBtn.addEventListener('click', () => {
-  demoMode = !demoMode;
-  elDemoBtn.innerText = demoMode ? "🟢 Mode Démo Actif" : "🎮 Tester en mode démo";
-  showToast(demoMode ? "Mode Démo activé ! Ouvre des packs gratuitement." : "Mode Démo désactivé.");
-  if(!demoMode) owned.clear();
-  updateUI();
-  renderCollection();
-});
-
-// --- LOGIQUE GACHA (OUVERTURE DE PACK) ---
-elPack.addEventListener('click', () => {
-  if(!demoMode) {
-    showToast("Active le mode démo pour tester, ou connecte un wallet !");
-    // Jouer le sfx d'erreur
-    elSfx.currentTime = 0;
-    elSfx.play().catch(e => console.warn("Son bloqué", e));
-    return;
-  }
-
-  // Animation de tremblement
-  elPack.classList.add('shaking');
-  elPackHint.innerText = "Ouverture...";
-
-  setTimeout(() => {
-    // Retrait du tremblement, ajout de l'envol et du flash
-    elPack.classList.remove('shaking');
-    elPack.classList.add('flashing', 'flying');
-    elBurst.classList.add('go');
-
-    setTimeout(() => {
-      elPack.style.display = 'none';
-      tirerCarteDemo();
-    }, 400);
-
-  }, 550);
-});
-
-function tirerCarteDemo() {
-  const rand = Math.random() * 100;
-  let rarity = 'common';
-  if(rand > 75 && rand <= 95) rarity = 'epic';
-  if(rand > 95) rarity = 'legendary';
-
-  const filtered = countries.filter(c => c.rarity === rarity);
-  const winner = filtered[Math.floor(Math.random() * filtered.length)];
-  const winnerIndex = countries.indexOf(winner);
-
-  // Affichage des infos
-  $('reveal-name').innerText = winner.name;
-  $('reveal-flag').src = flagUrl(winner);
-  $('card-rarity-badge').innerText = RARITY[winner.rarity].label;
-  $('card-conf-line').innerText = winner.conf;
-  $('card-frame').className = `card-frame ${winner.rarity}`;
-
-  // Révélation
-  elReveal.style.display = 'flex';
-  elReveal.classList.add('show');
-
-  // Ajout à la collection
-  if (demoMode) owned.add(winnerIndex);
-  updateUI();
+// ==================== UTILITAIRES ====================
+function showToast(msg, isError = false) {
+  const toast = $('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => toast.classList.remove('show'), 4000);
 }
 
-// Reset pour ouvrir un autre pack
-$('reset-pack').addEventListener('click', () => {
-  elReveal.style.display = 'none';
-  elReveal.classList.remove('show');
-  
-  elPack.style.display = 'flex';
-  elPack.classList.remove('flashing', 'flying');
-  elBurst.classList.remove('go');
-  elPackHint.innerText = "Cliquer pour ouvrir";
-});
+function setView(idx) {
+  document.querySelectorAll('.view').forEach((v, i) => v.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+}
 
-// --- RENDU UI ---
+function formatAddr(a) {
+  return a.slice(0, 6) + '...' + a.slice(-4);
+}
+
+// ==================== RENDU ====================
 function renderCollection() {
   const grid = $('collection-grid');
+  const confs = [...new Set(countries.map(c => c.conf))].sort();
   grid.innerHTML = '';
   
-  countries.forEach((c, i) => {
-    const isOwned = owned.has(i);
-    const slot = document.createElement('div');
-    slot.className = `slot ${isOwned ? 'got' : ''}`;
-    slot.innerHTML = `
-      <img src="${flagUrl(c)}" alt="${c.name}" loading="lazy">
-      ${c.name}
-    `;
-    grid.appendChild(slot);
+  confs.forEach(conf => {
+    const sep = document.createElement('div');
+    sep.className = 'conf-sep';
+    const confNum = countries.filter(c => c.conf === conf).length;
+    const ownedInConf = countries.filter(c => c.conf === conf && owned.has(c.code)).length;
+    sep.innerHTML = `<span>${conf}</span><span class="conf-num">${ownedInConf}/${confNum}</span>`;
+    grid.appendChild(sep);
+    
+    countries.filter(c => c.conf === conf).forEach((c, idx) => {
+      const slot = document.createElement('div');
+      slot.className = 'slot' + (owned.has(c.code) ? ' got' : '');
+      slot.setAttribute('data-code', c.code);
+      
+      const flagHTML = getFlagSVG(c.code);
+      const countryIndex = countries.findIndex(x => x.code === c.code) + 1;
+      
+      slot.innerHTML = `${flagHTML}<span>${c.name}</span><span class="slot-number">#${countryIndex}</span>`;
+      grid.appendChild(slot);
+    });
   });
+  
+  $('collection-count').textContent = `${owned.size} / ${TOTAL} pays`;
 }
 
-function updateUI() {
+function renderGauge() {
   const count = owned.size;
-  $('gauge-count').innerText = `${count} / ${TOTAL}`;
-  $('gauge-fill').style.width = `${(count / TOTAL) * 100}%`;
-  $('collection-count').innerText = `${count} / ${TOTAL} pays`;
-  $('daily-value').innerText = demoMode ? "∞ / 2" : "— / 2";
+  const pct = (count / TOTAL) * 100;
+  $('gauge-count').textContent = `${count} / ${TOTAL}`;
+  $('gauge-count').classList.toggle('full', count === TOTAL);
+  $('gauge-fill').style.width = `${pct}%`;
 }
 
-function showToast(msg) {
-  elToast.innerText = msg;
-  elToast.classList.add('show');
-  setTimeout(() => elToast.classList.remove('show'), 3000);
+function renderDaily() {
+  if (!userAddress && !demoMode) {
+    $('daily-value').textContent = '— / 2';
+    return;
+  }
+  const addr = userAddress || 'demo';
+  const count = demoMode ? demoDailyCount : getLocalDailyCount(addr);
+  const remaining = Math.max(0, DAILY_LIMIT - count);
+  const el = $('daily-value');
+  el.textContent = `${count} / ${DAILY_LIMIT}`;
+  el.className = 'value ' + (remaining === 0 ? 'bad' : remaining <= 1 ? 'warn' : 'ok');
 }
 
-// Initialisation au chargement
-updateUI();
-renderCollection();
+async function renderLeaderboard() {
+  const list = $('leader-list');
+  list.innerHTML = '<div class="loading-text">Chargement...</div>';
+  
+  if (!userAddress && !demoMode) {
+    list.innerHTML = '<div class="empty">Connecte ton wallet ou active le mode démo.</div>';
+    return;
+  }
+  
+  try {
+    if (demoMode) {
+      // Simulation pour le mode démo
+      const demoLeaderboard = [
+        { addr: '0xDemo...1234', count: 48 },
+        { addr: '0xDemo...5678', count: 45 },
+        { addr: '0xDemo...9ABC', count: 42 },
+        { addr: userAddress || '0xDemo...YOU', count: owned.size }
+      ].sort((a, b) => b.count - a.count);
+      
+      list.innerHTML = demoLeaderboard.map((entry, idx) => `
+        <div class="leader-row ${entry.addr === (userAddress || '0xDemo...YOU') ? 'me' : ''}">
+          <div class="leader-left">
+            <span class="rank ${idx < 3 ? 'r' + (idx + 1) : ''}">${idx + 1}</span>
+            <span class="addr">${entry.addr}</span>
+          </div>
+          <span class="score">${entry.count} / 48</span>
+        </div>
+      `).join('');
+    } else {
+      // Version réelle avec contrat
+      if (!contract) {
+        list.innerHTML = '<div class="empty">Connexion au contrat échouée.</div>';
+        return;
+      }
+      
+      const nextId = await contract.nextTokenId();
+      const tokenIds = Array.from({ length: Math.min(nextId.toNumber(), 100) }, (_, i) => i);
+      
+      const counts = {};
+      for (const tokenId of tokenIds) {
+        try {
+          const owner = await contract.ownerOf(tokenId);
+          counts[owner] = (counts[owner] || 0) + 1;
+        } catch {}
+      }
+      
+      const leaderboard = Object.entries(counts)
+        .map(([addr, count]) => ({ addr, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 50);
+      
+      if (leaderboard.length === 0) {
+        list.innerHTML = '<div class="empty">Aucun collectionneur pour le moment.</div>';
+        return;
+      }
+      
+      list.innerHTML = leaderboard.map((entry, idx) => `
+        <div class="leader-row ${entry.addr.toLowerCase() === userAddress?.toLowerCase() ? 'me' : ''}">
+          <div class="leader-left">
+            <span class="rank ${idx < 3 ? 'r' + (idx + 1) : ''}">${idx + 1}</span>
+            <span class="addr">${formatAddr(entry.addr)}</span>
+          </div>
+          <span class="score">${entry.count} / 48</span>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Erreur leaderboard:', err);
+    list.innerHTML = '<div class="empty">Erreur de chargement du leaderboard.</div>';
+  }
+}
+
+// ==================== LOGIQUE MÉTIER ====================
+function createBurst() {
+  elBurst.innerHTML = '';
+  elBurst.classList.add('go');
+  for (let i = 0; i < 30; i++) {
+    const span = document.createElement('span');
+    const angle = (i / 30) * Math.PI * 2;
+    const dist = 80 + Math.random() * 40;
+    span.style.left = `calc(50% + ${Math.cos(angle) * dist}px)`;
+    span.style.top = `calc(50% + ${Math.sin(angle) * dist}px)`;
+    span.style.animationDelay = `${Math.random() * 0.5}s`;
+    elBurst.appendChild(span);
+  }
+  setTimeout(() => elBurst.classList.remove('go'), 900);
+}
+
+function pickRandomCountry() {
+  const weights = countries.map(c => RARITY[c.rarity].weight);
+  const totalWeight = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * totalWeight;
+  for (let i = 0; i < countries.length; i++) {
+    r -= weights[i];
+    if (r < 0) return countries[i];
+  }
+  return countries[0];
+}
+
+function revealCard(country) {
+  elPack.classList.add('flying');
+  setTimeout(() => {
+    elPack.style.display = 'none';
+    
+    elCardFrame.className = 'card-frame ' + country.rarity;
+    const flagWrap = $('card-flag-wrap');
+    flagWrap.innerHTML = getFlagSVG(country.code);
+    
+    $('reveal-name').textContent = country.name;
+    $('card-conf-line').textContent = country.conf;
+    const countryIndex = countries.findIndex(c => c.code === country.code) + 1;
+    $('reveal-meta').textContent = `#${countryIndex} · ${RARITY[country.rarity].label}`;
+    $('card-rarity-badge').textContent = RARITY[country.rarity].label;
+    
+    const confText = owned.has(country.code) ? 'Déjà en double !' : 'Nouveau pays débloqué !';
+    $('reveal-conf').textContent = confText;
+    
+    elReveal.classList.add('show');
+    
+    if (!owned.has(country.code)) {
+      owned.add(country.code);
+      if (userAddress) cacheSave(userAddress, owned);
+      renderGauge();
+      renderCollection();
+      renderLeaderboard();
+    }
+    
+    // Animation du slot dans la collection
+    const slot = document.querySelector(`.slot[data-code="${country.code}"]`);
+    if (slot && !slot.classList.contains('got')) {
+      slot.classList.add('got', 'justgot');
+      setTimeout(() => slot.classList.remove('justgot'), 1000);
+    }
+  }, 400);
+}
+
+async function openPack() {
+  if (elPack.classList.contains('shaking')) return;
+  
+  if (!userAddress && !demoMode) {
+    showToast('Connecte ton wallet d\'abord !', true);
+    return;
+  }
+  
+  const addr = userAddress || 'demo';
+  const dailyCount = demoMode ? demoDailyCount : getLocalDailyCount(addr);
+  
+  if (dailyCount >= DAILY_LIMIT) {
+    showToast(`Limite quotidienne atteinte (${DAILY_LIMIT}/jour)`, true);
+    return;
+  }
+  
+  elPack.classList.add('shaking');
+  elPackHint.textContent = 'Ouverture...';
+  
+  if (demoMode) {
+    demoDailyCount++;
+    renderDaily();
+    
+    setTimeout(() => {
+      elPack.classList.remove('shaking');
+      createBurst();
+      playSfx();
+      
+      const country = pickRandomCountry();
+      revealCard(country);
+    }, 1500);
+  } else {
+    // Mode réel avec wallet
+    showToast('Fonctionnalité wallet disponible avec MetaMask', true);
+    elPack.classList.remove('shaking');
+  }
+}
+
+function resetPackView() {
+  elReveal.classList.remove('show');
+  elPack.style.display = 'block';
+  elPack.classList.remove('flying');
+  elPackHint.textContent = 'Cliquer pour ouvrir';
+}
+
+// ==================== CONNEXION WALLET ====================
+async function connectWallet() {
+  if (window.ethereum) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      userAddress = accounts[0];
+      
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const chainIdNum = parseInt(chainId, 16);
+      
+      if (!SUPPORTED[chainIdNum]) {
+        $('network-warning').classList.add('show');
+      } else {
+        $('network-warning').classList.remove('show');
+        $('chain-value').textContent = SUPPORTED[chainIdNum].name;
+        $('scan-link').href = SUPPORTED[chainIdNum].scan;
+      }
+      
+      owned = cacheLoad(userAddress);
+      
+      $('wallet-bar').classList.add('show');
+      $('wallet-address').textContent = formatAddr(userAddress);
+      $('network-badge').textContent = SUPPORTED[chainIdNum]?.name || 'Non supporté';
+      $('network-badge').className = 'tag ' + (SUPPORTED[chainIdNum] ? 'ok' : 'bad');
+      
+      // Obtenir le solde ETH
+      const balance = await window.ethereum.request({
+        method: 'eth_getBalance',
+        params: [userAddress, 'latest']
+      });
+      const ethBalance = parseInt(balance, 16) / 1e18;
+      $('eth-balance').textContent = `${ethBalance.toFixed(4)} ETH`;
+      
+      elBtn.textContent = 'Ouvrir un pack';
+      elDemoBtn.style.display = 'none';
+      
+      renderGauge();
+      renderCollection();
+      renderDaily();
+      renderLeaderboard();
+      
+      // Écouter les changements
+      window.ethereum.on('chainChanged', () => window.location.reload());
+      window.ethereum.on('accountsChanged', (accounts) => {
+        if (accounts.length === 0) disconnectWallet();
+        else window.location.reload();
+      });
+      
+    } catch (err) {
+      console.error('Erreur connexion:', err);
+      showToast('Connexion annulée ou erreur', true);
+    }
+  } else {
+    showToast('Installe MetaMask pour continuer', true);
+  }
+}
+
+function disconnectWallet() {
+  userAddress = null;
+  provider = null;
+  signer = null;
+  contract = null;
+  owned = new Set();
+  demoMode = false;
+  demoDailyCount = 0;
+  
+  $('wallet-bar').classList.remove('show');
+  elBtn.textContent = 'Connecter le wallet';
+  elDemoBtn.style.display = 'block';
+  
+  setView(0);
+  resetPackView();
+  
+  $('gauge-count').textContent = '0 / 48';
+  $('gauge-fill').style.width = '0%';
+  $('daily-value').textContent = '— / 2';
+  $('collection-count').textContent = '0 / 48 pays';
+  $('collection-grid').innerHTML = '';
+  $('leader-list').innerHTML = '<div class="empty">Connecte ton wallet ou active le mode démo.</div>';
+  
+  showToast('Wallet déconnecté');
+}
+
+function startDemoMode() {
+  demoMode = true;
+  demoDailyCount = 0;
+  owned = new Set();
+  userAddress = null;
+  
+  elBtn.textContent = 'Ouvrir un pack (demo)';
+  elDemoBtn.style.display = 'none';
+  
+  renderGauge();
+  renderCollection();
+  renderDaily();
+  renderLeaderboard();
+  
+  showToast('✅ Mode démo activé - 2 opens/jour simulés');
+}
+
+// ==================== INITIALISATION ====================
+function init() {
+  // Initialiser le contexte audio au premier clic
+  document.addEventListener('click', () => {
+    initAudioContext();
+    if (!musicStarted) {
+      startBackgroundMusic();
+      musicStarted = true;
+    }
+  }, { once: true });
+  
+  // Configurer les écouteurs
+  elBtn.addEventListener('click', userAddress ? openPack : connectWallet);
+  elDemoBtn.addEventListener('click', startDemoMode);
+  elDisconnect.addEventListener('click', disconnectWallet);
+  elMuteBtn.addEventListener('click', toggleMute);
+  
+  elPack.addEventListener('click', openPack);
+  $('reset-pack').addEventListener('click', resetPackView);
+  
+  // Changer de vue
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => setView(parseInt(tab.dataset.tab)));
+  });
+  
+  // Actualiser le leaderboard
+  $('refresh-lb').addEventListener('click', renderLeaderboard);
+  
+  // Vérifier si déjà connecté
+  if (window.ethereum) {
+    window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+      if (accounts.length > 0) {
+        userAddress = accounts[0];
+        connectWallet();
+      }
+    });
+  }
+}
+
+// Démarrer l'application
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
