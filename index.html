@@ -472,6 +472,27 @@ let owned = new Set();      // countryId (1-based) possédés
 let demoMode = false;       // mode test sans wallet
 let demoDailyCount = 0;
 
+// ── LIMITE QUOTIDIENNE LOCALE (garde-fou indépendant de la chain) ───────────
+// Le contrat on-chain peut ne pas répondre correctement (RPC down, contrat non
+// déployé à l'adresse indiquée, etc). On garde donc un compteur local fiable
+// par adresse + par jour, en plus de la vérification on-chain quand elle marche.
+const dailyKey = addr => `footbase_daily_${addr.toLowerCase()}`;
+function todayStr() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+}
+function getLocalDailyCount(addr) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(dailyKey(addr)) || 'null');
+    if (!raw || raw.date !== todayStr()) return 0;
+    return raw.count;
+  } catch { return 0; }
+}
+function incrementLocalDailyCount(addr) {
+  const count = getLocalDailyCount(addr) + 1;
+  localStorage.setItem(dailyKey(addr), JSON.stringify({ date: todayStr(), count }));
+  return count;
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 // CACHE localStorage
 // ══════════════════════════════════════════════════════════════════════════
@@ -789,13 +810,22 @@ function weightedRandomCountryId() {
 // REAL MINT — on-chain via le smart contract
 // ══════════════════════════════════════════════════════════════════════════
 async function runRealMint() {
+  // Garde-fou local : fiable même si le contrat/RPC ne répond pas correctement
+  const localUsed = getLocalDailyCount(userAddress);
+  if (localUsed >= DAILY_LIMIT) {
+    showError('<strong>Limite journalière atteinte</strong>2 mints max par jour. Reviens demain !');
+    updateDailyUI(localUsed);
+    return;
+  }
+
+  // Vérification on-chain en complément, si le contrat répond
   try {
     const daily = await contract.dailyMintCount(userAddress);
     if (daily.toNumber() >= DAILY_LIMIT) {
       showError('<strong>Limite journalière atteinte</strong>2 mints max par jour. Reviens demain !');
       return;
     }
-  } catch (e) { /* on continue, le contrat tranchera */ }
+  } catch (e) { /* contrat non joignable : on s'appuie sur la limite locale ci-dessus */ }
 
   hideError();
   setBtnState('loading', 'Signature requise…');
@@ -833,6 +863,11 @@ async function runRealMint() {
         owned.add(cId);
         cacheSave(userAddress, owned);
       }
+      // Le mint a réussi : on incrémente le compteur local quoi qu'il arrive,
+      // qu'on ait pu lire le countryId ou pas.
+      const newCount = incrementLocalDailyCount(userAddress);
+      updateDailyUI(newCount);
+
       updateCollectionUI();
       showReveal(cId);
       showToast('🎉 Pack ouvert avec succès !');
