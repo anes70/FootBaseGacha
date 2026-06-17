@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <style>
+/* CSS reste identique au précédent pour garder ton design intact */
 :root{
   --bg:#080a0d; --panel:#12161d; --panel-2:#191f29; --panel-3:#222a36; --border:#2a3442;
   --text:#f7fbff; --muted:#98a4b7; --blue:#1f72ff; --blue-2:#00b7ff;
@@ -233,7 +234,7 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<audio id="bgm" src="http://googleusercontent.com/file_content/0" preload="auto" loop></audio>
+<audio id="bgm" src="Sous le Même Ciel (1).mp3" preload="auto" loop></audio>
 
 <main class="wrap">
   <section class="shell">
@@ -431,8 +432,14 @@ elMuteBtn.addEventListener('click', () => {
     elBgm.pause();
     elMuteBtn.innerText = "🔇 Son OFF";
   } else {
-    elBgm.play().catch(e => console.log("Lecture bloquée par le navigateur :", e));
-    elMuteBtn.innerText = "🔊 Son ON";
+    // Les navigateurs bloquent souvent la lecture si l'utilisateur n'a pas interagi.
+    elBgm.play().catch(e => {
+        console.warn("Lecture bloquée par le navigateur :", e);
+        showToast("Ton navigateur bloque l'audio. Interagis un peu avec la page !");
+        isMuted = true; 
+        elMuteBtn.innerText = "🔇 Son OFF";
+    });
+    if(!isMuted) elMuteBtn.innerText = "🔊 Son ON";
   }
 });
 
