@@ -108,7 +108,7 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
   90%{transform:translateX(4px) rotate(1deg);}
 }
 @keyframes flashOut{0%{opacity:0;}40%{opacity:.95;}100%{opacity:0;}}
-@keyframes packFly{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.3);}}
+@keyframes packFly{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.3);}
 
 .pack-title{position:relative;z-index:1;color:white;font-weight:900;letter-spacing:.06em;font-size:.86rem;}
 .pack-sub{position:relative;z-index:1;color:#b7c5d9;font-size:.68rem;margin-top:.25rem;}
@@ -239,7 +239,7 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:.6rem;">
-      <button class="secondary" id="mute-btn" type="button" title="Activer/couper le son" style="min-height:36px;padding:0 .8rem;">🔈 Son</button>
+      <button class="secondary" id="mute-btn" type="button" title="Activer/couper le son" style="min-height:36px;padding:0 .8rem;">🔊 Son</button>
       <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
     </div>
   </div>
@@ -355,6 +355,9 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
 </main>
 
 <script>
+// ============================================================
+// PARTIE 1: CONFIGURATION & DONNÉES
+// ============================================================
 const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
 const CONTRACT_ABI = [
   "function mintPack() external payable",
@@ -415,63 +418,4 @@ const countries = [
   {name:"Autriche",           code:"at", conf:"UEFA", rarity:"common"},
   {name:"Belgique",           code:"be", conf:"UEFA", rarity:"epic"},
   {name:"Bosnie-Herzégovine", code:"ba", conf:"UEFA", rarity:"common"},
-  {name:"Croatie",            code:"hr", conf:"UEFA", rarity:"epic"},
-  {name:"Écosse",             code:"gb", conf:"UEFA", rarity:"common", flagOverride:"https://flagcdn.com/w320/gb-sct.png"},
-  {name:"France",             code:"fr", conf:"UEFA", rarity:"legendary"},
-  {name:"Espagne",            code:"es", conf:"UEFA", rarity:"legendary"},
-  {name:"Norvège",            code:"no", conf:"UEFA", rarity:"common"},
-  {name:"Pays-Bas",           code:"nl", conf:"UEFA", rarity:"epic"},
-  {name:"Portugal",           code:"pt", conf:"UEFA", rarity:"legendary"},
-  {name:"Suède",              code:"se", conf:"UEFA", rarity:"common"},
-  {name:"Suisse",             code:"ch", conf:"UEFA", rarity:"common"},
-  {name:"Tchéquie",           code:"cz", conf:"UEFA", rarity:"common"},
-  {name:"Turquie",            code:"tr", conf:"UEFA", rarity:"common"},
-];
-const TOTAL = countries.length;
-
-function flagUrl(c) {
-  return c.flagOverride || `https://flagcdn.com/w320/${c.code}.png`;
-}
-
-let provider, signer, contract, userAddress = null;
-let owned = new Set();
-let demoMode = false;
-let demoDailyCount = 0;
-
-const dailyKey = addr => `footbase_daily_${addr.toLowerCase()}`;
-function todayStr() { return new Date().toISOString().slice(0, 10); }
-function getLocalDailyCount(addr) {
-  try {
-    const raw = JSON.parse(localStorage.getItem(dailyKey(addr)) || 'null');
-    if (!raw || raw.date !== todayStr()) return 0;
-    return raw.count;
-  } catch { return 0; }
-}
-function incrementLocalDailyCount(addr) {
-  const count = getLocalDailyCount(addr) + 1;
-  localStorage.setItem(dailyKey(addr), JSON.stringify({ date: todayStr(), count }));
-  return count;
-}
-
-function cacheLoad(addr) {
-  try { return new Set(JSON.parse(localStorage.getItem(cacheKey(addr)) || "[]")); }
-  catch { return new Set(); }
-}
-function cacheSave(addr, set) {
-  try { localStorage.setItem(cacheKey(addr), JSON.stringify([...set])); } catch {}
-}
-
-const $ = id => document.getElementById(id);
-const elPack       = $('pack');
-const elPackHint   = $('pack-hint');
-const elReveal     = $('reveal');
-const elBurst      = $('burst');
-const elCardFrame  = $('card-frame');
-const elBtn        = $('main-btn');
-const elDemoBtn    = $('demo-btn');
-const elDisconnect = $('disconnect-btn');
-const elSfx        = $('sfx-ko');
-const elBgm        = $('bgm');
-const elMuteBtn    = $('mute-btn');
-
-const SFX_KO_BASE64 = "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//tQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAA7AAAw+QAIDAwRERUZGR0dIiYmKiouMzM3Nzs7P0RESEhMUVFVVVldXWJiZmpqbm5zc3d7e39/hIiIjIyRlZWZmZ2doqamqqqus7O3t7vAwMTEyMzM0dHV1dnd3eLi5urq7u7z9/f7+/8AAAAATGF2YzYwLjMxAAAAAAAAAAAAAAAAJATaAAAAAAAAMPn1de2+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7UMQAA8AAAaQAAAAgAAA0gAAABAKVoEmBfoQigBGqd93fQIAJQBN3iJQARXOBBFABG76JoAJu7nHfQt33c9ETqIW7v7u/AgAlAEKuf////p1wN4BgZxC////////9ESgAgaH//+HxKLR8LBqPp8PxIJQUAP+G3LTcCAf7jvI44Yj/a+uxrYwHJEXOK4KJyfEppGAj4V7xc4swUoQMN2JgHKCMm8fYxhKkALQNmAwKI+IsS35XD0AucE6By5EyAhqAxwW/Avh4/8zL5udJ/HT/+1LEXYAKUUjPNCGAImMnZfcxAAAXRTy4IXH7/lw8mXEGJ9BxBAUUiBqOkmxnBzxcP/2Tp7akCoYGJTPrNUDJH9H+LUIV1eg1Oxtli1UikUisUrlMNfgreBS8jEsnIunRNR+XRxrKuyHk+OwshcALgY2OmhTRIaXQsGZlw0RsyhcYzA5hURKx9NjMuomMc8g5vQUpNTut0GvJgghOFA0upCmqio4aJKTPE2RMnCmQdnrrrZk3W9Awk41DoGiDJs9GggirVs6TLJ90HQZNOX03///7UsRFgBNJmWG5iAASX6ksJx7wAf3QfuuyFPTbN0mTTd6BupBABDWDmBBDH4D+wBNRUcpjdFQCELEYw7gNEYBHAOJHArhSyShaVeOxRRNm+8hJzT1nPxHs8RFOeMPm6WuHS1D1GvCfw2x7Hxqu3KM2MvzNDf69YXl3jwH24cDOIcfW4OPmPbxsxqXznOMPsT//4z9b/3/38Juz8QaT0+a0//+97+s//Htb+HqJPNMMFJ1J2/eZtIm9Ht79Km0XauBoTetmIBqkTEY0IQIBlupY//tSxAoADPTDXhmHgAF5sG7nEnABrMYeyVcyqQgZbKqGesrDEquHWVOcj2N2KJWZsSkas9vT1Ur6/hWm19y6YGrXrSM15xaDBhbzvMWuZ8Z1i2Z/vx8Exg2mYPtEiD9bHcyrX/cv/+tNQDFFNNVRRIJWbOeoDpxyhQPOM4aEkBUYN3FQnqZecNhOc2Yz0G5Ot9q6BINyQ7on6XGxE0Xm/7K7tJjcHDhMPp/6N+NDB8xRo7t///6nEHPd3cxf//7/+54+kD0Vpbd0Y0MyEskgNxT/+1LEBQAKwFt//PGAAZQMbXDEmVnGWwP3neqhxDjSRyI1mVtXr4ARRYlSr0iNDIxWCHRs1Cm3pUpA5j0UotYfbTKu7Ii/wqDCjSA6fxYy5SXuLitJ5o0XrNm2eyoUaZSa+1YIAAACEIoFUASBFA+HhmVQ5EUJoHzqgWZNHBWQoBNFJM+KiWUHAT41VXfDkjZpvxqCCS9um0QCgb6DS5Hd3vb4w3ZDSC0Bib3TW+16PCuhX6/Vgrl/7/v/3WcK7j6vd5ezj8GphFEREyESaidVDf/7UsQFgArIiW3mJGrBe5GtfPYM9AlIAHRqsIw8nbwoE+akGlFG1mlnss2OnDBqIwEZmjKEyMcVJnz5G9jzAUMIoDQNHwC4c880+Gq1uIizA6dvfxF+5Aa5UzKv+o8IQaDrC0k1txvFchncgM2VKxFN5mJec6E5OFjHCLrmJSDL9uTTwyr1Y/T3hgxjDFGNO3h9JxIC6gSBdrM5cFNuYlkSmXi9Ro6RUOhQ2Rmm5uUCckZ3N+VK1VunWrqcHBFSFRV07Q0O4iXV1qAAAIIBKbkI//tSxASAC1RhV6eM0EF0Emx8xAocwTgLiojpTncF2TwmIMZWHcuilbD0OlNWiuGMRzcLwtoc+V13l4MQF2ANRgUYKk2HgsLMQCIwjyiQO4GDopFzXnGyyg/6teysan60EQOVDQvsYsqZAIkJNtyNz6NR8HaCetFo1XSX0BqxSUHylSUIzoNmzO8Sg5oMhmyqZrmhEBHtajmG/YUxHAQuRa5YVMJFQEA23xKgwFD2zVPGCP06IgNVuzWGhVAhFhUyi5gcSrU0SCWzUsJ04x60Nhr/+1LExgAJMIFzh4oYkOiKbXWGJbGMzMnOCRGrv+H55gCqc9q6JRLdUIL9c0JXEsCe64bAqyM+MHgMZmVHJRSBg3EAM31B5P5BTYDA7E0X14v//5eekO2H10iMlMoJpCfmqAhoxJNqJx7nXqg48Jh8/JTtbFGk1k+LqQsixk/iXAHANPNAfnWV/7yR+KBkuPn/W9wH9HN/Y7JGH3vX6P7aN/7xLF7zxLUmN3bq2n/7cK3K9nBhCgAIARi0R5xT0JWWV7b//tSxBYAC7BfW6YMXZF6JW21lhUohA1wMo+RvqJpFv4//WxlHKWa3+fCgW0TK6mlCGiWl1dHmwSpv6RSmNdJO3WYqjMjrWzSJCIMWnO9U1pVBkTz7LSOLf6HV0v7hI4FVSlWGFxjXLnIu6LRBzRNcZ1dSzJBVRlUhVQy1VIUplF2v6E6pRE0WBhslVKV6ISzGl3l1z2U+UikSf//b71e7kQvCqkjq1pVEEyOTWkyBMSMGajGV5BQxlKHBcIhkB6kCCAcjIBi//tSxBKAC7TXUaeM1IF3Fa38wY2KsUpDyKT4AJTaacFi6eXLNJhbCQ1VXzCwgVAC8r9SiKG0QIBU9y2bLRpbUONqiKiSVHAqGELJyGW4eNQCqN8r4IA0D2pJ7CsqiG+l5Ah3gNIqpRj0pWXLSfv/TkwHfPuSBzCjhq6tLDKqsqypOTvJqRpQFwkBMqKCkCqKxpGlFiSnCTcLUFG5wYJH/5iCyXlB0kLhqmKgULGAKmFJBxIFXyFMApEE6hJCFIgoGV7ZKMiEL1OD//tQxBEACtC/YaeM0MF2mCx0cqpQeUPICXW7CjGxvzpbWAFvAE/SFpFZgEgS5tYEkF+OhKxT0eFqVnEiATUBb0B4tAmPVqZF2AyoSSEKBKBPqRNJjVhCyJFRQqJ0EEaWYXjYXAlYbHJCTOsKTqRJCCh8AxjEgMSIIm54mFqQ2DRgxcS0LR5QclNn7JxVHXSkh2d/IFXuS1E0USbUBkmHJDL7lXS0cXOLKmA4ILHbkREsS/S3T3GRSTy5mD/+1LECAAKQJFzp5hQgT0M7TEGICDfQi0NKQV+Hf3/q3G6a6oAwJULJnMJkLApg4SAIgqGE3MMjUkaxWaLNZJUiinVR4CmN7vRJAh0oZwC/JFJhqHwlStO8sDMDiwKEEkYJClOZJBKAMn5tHqFJCPJSmR5FD+V6HGqFIEFBqHAtMJiAKJWMJlxiQqGBiUhBKniyFXmqCNpVEKSqECmSFVYKZlBCeY1EppwkImFKQ5N1ELRhVQkxGnalQMqglBIjJPgigEEVRuU//tSxBcACqCXVaeMUVF/hiv08YnSCJCISMXIbZQjFjGNhAEqECjgI0FREJJKsFgGaHYFJJqwMuEHnG6XyABGYtEJjNMDRoBMQbhYJWJajmVkRRaVEk4OFjZpkOaxv9cFdJd5OkCdJ8f3f/ZzRiADOIm8Y1CXpqgPVHHIVqnJ6RiLMCjmkxWh2Nt////UUkxuFhEJFxqLOBOvVm7G+P3VQUXgQaghDaioAbRxALahtjXKHRuJXJBl//tSxBQADETBXaeMWVF/hqv08YmI24t7PMAOg61oy2aaRdNqwaqjM6E5UqBTVMVGRCKOa5W+fJ7r69j/vfYmUJYNlxKvqK7VIyFdVXY8sJoLRZYXCjCxhhIaHBNnbhOgLKJwJmEgAKiYhkHJKhAoRTFJFqBTNzL/kJJJOqh+CAdAVKwqQ6iB7IiMKRsyAqMRrUBZJJpYkuRqIjBKaQ3UIqPGijFIzJAIqrNUW4Y6kZTEJxoNiQSs9jmN//tSxBWADrS/VaeM0IF/hav08YkCaGoBsFjMiHqURVMDFuoEMiGEZBxlKaQ0CkYOcNGkJx0EF7JqADKUmJJIMHWJBpFRQLiJsARFKMgTxTiBs4Y2LJgCg5bRAkAMIASpFJQ1JiGUMJiGWyakJkqFZiLQ0RGRi1UqOEjkhMYogkIiiQmSqq6yp7QxZGBDCqCiIqEiMiIFCiESJFCiASIgoiNANRiKRkaIqKJCRiKoqKiIiKgoAoiJiIiKiCiIqKiIiJCRQ//tSxBAAC8y/TaeYUNF+hqu09YkCiiiIgIiCiIqKiiqCiiqCioiIiIiQiJKKiioqiCiiKKiCiiqCIiIioiioKKiiqKiKiCIqKKiIiJCIoiooqKiioiiiqKIqIKKIqiiKKiqqKKoqCoioqoiKiqoqiqKioqoqoqKoioqiqqiqIqoqiIqqKiqqioqiqqiiqqiqqiqqiqooqiqoqIqoqqKiqqKqiiqKqiiqoqiqoqqoqoqiqqoqiIqoqioqiqoqqKqiqqiqq//tSxBEACtC3WaeMUNF+hau08YkSqIqKqqoqKqqoqqqiqqqqqKiqiqiiKqioqiKqiioiqiqoiiqoqiqiiqioiqqiqoqKqiIqoiqiqiKqiiqiqiIqqKiKqKqqqKqIqqqqqKiqqiqKqqioqqiqiKiqqiqiKqqiqiqiqqqiqiqiKiqqioiKqqKiiqiqioKqiqiqqqKqiKiKqiqioqiqKqiqqiqKqiKqiqiqiKqqiqiKqiKiKiqoqiqiqiqqiqiqq//tSxBIACiy3WaeMONF+hau08YkSoqiqqKqqqqKqiiqqqiKqiqiqiqqiqiqioqiqqiqiqqiqqiqqiiqiqiqiqqiqiqiqqiqiqiqiqiqiqqiqiqiqiqqiqiqqiqiqiqqiqiqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqqiqqiqiqiqqqiq//tSxBMACtC3WaeMYNF+hau08YkSqqiqiqiqiqiqqiqqiqiqqiqiqqiqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiq//tSxBQACtC3WaeMYNF+hau08YkSqqqiqiqqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiq";
+  {name:"Croatie",            code
