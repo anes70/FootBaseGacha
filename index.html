@@ -1,633 +1,935 @@
-/* ============================================================
-   CONFIG — à vérifier / ajuster selon ton contrat réellement déployé
-   ============================================================ */
-// Prix d'un pack en ETH. L'ABI fournie n'exposait pas de getter de prix,
-// donc on part de 0 (gratuit) par sécurité : mieux vaut une transaction qui
-// échoue proprement que d'envoyer un montant inventé. Mets le vrai prix ici
-// si ton contrat est payant (ex: "0.0008").
-const MINT_PRICE_ETH = "0";
-// RPC public en lecture seule, utilisé même sans wallet connecté (collection
-// publique, leaderboard).
-const READ_RPC_URL = "https://mainnet.base.org";
-// Nombre max de tokens scannés pour le leaderboard (évite de spammer le RPC).
-const LEADERBOARD_SCAN_CAP = 400;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>FOOT BASE — World Cup 2026 Gacha Pack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<style>
+:root{
+  --bg:#080a0d; --panel:#12161d; --panel-2:#191f29; --panel-3:#222a36; --border:#2a3442;
+  --text:#f7fbff; --muted:#98a4b7; --blue:#1f72ff; --blue-2:#00b7ff;
+  --green:#17e68a; --amber:#f6b84b; --red:#ff5570; --purple:#a259ff; --gold:#ffd23f;
+  --shadow:0 22px 70px rgba(0,0,0,.42);
+  --font:"Inter",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(31,114,255,.18), transparent 34rem),
+    linear-gradient(180deg,#0a0d12 0%,var(--bg) 34rem);
+  color:var(--text);font-family:var(--font);padding-bottom:3rem;
+}
+button,input{font:inherit;}
+button{-webkit-tap-highlight-color:transparent;}
 
-/* ============================================================
-   RÉFÉRENCES DOM SUPPLÉMENTAIRES
-   ============================================================ */
+.wrap{width:min(980px,calc(100% - 32px));margin:0 auto;}
+
+.hero{border-bottom:1px solid rgba(255,255,255,.06);overflow:hidden;position:relative;}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:22px 22px;mask-image:linear-gradient(180deg,#000 0%,transparent 85%);pointer-events:none;
+}
+.hero-inner{position:relative;display:flex;align-items:center;justify-content:space-between;gap:1.25rem;padding:2rem 0 3rem;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:.95rem;min-width:0;}
+.logo{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),#08d8b4);box-shadow:0 16px 38px rgba(31,114,255,.32);flex:0 0 auto;}
+.logo-mark{width:27px;height:27px;border:4px solid white;border-radius:50%;position:relative;}
+.logo-mark::after{content:"";position:absolute;inset:7px;border-radius:50%;background:white;}
+h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:1;}
+.subtitle{margin-top:.35rem;color:var(--muted);font-size:.9rem;}
+.author{margin-top:.45rem;color:var(--muted);font-size:.78rem;}
+.author a,.footer a{color:#7db0ff;text-decoration:none;font-weight:700;}
+.status-pill{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgba(23,230,138,.32);color:var(--green);background:rgba(23,230,138,.09);border-radius:999px;padding:.48rem .75rem;font-size:.74rem;font-weight:800;white-space:nowrap;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.4s ease-in-out infinite;}
+
+.shell{position:relative;z-index:2;margin-top:-1.35rem;background:rgba(18,22,29,.94);border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:var(--shadow);padding:1.35rem;backdrop-filter:blur(16px);}
+
+.alert{display:none;border-radius:12px;border:1px solid;padding:.9rem 1rem;margin-bottom:1rem;line-height:1.45;font-size:.86rem;}
+.alert strong{display:block;margin-bottom:.2rem;}
+.alert.error{color:#ffd5dc;background:rgba(255,85,112,.09);border-color:rgba(255,85,112,.32);}
+.alert.warn{color:#ffe3ad;background:rgba(246,184,75,.09);border-color:rgba(246,184,75,.34);}
+.alert.show{display:block;}
+
+.wallet-bar{display:none;align-items:center;justify-content:space-between;gap:.75rem;background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:.8rem .95rem;margin-bottom:1rem;font-size:.82rem;flex-wrap:wrap;}
+.wallet-bar.show{display:flex;}
+.wallet-left,.wallet-right{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+.wallet-address{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}
+.tag{display:inline-flex;align-items:center;min-height:25px;border-radius:8px;padding:.23rem .55rem;background:var(--panel-3);color:var(--text);font-size:.72rem;font-weight:800;}
+.tag.ok{color:var(--green);background:rgba(23,230,138,.1);border:1px solid rgba(23,230,138,.2);}
+.tag.bad{color:var(--red);background:rgba(255,85,112,.1);border:1px solid rgba(255,85,112,.22);}
+.scan-link{color:#7db0ff;text-decoration:none;font-weight:800;}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;margin-bottom:1.25rem;border-radius:12px;background:var(--panel-2);border:1px solid var(--border);}
+.tab{border:0;color:var(--muted);background:transparent;min-height:42px;border-radius:9px;cursor:pointer;font-size:.82rem;font-weight:800;}
+.tab.active{background:var(--blue);color:white;}
+.view{display:none;}
+.view.active{display:block;}
+
+.pack-layout{display:grid;grid-template-columns:minmax(240px,1fr) minmax(230px,.75fr);gap:1rem;align-items:stretch;}
+.pack-stage{min-height:348px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(180deg,rgba(31,114,255,.08),transparent),var(--panel-2);display:grid;place-items:center;text-align:center;padding:1.2rem;overflow:hidden;position:relative;}
+
+.burst{position:absolute;inset:0;pointer-events:none;opacity:0;}
+.burst.go{animation:burstFade .9s ease forwards;}
+.burst span{
+  position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;
+  background:var(--blue-2);transform:translate(-50%,-50%);
+}
+@keyframes burstFade{0%{opacity:1;}100%{opacity:0;}}
+
+.pack{
+  width:166px;height:232px;border:2px solid rgba(125,176,255,.9);border-radius:16px;
+  background:linear-gradient(135deg,rgba(31,114,255,.72),transparent 34%),linear-gradient(160deg,#182436,#0d121a);
+  box-shadow:0 26px 60px rgba(31,114,255,.22);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.pack:hover{transform:translateY(-3px);box-shadow:0 32px 72px rgba(31,114,255,.32);}
+.pack.shaking{animation:packShake .55s ease-in-out;}
+.pack.flashing::after{
+  content:"";position:absolute;inset:0;background:white;opacity:0;
+  animation:flashOut .35s ease forwards;
+}
+.pack.flying{animation:packFly .4s ease forwards;}
+@keyframes packShake{
+  0%,100%{transform:translateX(0) rotate(0);}
+  15%{transform:translateX(-6px) rotate(-2deg);}
+  30%{transform:translateX(6px) rotate(2deg);}
+  45%{transform:translateX(-8px) rotate(-3deg);}
+  60%{transform:translateX(8px) rotate(3deg);}
+  75%{transform:translateX(-4px) rotate(-1deg);}
+  90%{transform:translateX(4px) rotate(1deg);}
+}
+@keyframes flashOut{0%{opacity:0;}40%{opacity:.95;}100%{opacity:0;}}
+@keyframes packFly{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.3);}}
+
+.pack-title{position:relative;z-index:1;color:white;font-weight:900;letter-spacing:.06em;font-size:.86rem;}
+.pack-sub{position:relative;z-index:1;color:#b7c5d9;font-size:.68rem;margin-top:.25rem;}
+.pack-num{position:absolute;right:8px;bottom:-11px;font-size:4.8rem;font-weight:900;color:rgba(255,255,255,.09);line-height:1;}
+.pack-lines{position:absolute;inset:18px;border:1px solid rgba(255,255,255,.12);border-radius:12px;}
+.pack-hint{position:relative;z-index:1;margin-top:.6rem;color:#7db0ff;font-size:.62rem;font-weight:800;letter-spacing:.05em;opacity:.85;}
+
+.reveal{display:none;flex-direction:column;align-items:center;gap:.7rem;}
+.reveal.show{display:flex;animation:revealIn .55s cubic-bezier(.2,.8,.2,1);}
+@keyframes revealIn{
+  0%{opacity:0;transform:translateY(40px) scale(.82);}
+  60%{transform:translateY(-6px) scale(1.04);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+.reveal-conf{color:#7db0ff;font-size:.68rem;font-weight:900;letter-spacing:.13em;}
+.card-frame{
+  width:188px;aspect-ratio:5/7;border-radius:16px;position:relative;overflow:hidden;
+  border:3px solid var(--rarity-color, #7db0ff);
+  background:linear-gradient(160deg,#1b2433,#0c0f15);
+  box-shadow:0 0 0 7px var(--rarity-glow, rgba(31,114,255,.12)), 0 24px 54px rgba(31,114,255,.25);
+}
+.card-frame.epic{--rarity-color:var(--purple);--rarity-glow:rgba(162,89,255,.18);}
+.card-frame.legendary{--rarity-color:var(--gold);--rarity-glow:rgba(255,210,63,.22);}
+.card-frame .shine{
+  position:absolute;inset:0;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.35) 45%,rgba(255,255,255,.05) 55%,transparent 70%);
+  transform:translateX(-120%);
+  animation:shineSweep 1.4s ease-out .25s forwards;
+  pointer-events:none;
+}
+@keyframes shineSweep{to{transform:translateX(120%);}}
+.card-flag-wrap{position:absolute;top:14px;left:14px;right:14px;height:54%;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:var(--panel-3);}
+.card-flag-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-rarity-badge{
+  position:absolute;top:20px;right:20px;font-size:.58rem;font-weight:900;letter-spacing:.06em;
+  text-transform:uppercase;color:#0b0e13;background:var(--rarity-color,#7db0ff);
+  padding:.18rem .45rem;border-radius:6px;
+}
+.card-body{position:absolute;left:14px;right:14px;bottom:14px;text-align:left;}
+.card-name{font-size:1.05rem;font-weight:900;line-height:1.1;}
+.card-conf-line{color:var(--muted);font-size:.64rem;margin-top:.2rem;font-weight:700;letter-spacing:.04em;}
+.card-id-line{color:var(--rarity-color,#7db0ff);font-size:.6rem;margin-top:.3rem;font-weight:800;}
+
+.reveal-meta{color:var(--muted);font-size:.78rem;}
+.link-button{border:0;background:transparent;color:#7db0ff;cursor:pointer;font-weight:800;padding:.3rem;font-size:.82rem;}
+
+.side-panel{border:1px solid var(--border);border-radius:14px;background:var(--panel-2);padding:1rem;display:flex;flex-direction:column;justify-content:space-between;gap:1rem;}
+.gauge-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.55rem;}
+.label{color:var(--muted);font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
+.gauge-count{font-size:1rem;font-weight:900;}
+.gauge-count.full{color:var(--green);}
+.track{height:12px;border:1px solid var(--border);border-radius:999px;background:#0d1118;overflow:hidden;}
+.fill{height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--blue-2),var(--green));transition:width .55s ease;}
+.milestones{display:flex;justify-content:space-between;color:var(--muted);font-size:.65rem;margin-top:.4rem;}
+
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.metric{min-height:84px;border:1px solid var(--border);border-radius:12px;background:rgba(255,255,255,.025);padding:.8rem;}
+.value{margin-top:.35rem;font-weight:900;font-size:1.2rem;}
+.value.ok{color:var(--green);}
+.value.warn{color:var(--amber);}
+.value.bad{color:var(--red);}
+
+.primary{width:100%;min-height:52px;border:0;border-radius:12px;color:white;background:linear-gradient(135deg,var(--blue),#00a4ff);cursor:pointer;font-weight:900;box-shadow:0 14px 32px rgba(31,114,255,.24);transition:transform .15s ease,opacity .15s ease;}
+.primary:hover:not(:disabled){transform:translateY(-1px);}
+.primary:disabled{cursor:not-allowed;color:var(--muted);background:var(--panel-3);border:1px solid var(--border);box-shadow:none;}
+.primary.loading{opacity:.75;cursor:wait;}
+.secondary{min-height:38px;border-radius:10px;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;font-size:.8rem;font-weight:800;}
+.secondary:hover{color:var(--text);border-color:#3a4658;}
+
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.count{color:var(--muted);font-size:.84rem;font-weight:700;}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:.8rem;}
+.conf-sep{grid-column:1/-1;display:flex;align-items:center;gap:.55rem;color:#7db0ff;border-top:1px solid var(--border);padding-top:.75rem;margin-top:.25rem;font-size:.72rem;font-weight:900;letter-spacing:.1em;}
+.conf-sep:first-child{border-top:0;margin-top:0;padding-top:0;}
+.conf-num{border-radius:999px;background:rgba(31,114,255,.16);padding:.13rem .48rem;font-size:.62rem;}
+.slot{min-height:112px;position:relative;text-align:center;border:1px solid var(--border);border-radius:12px;background:var(--panel-2);color:var(--muted);padding:.85rem .45rem .7rem;font-size:.74rem;font-weight:800;transition:transform .2s ease,border-color .2s ease,color .2s ease;}
+.slot img{width:52px;height:35px;object-fit:cover;border-radius:5px;display:block;margin:0 auto .55rem;filter:grayscale(1);opacity:.2;background:var(--panel-3);}
+.slot.got{color:white;border-color:rgba(125,176,255,.72);background:linear-gradient(180deg,rgba(31,114,255,.14),var(--panel-2));}
+.slot.got img{filter:none;opacity:1;}
+.slot.justgot{animation:slotPop .5s cubic-bezier(.2,.8,.2,1);}
+@keyframes slotPop{0%{transform:scale(.8);opacity:.4;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+.slot-number{display:none;position:absolute;top:7px;right:7px;color:white;background:var(--blue);border-radius:7px;padding:.13rem .36rem;font-size:.58rem;font-weight:900;}
+.slot.got .slot-number{display:inline-block;}
+
+.leader-actions{display:flex;gap:.5rem;align-items:center;}
+.leader-list{min-height:210px;}
+.leader-row{display:flex;justify-content:space-between;align-items:center;gap:.75rem;border:1px solid var(--border);border-radius:12px;background:var(--panel-2);padding:.82rem .95rem;margin-bottom:.55rem;font-size:.86rem;}
+.leader-row.me{border-color:rgba(125,176,255,.85);background:rgba(31,114,255,.1);}
+.leader-left{display:flex;align-items:center;gap:.75rem;min-width:0;}
+.rank{width:28px;flex:0 0 28px;text-align:center;font-weight:900;color:var(--amber);}
+.rank.r1{color:var(--gold);}
+.rank.r2{color:#cfd6e0;}
+.rank.r3{color:#d18a52;}
+.addr{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);overflow:hidden;text-overflow:ellipsis;}
+.score{color:#7db0ff;font-weight:900;white-space:nowrap;}
+.empty,.loading-text{color:var(--muted);text-align:center;padding:2.2rem 0;font-size:.88rem;}
+.loading-text{animation:pulse 1.4s ease-in-out infinite;}
+
+.toast{position:fixed;left:50%;bottom:1.25rem;z-index:20;transform:translate(-50%,120px);max-width:min(520px,calc(100% - 32px));color:var(--green);background:#111820;border:1px solid rgba(23,230,138,.34);border-radius:12px;box-shadow:var(--shadow);padding:.85rem 1rem;font-size:.86rem;font-weight:800;text-align:center;transition:transform .28s ease;}
+.toast.show{transform:translate(-50%,0);}
+
+.footer{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;color:var(--muted);font-size:.75rem;}
+
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+
+@media (max-width:760px){
+  .hero-inner,.wallet-bar,.section-head{align-items:flex-start;flex-direction:column;}
+  .status-pill{align-self:flex-start;}
+  .shell{padding:1rem;}
+  .tabs{grid-template-columns:1fr;}
+  .pack-layout{grid-template-columns:1fr;}
+  .pack-stage{min-height:300px;}
+  .collection-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));}
+  .metric-row{grid-template-columns:1fr;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><div class="logo-mark"></div></div>
+      <div>
+        <h1>FOOT BASE</h1>
+        <div class="subtitle">Album World Cup 2026 — Gacha on-chain</div>
+        <div class="author">by <a href="https://rainbow.me/irezroifer.base.eth" target="_blank" rel="noreferrer">irezroifer.base.eth</a></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;">
+      <button class="secondary" id="mute-btn" type="button" title="Activer/couper le son" style="min-height:36px;padding:0 .8rem;">🔈 Son</button>
+      <div class="status-pill"><span class="status-dot"></span><span id="app-status">Drop live</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<audio id="sfx-ko" preload="auto"></audio>
+<audio id="bgm" preload="auto" loop src="bgm.mp3"></audio>
+
+<main class="wrap">
+  <section class="shell">
+    <div class="alert error" id="error"></div>
+    <div class="alert warn" id="network-warning">
+      <strong>Mauvais réseau</strong>
+      Ce contrat fonctionne sur Base Mainnet ou Base Sepolia. Ton wallet est actuellement sur <span id="current-network">un autre réseau</span>.
+    </div>
+
+    <div class="wallet-bar" id="wallet-bar">
+      <div class="wallet-left">
+        <span class="wallet-address" id="wallet-address">0x...</span>
+        <span class="tag" id="network-badge">Non connecté</span>
+      </div>
+      <div class="wallet-right">
+        <span class="tag" id="eth-balance">0 ETH</span>
+        <a class="scan-link" id="scan-link" href="https://basescan.org" target="_blank" rel="noreferrer">Basescan</a>
+        <button class="secondary" type="button" id="disconnect-btn">Déconnecter</button>
+      </div>
+    </div>
+
+    <nav class="tabs" aria-label="Navigation">
+      <button class="tab active" type="button" data-tab="0">Pack opener</button>
+      <button class="tab" type="button" data-tab="1">Ma collection</button>
+      <button class="tab" type="button" data-tab="2">Leaderboard</button>
+    </nav>
+
+    <div class="view active" id="view-0">
+      <div class="pack-layout">
+        <div class="pack-stage">
+          <div class="burst" id="burst"></div>
+          <button class="pack" id="pack" type="button" aria-label="Ouvrir un pack">
+            <span class="pack-lines"></span>
+            <span class="pack-title">MONDIAL 2026</span>
+            <span class="pack-sub">World Cup Edition</span>
+            <span class="pack-num">48</span>
+            <span class="pack-hint" id="pack-hint">Cliquer pour ouvrir</span>
+          </button>
+          <div class="reveal" id="reveal">
+            <div class="reveal-conf" id="reveal-conf"></div>
+            <div class="card-frame" id="card-frame">
+              <div class="shine"></div>
+              <span class="card-rarity-badge" id="card-rarity-badge"></span>
+              <div class="card-flag-wrap"><img id="reveal-flag" alt=""></div>
+              <div class="card-body">
+                <div class="card-name" id="reveal-name"></div>
+                <div class="card-conf-line" id="card-conf-line"></div>
+                <div class="card-id-line" id="reveal-meta"></div>
+              </div>
+            </div>
+            <button class="link-button" type="button" id="reset-pack">Ouvrir un autre pack →</button>
+          </div>
+        </div>
+        <aside class="side-panel">
+          <div>
+            <div class="gauge-head">
+              <div class="label">Ta collection</div>
+              <div class="gauge-count" id="gauge-count">0 / 48</div>
+            </div>
+            <div class="track"><div class="fill" id="gauge-fill"></div></div>
+            <div class="milestones"><span>0</span><span>12</span><span>24</span><span>36</span><span>48</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric">
+              <div class="label">Mints aujourd'hui</div>
+              <div class="value" id="daily-value">— / 2</div>
+            </div>
+            <div class="metric">
+              <div class="label">Réseau</div>
+              <div class="value" id="chain-value" style="font-size:.92rem;">Base</div>
+            </div>
+          </div>
+          <div>
+            <button class="primary" id="main-btn" type="button">Connecter le wallet</button>
+            <div style="height:.5rem;"></div>
+            <button class="secondary" id="demo-btn" type="button" style="width:100%;">🎮 Tester en mode démo</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="view" id="view-1">
+      <div class="section-head">
+        <div class="label">Album WC2026 — 48 nations</div>
+        <div class="count" id="collection-count">0 / 48 pays</div>
+      </div>
+      <div class="collection-grid" id="collection-grid"></div>
+    </div>
+
+    <div class="view" id="view-2">
+      <div class="section-head">
+        <div class="label">Top collectionneurs</div>
+        <div class="leader-actions">
+          <button class="secondary" type="button" id="refresh-lb">Actualiser</button>
+        </div>
+      </div>
+      <div class="leader-list" id="leader-list"><div class="empty">Connecte ton wallet ou actualise pour lire la chaîne.</div></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>Base RPC · ERC-721 · cache local</div>
+    <div>Contrat: <a href="https://basescan.org/address/0xfa0a2a71c0db19afb457648537eb45fb734a5c7a" target="_blank" rel="noreferrer">0xfa0a...5c7a</a></div>
+  </footer>
+</main>
+
+<script>
+const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+const CONTRACT_ABI = [
+  "function mintPack() external payable",
+  "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
+  "function dailyMintCount(address addr) external view returns (uint256)",
+  "function nextTokenId() external view returns (uint256)",
+  "function ownerOf(uint256 tokenId) external view returns (address)",
+  "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)"
+];
+const SUPPORTED = {
+  8453:  { name:"Base Mainnet", scan:"https://basescan.org" },
+  84532: { name:"Base Sepolia", scan:"https://sepolia.basescan.org" }
+};
+const DAILY_LIMIT = 2;
+const cacheKey = addr => `footbase_col_${addr.toLowerCase()}`;
+
+const RARITY = {
+  legendary: { weight: 5,  label: "Légendaire" },
+  epic:      { weight: 20, label: "Épique" },
+  common:    { weight: 75, label: "Commune" },
+};
+
+const countries = [
+  {name:"Canada",             code:"ca", conf:"CONCACAF", rarity:"common"},
+  {name:"Curaçao",            code:"cw", conf:"CONCACAF", rarity:"common"},
+  {name:"États-Unis",         code:"us", conf:"CONCACAF", rarity:"epic"},
+  {name:"Haïti",              code:"ht", conf:"CONCACAF", rarity:"common"},
+  {name:"Mexique",            code:"mx", conf:"CONCACAF", rarity:"epic"},
+  {name:"Panama",             code:"pa", conf:"CONCACAF", rarity:"common"},
+  {name:"Arabie Saoudite",    code:"sa", conf:"AFC", rarity:"common"},
+  {name:"Australie",          code:"au", conf:"AFC", rarity:"common"},
+  {name:"Irak",               code:"iq", conf:"AFC", rarity:"common"},
+  {name:"Japon",              code:"jp", conf:"AFC", rarity:"epic"},
+  {name:"Jordanie",           code:"jo", conf:"AFC", rarity:"common"},
+  {name:"Ouzbékistan",        code:"uz", conf:"AFC", rarity:"common"},
+  {name:"Qatar",              code:"qa", conf:"AFC", rarity:"common"},
+  {name:"Corée du Sud",       code:"kr", conf:"AFC", rarity:"epic"},
+  {name:"Iran",               code:"ir", conf:"AFC", rarity:"common"},
+  {name:"Afrique du Sud",     code:"za", conf:"CAF", rarity:"common"},
+  {name:"Algérie",            code:"dz", conf:"CAF", rarity:"common"},
+  {name:"Cap-Vert",           code:"cv", conf:"CAF", rarity:"common"},
+  {name:"Côte d'Ivoire",      code:"ci", conf:"CAF", rarity:"epic"},
+  {name:"Égypte",             code:"eg", conf:"CAF", rarity:"common"},
+  {name:"Ghana",              code:"gh", conf:"CAF", rarity:"common"},
+  {name:"Maroc",              code:"ma", conf:"CAF", rarity:"legendary"},
+  {name:"RD Congo",           code:"cd", conf:"CAF", rarity:"common"},
+  {name:"Sénégal",            code:"sn", conf:"CAF", rarity:"epic"},
+  {name:"Tunisie",            code:"tn", conf:"CAF", rarity:"common"},
+  {name:"Argentine",          code:"ar", conf:"CONMEBOL", rarity:"legendary"},
+  {name:"Brésil",             code:"br", conf:"CONMEBOL", rarity:"legendary"},
+  {name:"Colombie",           code:"co", conf:"CONMEBOL", rarity:"epic"},
+  {name:"Équateur",           code:"ec", conf:"CONMEBOL", rarity:"common"},
+  {name:"Paraguay",           code:"py", conf:"CONMEBOL", rarity:"common"},
+  {name:"Uruguay",            code:"uy", conf:"CONMEBOL", rarity:"epic"},
+  {name:"Nouvelle-Zélande",   code:"nz", conf:"OFC", rarity:"common"},
+  {name:"Allemagne",          code:"de", conf:"UEFA", rarity:"legendary"},
+  {name:"Angleterre",         code:"gb", conf:"UEFA", rarity:"legendary", flagOverride:"https://flagcdn.com/w320/gb-eng.png"},
+  {name:"Autriche",           code:"at", conf:"UEFA", rarity:"common"},
+  {name:"Belgique",           code:"be", conf:"UEFA", rarity:"epic"},
+  {name:"Bosnie-Herzégovine", code:"ba", conf:"UEFA", rarity:"common"},
+  {name:"Croatie",            code:"hr", conf:"UEFA", rarity:"epic"},
+  {name:"Écosse",             code:"gb", conf:"UEFA", rarity:"common", flagOverride:"https://flagcdn.com/w320/gb-sct.png"},
+  {name:"France",             code:"fr", conf:"UEFA", rarity:"legendary"},
+  {name:"Espagne",            code:"es", conf:"UEFA", rarity:"legendary"},
+  {name:"Norvège",            code:"no", conf:"UEFA", rarity:"common"},
+  {name:"Pays-Bas",           code:"nl", conf:"UEFA", rarity:"epic"},
+  {name:"Portugal",           code:"pt", conf:"UEFA", rarity:"legendary"},
+  {name:"Suède",              code:"se", conf:"UEFA", rarity:"common"},
+  {name:"Suisse",             code:"ch", conf:"UEFA", rarity:"common"},
+  {name:"Tchéquie",           code:"cz", conf:"UEFA", rarity:"common"},
+  {name:"Turquie",            code:"tr", conf:"UEFA", rarity:"common"},
+];
+const TOTAL = countries.length;
+
+function flagUrl(c) {
+  return c.flagOverride || `https://flagcdn.com/w320/${c.code}.png`;
+}
+
+let provider, signer, contract, userAddress = null;
+let owned = new Map(); // nom du pays -> nombre d'exemplaires possédés
+let demoMode = false;
+let demoDailyCount = 0;
+
+const dailyKey = addr => `footbase_daily_${addr.toLowerCase()}`;
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function getLocalDailyCount(addr) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(dailyKey(addr)) || 'null');
+    if (!raw || raw.date !== todayStr()) return 0;
+    return raw.count;
+  } catch { return 0; }
+}
+function incrementLocalDailyCount(addr) {
+  const count = getLocalDailyCount(addr) + 1;
+  localStorage.setItem(dailyKey(addr), JSON.stringify({ date: todayStr(), count }));
+  return count;
+}
+
+function cacheLoad(addr) {
+  try {
+    const raw = JSON.parse(localStorage.getItem(cacheKey(addr)) || "[]");
+    // Supporte l'ancien format (tableau de noms) et le nouveau (tableau de [nom, quantité])
+    const entries = raw.map(item => Array.isArray(item) ? item : [item, 1]);
+    return new Map(entries);
+  } catch { return new Map(); }
+}
+function cacheSave(addr, map) {
+  try { localStorage.setItem(cacheKey(addr), JSON.stringify([...map.entries()])); } catch {}
+}
+
+const $ = id => document.getElementById(id);
+const elPack       = $('pack');
+const elPackHint   = $('pack-hint');
+const elReveal     = $('reveal');
+const elBurst      = $('burst');
+const elCardFrame  = $('card-frame');
+const elBtn        = $('main-btn');
+const elDemoBtn    = $('demo-btn');
+const elDisconnect = $('disconnect-btn');
+const elSfx        = $('sfx-ko');
+const elBgm        = $('bgm');
+const elMuteBtn    = $('mute-btn');
+
+const SFX_KO_BASE64 = "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qqKqiKiKqiqioqiqKqiqqiqKqiKqiqiqiKqqiqiKqiKiKiqoqiqiqiqqiqiqq//tSxBIACiy3WaeMONF+hau08YkSoqiqqKqqqqKqiiqqqiKqiqiqiqqiqiqioqiqqiqiqqiqqiqqiiqiqiqiqqiqiqiqqiqiqiqiqiqiqqiqiqiqiqqiqiqqiqiqiqqiqiqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqiqiqiqqqiqqiqiqiqqqiq//tSxBMACtC3WaeMYNF+hau08YkSqqiqiqiqiqiqqiqqiqiqqiqiqqiqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiqqiqiq//tSxBQACtC3WaeMYNF+hau08YkSqqqiqiqqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqiqqiqiqiqiqiqiqiq";
+
+
+/* ===================== Références DOM additionnelles ===================== */
 const elError          = $('error');
-const elNetworkWarning = $('network-warning');
-const elCurrentNetwork = $('current-network');
-const elSwitchNetwork  = $('switch-network-btn');
-const elWalletBar      = $('wallet-bar');
-const elWalletAddress  = $('wallet-address');
-const elNetworkBadge   = $('network-badge');
-const elEthBalance     = $('eth-balance');
-const elScanLink       = $('scan-link');
-const elAppStatus      = $('app-status');
-const elGaugeCount     = $('gauge-count');
-const elGaugeFill      = $('gauge-fill');
-const elDailyValue     = $('daily-value');
-const elChainValue     = $('chain-value');
-const elRevealConf     = $('reveal-conf');
-const elRarityBadge    = $('card-rarity-badge');
-const elRevealFlag     = $('reveal-flag');
-const elRevealName     = $('reveal-name');
-const elCardConfLine   = $('card-conf-line');
-const elRevealMeta     = $('reveal-meta');
-const elResetPack      = $('reset-pack');
-const elCollectionGrid = $('collection-grid');
-const elCollectionCount= $('collection-count');
-const elLeaderList     = $('leader-list');
-const elRefreshLb      = $('refresh-lb');
-const elToast          = $('toast');
-const tabButtons       = document.querySelectorAll('.tab');
-const viewPanels       = document.querySelectorAll('.view');
+const elNetworkWarning  = $('network-warning');
+const elCurrentNetwork  = $('current-network');
+const elWalletBar       = $('wallet-bar');
+const elWalletAddress   = $('wallet-address');
+const elNetworkBadge    = $('network-badge');
+const elEthBalance      = $('eth-balance');
+const elScanLink        = $('scan-link');
+const elAppStatus       = $('app-status');
+const elGaugeCount      = $('gauge-count');
+const elGaugeFill       = $('gauge-fill');
+const elDailyValue      = $('daily-value');
+const elChainValue      = $('chain-value');
+const elCollectionGrid  = $('collection-grid');
+const elCollectionCount = $('collection-count');
+const elLeaderList      = $('leader-list');
+const elRefreshLb       = $('refresh-lb');
+const elToast           = $('toast');
+const elRevealConf      = $('reveal-conf');
+const elCardRarityBadge = $('card-rarity-badge');
+const elRevealFlag      = $('reveal-flag');
+const elRevealName      = $('reveal-name');
+const elCardConfLine    = $('card-conf-line');
+const elRevealMeta      = $('reveal-meta');
+const elResetPack       = $('reset-pack');
 
-let readProvider = null;
-let isBusy = false;
-let toastTimer = null;
+const RPC_FALLBACK = "https://mainnet.base.org"; // lecture en lecture seule sans wallet connecté
+let isOpening = false;
 
-/* ============================================================
-   TOAST
-   ============================================================ */
-function showToast(message, ms = 3200) {
-  elToast.textContent = message;
+/* ===================== Utilitaires UI ===================== */
+function showToast(msg, ms = 2800) {
+  elToast.textContent = msg;
   elToast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => elToast.classList.remove('show'), ms);
+  clearTimeout(elToast._t);
+  elToast._t = setTimeout(() => elToast.classList.remove('show'), ms);
 }
-
-function showError(message) {
-  if (!message) { elError.classList.remove('show'); return; }
-  elError.innerHTML = `<strong>Oups</strong>${message}`;
+function showError(msg) {
+  if (!msg) { elError.classList.remove('show'); elError.textContent = ''; return; }
+  elError.innerHTML = `<strong>Oups</strong>${msg}`;
   elError.classList.add('show');
+  clearTimeout(elError._t);
+  elError._t = setTimeout(() => elError.classList.remove('show'), 7000);
 }
+function setStatus(text) { elAppStatus.textContent = text; }
+function shortAddr(addr) { return addr.slice(0, 6) + '…' + addr.slice(-4); }
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-/* ============================================================
-   ONGLETS
-   ============================================================ */
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.tab;
-    tabButtons.forEach(b => b.classList.toggle('active', b === btn));
-    viewPanels.forEach(v => v.classList.toggle('active', v.id === `view-${target}`));
-    if (target === '1') renderCollection();
-    if (target === '2') renderLeaderboard();
-  });
-});
-
-/* ============================================================
-   AUDIO — musique de fond persistante + effet sonore de reveal
-   But : la musique doit continuer à tourner tout le temps une fois lancée,
-   et démarrer dès que possible malgré les restrictions « autoplay » des
-   navigateurs (qui bloquent tout son tant qu'il n'y a pas eu un geste de
-   l'utilisateur sur la page).
-   ============================================================ */
-const MUTE_KEY = 'footbase_muted';
-let musicStarted = false;
-let userMuted = (() => {
-  try { return localStorage.getItem(MUTE_KEY) === '1'; } catch { return false; }
-})();
-
-function initAudio() {
-  elBgm.src = 'bgm.mp3';
+/* ===================== Musique de fond — toujours active ===================== */
+const MUTE_KEY = 'footbase_music_muted';
+function initMusic() {
+  try { elBgm.muted = localStorage.getItem(MUTE_KEY) === '1'; } catch { elBgm.muted = false; }
+  elBgm.volume = 0.45;
   elBgm.loop = true;
-  elBgm.volume = 0.42;
-  elBgm.muted = userMuted;
-  elSfx.src = 'data:audio/mp3;base64,' + SFX_KO_BASE64;
-  elSfx.volume = 0.85;
-  updateMuteButton();
-
-  // Si la musique s'arrête toute seule pour une raison quelconque alors
-  // qu'elle ne devrait pas (et que l'utilisateur ne l'a pas coupée),
-  // on retente de la relancer.
-  elBgm.addEventListener('pause', () => {
-    if (!userMuted && musicStarted) attemptPlay();
-  });
-  elBgm.addEventListener('ended', () => {
-    // Filet de sécurité : "loop" devrait déjà gérer ça, mais certains
-    // navigateurs mobiles peuvent couper le loop en arrière-plan.
-    if (!userMuted) attemptPlay();
-  });
-
-  // Tentative immédiate (fonctionne sur certains navigateurs si la musique
-  // est jouée en sourdine, ou si la permission autoplay a déjà été accordée
-  // au site auparavant).
+  updateMuteBtn();
   attemptPlay();
-
-  // Dès le tout premier geste de l'utilisateur sur la page (clic, touche,
-  // tap), on (re)tente de lancer la musique. C'est ce qui garantit que le
-  // son "marche tout le temps" malgré les blocages des navigateurs.
-  const unlock = () => {
-    attemptPlay();
-  };
+  // Les navigateurs bloquent l'autoplay sonore avant une interaction utilisateur :
+  // on retente automatiquement à la première interaction, et on garde la piste
+  // toujours en lecture (boucle infinie) même si elle est mise en pause par le navigateur.
   ['pointerdown', 'keydown', 'touchstart'].forEach(evt => {
-    document.addEventListener(evt, unlock, { passive: true });
+    document.addEventListener(evt, attemptPlay, { passive: true });
   });
-
-  // Si l'onglet redevient visible/actif, on s'assure que la musique tourne.
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !userMuted) attemptPlay();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) attemptPlay(); });
+  elBgm.addEventListener('pause', () => {
+    // Si la piste est coupée pour une raison hors de notre contrôle, on retente.
+    if (!document.hidden) setTimeout(attemptPlay, 300);
   });
 }
-
 function attemptPlay() {
-  if (userMuted || musicStarted) {
-    // Même si "démarrée", si elle est en pause sans qu'on l'ait coupée,
-    // on relance silencieusement.
-    if (!userMuted && elBgm.paused) {
-      elBgm.play().catch(() => {});
-    }
-    return;
-  }
-  elBgm.muted = false;
-  const playPromise = elBgm.play();
-  if (playPromise && typeof playPromise.then === 'function') {
-    playPromise.then(() => { musicStarted = true; })
-      .catch(() => { /* bloqué par le navigateur, on retentera au prochain geste */ });
-  } else {
-    musicStarted = true;
-  }
+  if (!elBgm.paused) return;
+  const p = elBgm.play();
+  if (p && p.catch) p.catch(() => { /* sera retenté au prochain geste utilisateur */ });
 }
-
-function updateMuteButton() {
-  elMuteBtn.textContent = userMuted ? '🔇 Son coupé' : '🔈 Son';
+function updateMuteBtn() {
+  elMuteBtn.textContent = elBgm.muted ? '🔇 Son' : '🔈 Son';
 }
-
 elMuteBtn.addEventListener('click', () => {
-  userMuted = !userMuted;
-  try { localStorage.setItem(MUTE_KEY, userMuted ? '1' : '0'); } catch {}
-  elBgm.muted = userMuted;
-  updateMuteButton();
-  if (!userMuted) attemptPlay();
+  elBgm.muted = !elBgm.muted;
+  try { localStorage.setItem(MUTE_KEY, elBgm.muted ? '1' : '0'); } catch {}
+  updateMuteBtn();
+  attemptPlay();
 });
 
-function playSfx() {
-  if (userMuted) return;
-  try {
-    elSfx.currentTime = 0;
-    elSfx.play().catch(() => {});
-  } catch {}
-}
-
-/* ============================================================
-   UTILITAIRES RÉSEAU / WALLET
-   ============================================================ */
-function shortAddr(addr) {
-  return addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : '';
-}
-
-function getReadProvider() {
-  if (!readProvider) readProvider = new ethers.providers.JsonRpcProvider(READ_RPC_URL);
-  return readProvider;
-}
-
-function getReadContract() {
-  return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, getReadProvider());
-}
-
-async function checkNetwork(chainIdNum) {
-  const ok = !!SUPPORTED[chainIdNum];
-  if (ok) {
-    elNetworkWarning.classList.remove('show');
-    elChainValue.textContent = SUPPORTED[chainIdNum].name.replace('Base ', '');
-    elScanLink.href = SUPPORTED[chainIdNum].scan;
-  } else {
-    elCurrentNetwork.textContent = `Chain ID ${chainIdNum}`;
-    elNetworkWarning.classList.add('show');
+/* ===================== Sélection pondérée d'un pays (mode démo) ===================== */
+function pickCountry() {
+  const tiers = Object.keys(RARITY);
+  const totalWeight = tiers.reduce((s, t) => s + RARITY[t].weight, 0);
+  let r = Math.random() * totalWeight;
+  let tier = tiers[tiers.length - 1];
+  for (const t of tiers) {
+    if (r < RARITY[t].weight) { tier = t; break; }
+    r -= RARITY[t].weight;
   }
-  return ok;
-}
-
-elSwitchNetwork.addEventListener('click', () => switchToBase());
-
-async function switchToBase() {
-  if (!window.ethereum) return;
-  try {
-    await window.ethereum.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: '0x2105' }],
-    });
-  } catch (err) {
-    if (err && err.code === 4902) {
-      try {
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: '0x2105',
-            chainName: 'Base Mainnet',
-            nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-            rpcUrls: ['https://mainnet.base.org'],
-            blockExplorerUrls: ['https://basescan.org'],
-          }],
-        });
-      } catch {}
-    }
-  }
-}
-
-/* ============================================================
-   CONNEXION WALLET
-   ============================================================ */
-async function connectWallet() {
-  showError(null);
-  if (!window.ethereum) {
-    showError('Aucun wallet détecté dans ce navigateur. Installe MetaMask (ou un wallet compatible), ou utilise le mode démo pour tester sans wallet.');
-    return;
-  }
-  try {
-    setMainButtonLoading(true, 'Connexion…');
-    provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-    const accounts = await provider.send('eth_requestAccounts', []);
-    userAddress = accounts[0];
-    signer = provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    demoMode = false;
-
-    const network = await provider.getNetwork();
-    await checkNetwork(network.chainId);
-
-    owned = cacheLoad(userAddress);
-    await refreshWalletUI();
-    await refreshDailyCount();
-    renderCollection();
-
-    if (!window.ethereum.__footbaseListenersAdded) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', () => window.location.reload());
-      window.ethereum.__footbaseListenersAdded = true;
-    }
-
-    elAppStatus.textContent = 'Connecté';
-  } catch (err) {
-    handleWeb3Error(err, 'Connexion refusée ou impossible.');
-  } finally {
-    setMainButtonLoading(false);
-  }
-}
-
-function handleAccountsChanged(accounts) {
-  if (!accounts || accounts.length === 0) {
-    disconnectWallet();
-  } else {
-    window.location.reload();
-  }
-}
-
-function disconnectWallet() {
-  provider = null; signer = null; contract = null; userAddress = null;
-  demoMode = false;
-  owned = new Set();
-  elWalletBar.classList.remove('show');
-  elNetworkWarning.classList.remove('show');
-  elAppStatus.textContent = 'Drop live';
-  elBtn.textContent = '🔌 Connecter le wallet';
-  elBtn.disabled = false;
-  elPackHint.textContent = 'Connecte ton wallet pour ouvrir un pack';
-  elDailyValue.textContent = '— / ' + DAILY_LIMIT;
-  renderCollection();
-}
-elDisconnect.addEventListener('click', disconnectWallet);
-
-async function refreshWalletUI() {
-  elWalletBar.classList.add('show');
-  elWalletAddress.textContent = shortAddr(userAddress);
-  elNetworkBadge.textContent = 'Connecté';
-  elNetworkBadge.classList.add('ok'); elNetworkBadge.classList.remove('bad');
-  try {
-    const bal = await provider.getBalance(userAddress);
-    elEthBalance.textContent = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
-  } catch { elEthBalance.textContent = '— ETH'; }
-  elBtn.textContent = '🎁 Ouvrir un pack (mint)';
-  elBtn.disabled = false;
-  elPackHint.textContent = 'Cliquer pour ouvrir';
-}
-
-async function refreshDailyCount() {
-  let used = 0;
-  try {
-    if (demoMode) {
-      used = getLocalDailyCount('demo');
-    } else if (contract && userAddress) {
-      const count = await contract.dailyMintCount(userAddress);
-      used = Number(count);
-    }
-  } catch { used = getLocalDailyCount(userAddress || 'demo'); }
-  const remaining = Math.max(0, DAILY_LIMIT - used);
-  elDailyValue.textContent = `${used} / ${DAILY_LIMIT}`;
-  const limitReached = remaining <= 0;
-  elBtn.disabled = limitReached;
-  elPack.classList.toggle('limit-reached', limitReached);
-  if (limitReached) {
-    elPackHint.textContent = 'Limite quotidienne atteinte — reviens demain';
-  } else if (userAddress || demoMode) {
-    elPackHint.textContent = 'Cliquer pour ouvrir';
-  }
-  return remaining;
-}
-
-function setMainButtonLoading(loading, label) {
-  elBtn.classList.toggle('loading', loading);
-  if (loading) { elBtn.dataset.prevLabel = elBtn.textContent; elBtn.textContent = label || 'Patiente…'; elBtn.disabled = true; }
-  else if (elBtn.dataset.prevLabel) { elBtn.disabled = false; }
-}
-
-function handleWeb3Error(err, fallbackMsg) {
-  console.error(err);
-  const code = err && (err.code || (err.error && err.error.code));
-  if (code === 4001 || code === 'ACTION_REJECTED') {
-    showToast('Action annulée.');
-    return;
-  }
-  const msg = (err && (err.reason || err.message)) || '';
-  if (/insufficient funds/i.test(msg)) {
-    showError('Fonds insuffisants pour couvrir le mint et le gas.');
-  } else if (/user rejected/i.test(msg)) {
-    showToast('Action annulée.');
-  } else {
-    showError(fallbackMsg || 'Une erreur est survenue, réessaie.');
-  }
-}
-
-/* ============================================================
-   MODE DÉMO
-   ============================================================ */
-elDemoBtn.addEventListener('click', () => {
-  demoMode = true;
-  provider = null; signer = null; contract = null; userAddress = null;
-  owned = cacheLoad('demo');
-  elWalletBar.classList.add('show');
-  elWalletAddress.textContent = 'Mode démo (hors-chaîne)';
-  elNetworkBadge.textContent = 'Démo';
-  elNetworkBadge.classList.remove('ok'); elNetworkBadge.classList.add('bad');
-  elEthBalance.textContent = '— ETH';
-  elScanLink.style.display = 'none';
-  elDisconnect.textContent = 'Quitter la démo';
-  elNetworkWarning.classList.remove('show');
-  elBtn.textContent = '🎁 Ouvrir un pack (démo)';
-  elBtn.disabled = false;
-  elPackHint.textContent = 'Cliquer pour ouvrir';
-  elAppStatus.textContent = 'Mode démo';
-  refreshDailyCount();
-  renderCollection();
-  showToast('Mode démo activé : aucune transaction réelle, tout reste local.');
-});
-
-/* ============================================================
-   PIOCHE PONDÉRÉE
-   ============================================================ */
-function pickWeightedCountry() {
-  const roll = Math.random() * 100;
-  let tier;
-  if (roll < RARITY.legendary.weight) tier = 'legendary';
-  else if (roll < RARITY.legendary.weight + RARITY.epic.weight) tier = 'epic';
-  else tier = 'common';
   const pool = countries.filter(c => c.rarity === tier);
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-/* ============================================================
-   ANIMATION D'OUVERTURE DE PACK
-   ============================================================ */
-const RARITY_PARTICLE_COLOR = {
-  common: 'var(--blue-2)', epic: 'var(--purple)', legendary: 'var(--gold)',
-};
+/* ===================== Rendu : jauge, collection, daily ===================== */
+function updateGauge() {
+  elGaugeCount.textContent = `${owned.size} / ${TOTAL}`;
+  elGaugeCount.classList.toggle('full', owned.size === TOTAL);
+  elGaugeFill.style.width = Math.min(100, (owned.size / TOTAL) * 100) + '%';
+}
+function updateDailyDisplay(count) {
+  elDailyValue.textContent = `${count} / ${DAILY_LIMIT}`;
+  elDailyValue.classList.remove('ok', 'warn', 'bad');
+  elDailyValue.classList.add(count >= DAILY_LIMIT ? 'bad' : count > 0 ? 'warn' : 'ok');
+}
+function renderCollectionGrid() {
+  elCollectionGrid.innerHTML = '';
+  const confTotals = {};
+  countries.forEach(c => { confTotals[c.conf] = (confTotals[c.conf] || 0) + 1; });
+  const confOwned = {};
+  countries.forEach(c => { if (owned.has(c.name)) confOwned[c.conf] = (confOwned[c.conf] || 0) + 1; });
 
-function spawnBurst(rarity) {
-  elBurst.innerHTML = '';
-  elBurst.classList.remove('go');
-  const color = RARITY_PARTICLE_COLOR[rarity] || RARITY_PARTICLE_COLOR.common;
-  const count = rarity === 'legendary' ? 26 : rarity === 'epic' ? 20 : 14;
-  for (let i = 0; i < count; i++) {
-    const span = document.createElement('span');
-    span.style.background = color;
-    span.style.transition = `transform ${700 + Math.random() * 300}ms cubic-bezier(.2,.8,.2,1), opacity .9s ease`;
-    elBurst.appendChild(span);
-  }
-  void elBurst.offsetWidth;
-  elBurst.classList.add('go');
-  const spans = elBurst.querySelectorAll('span');
-  spans.forEach(span => {
-    const angle = Math.random() * Math.PI * 2;
-    const dist = 70 + Math.random() * 110;
-    const dx = Math.cos(angle) * dist;
-    const dy = Math.sin(angle) * dist;
-    requestAnimationFrame(() => {
-      span.style.transform = `translate(-50%,-50%) translate(${dx}px,${dy}px) scale(${rarity === 'legendary' ? 1.8 : 1.1})`;
-    });
+  let lastConf = null;
+  countries.forEach(c => {
+    if (c.conf !== lastConf) {
+      lastConf = c.conf;
+      const sep = document.createElement('div');
+      sep.className = 'conf-sep';
+      sep.innerHTML = `<span>${c.conf}</span><span class="conf-num">${confOwned[c.conf] || 0}/${confTotals[c.conf]}</span>`;
+      elCollectionGrid.appendChild(sep);
+    }
+    const has = owned.has(c.name);
+    const count = owned.get(c.name) || 0;
+    const slot = document.createElement('div');
+    slot.className = 'slot' + (has ? ' got' : '');
+    const badge = document.createElement('span');
+    badge.className = 'slot-number';
+    if (has && count > 1) badge.textContent = `×${count}`;
+    else badge.style.display = 'none';
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.src = flagUrl(c);
+    img.alt = c.name;
+    const name = document.createElement('div');
+    name.textContent = c.name;
+    slot.append(badge, img, name);
+    elCollectionGrid.appendChild(slot);
   });
+  elCollectionCount.textContent = `${owned.size} / ${TOTAL} pays`;
+}
+function renderAll() {
+  updateGauge();
+  renderCollectionGrid();
+  updateDailyDisplay(userAddress ? getLocalDailyCount(userAddress) : 0);
 }
 
-function showReveal(country) {
-  elCardFrame.className = 'card-frame ' + (country.rarity !== 'common' ? country.rarity : '');
-  elRarityBadge.textContent = RARITY[country.rarity].label;
+/* ===================== Animation de reveal ===================== */
+function spawnBurst() {
+  elBurst.innerHTML = '';
+  const n = 18;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('span');
+    const angle = (Math.PI * 2 * i) / n + Math.random() * 0.3;
+    const dist = 60 + Math.random() * 70;
+    s.style.transform = `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px))`;
+    s.style.background = i % 3 === 0 ? 'var(--gold)' : i % 3 === 1 ? 'var(--blue-2)' : 'var(--green)';
+    elBurst.appendChild(s);
+  }
+  elBurst.classList.remove('go');
+  requestAnimationFrame(() => elBurst.classList.add('go'));
+}
+function renderReveal(country, wasNew) {
+  elCardFrame.className = 'card-frame ' + country.rarity;
+  elCardRarityBadge.textContent = RARITY[country.rarity].label;
   elRevealFlag.src = flagUrl(country);
   elRevealFlag.alt = country.name;
   elRevealName.textContent = country.name;
   elCardConfLine.textContent = country.conf;
+  elRevealMeta.textContent = wasNew ? 'Nouveau dans ta collection' : 'Déjà dans ta collection';
   elRevealConf.textContent = RARITY[country.rarity].label.toUpperCase();
-  elRevealMeta.textContent = demoMode ? 'Pioche démo' : 'Minté on-chain';
-
-  // Force le redémarrage des animations CSS (shine, slot pop) à chaque tirage.
-  elReveal.classList.remove('show');
-  elPack.classList.remove('flying');
-  void elReveal.offsetWidth;
-  const shine = elCardFrame.querySelector('.shine');
-  if (shine) { elCardFrame.removeChild(shine); }
-  const newShine = document.createElement('div');
-  newShine.className = 'shine';
-  elCardFrame.prepend(newShine);
-
-  elPack.classList.add('flying');
   elReveal.classList.add('show');
-  playSfx();
+  const shine = elCardFrame.querySelector('.shine');
+  if (shine) { shine.style.animation = 'none'; requestAnimationFrame(() => { shine.style.animation = ''; }); }
 }
 
-async function runPackOpenSequence(getCountry) {
-  if (isBusy) return;
-  isBusy = true;
-  elPack.classList.add('shaking');
-  elPackHint.textContent = demoMode ? 'Ouverture…' : 'Transaction en cours…';
-  try {
-    const country = await getCountry();
-    elPack.classList.remove('shaking');
-    spawnBurst(country.rarity);
-    setTimeout(() => showReveal(country), 260);
-    const before = owned.size;
-    owned.add(country.name);
-    if (owned.size !== before) {
-      cacheSave(demoMode ? 'demo' : userAddress, owned);
-    }
-    updateGauge();
-    await refreshDailyCount();
-  } catch (err) {
-    elPack.classList.remove('shaking');
-    handleWeb3Error(err, "Impossible d'ouvrir le pack.");
-    elPackHint.textContent = 'Cliquer pour ouvrir';
-  } finally {
-    isBusy = false;
-  }
-}
-
-elResetPack.addEventListener('click', () => {
-  elReveal.classList.remove('show');
-  elPack.classList.remove('flying', 'flashing');
-  elPackHint.textContent = elBtn.disabled ? 'Limite quotidienne atteinte — reviens demain' : 'Cliquer pour ouvrir';
-});
-
-async function pickRealMint() {
-  if (!contract) throw new Error('not-connected');
-  const remaining = await refreshDailyCount();
-  if (remaining <= 0) { showToast('Limite quotidienne atteinte.'); throw { code: 'LIMIT' }; }
-  const value = ethers.utils.parseEther(MINT_PRICE_ETH || '0');
-  const tx = await contract.mintPack({ value });
-  showToast('Transaction envoyée, en attente de confirmation…');
+/* ===================== Mint on-chain ===================== */
+async function mintOnChain() {
+  const tx = await contract.mintPack();
+  elPackHint.textContent = 'Confirmation de la transaction…';
   const receipt = await tx.wait();
-  const iface = new ethers.utils.Interface(CONTRACT_ABI);
-  let tokenId = null;
-  for (const log of receipt.logs) {
-    try {
-      const parsed = iface.parseLog(log);
-      if (parsed.name === 'Transfer' && parsed.args.to.toLowerCase() === userAddress.toLowerCase()) {
-        tokenId = parsed.args.tokenId.toString();
-      }
-    } catch {}
-  }
-  if (tokenId === null) throw new Error('Token non trouvé dans la transaction.');
+  const transferTopic = ethers.utils.id("Transfer(address,address,uint256)");
+  const log = receipt.logs.find(l =>
+    l.address.toLowerCase() === CONTRACT_ADDRESS.toLowerCase() && l.topics[0] === transferTopic
+  );
+  if (!log) throw new Error("Mint confirmé mais le pays minté n'a pas pu être déterminé.");
+  const tokenId = ethers.BigNumber.from(log.topics[3]);
   const countryIndex = await contract.tokenToCountry(tokenId);
-  const country = countries[Number(countryIndex)];
-  if (!country) throw new Error('Pays inconnu renvoyé par le contrat.');
+  const idx = countryIndex.toNumber ? countryIndex.toNumber() : Number(countryIndex);
+  const country = countries[idx];
+  if (!country) throw new Error("Pays inconnu retourné par le contrat.");
   return country;
 }
 
-async function pickDemoMint() {
-  await new Promise(r => setTimeout(r, 650));
-  incrementLocalDailyCount('demo');
-  return pickWeightedCountry();
-}
-
-function onPackOpen() {
-  if (isBusy) return;
-  if (demoMode) { runPackOpenSequence(pickDemoMint); return; }
-  if (!userAddress) { connectWallet(); return; }
-  runPackOpenSequence(pickRealMint);
-}
-elPack.addEventListener('click', onPackOpen);
-elBtn.addEventListener('click', () => {
-  if (!userAddress && !demoMode) { connectWallet(); return; }
-  onPackOpen();
-});
-
-/* ============================================================
-   GAUGE / COLLECTION
-   ============================================================ */
-function updateGauge() {
-  const n = owned.size;
-  elGaugeCount.textContent = `${n} / ${TOTAL}`;
-  elGaugeCount.classList.toggle('full', n >= TOTAL);
-  elGaugeFill.style.width = `${Math.min(100, (n / TOTAL) * 100)}%`;
-}
-
-function renderCollection() {
-  updateGauge();
-  elCollectionCount.textContent = `${owned.size} / ${TOTAL} pays`;
-  elCollectionGrid.innerHTML = '';
-  const byConf = {};
-  countries.forEach(c => { (byConf[c.conf] = byConf[c.conf] || []).push(c); });
-  Object.keys(byConf).forEach(conf => {
-    const sep = document.createElement('div');
-    sep.className = 'conf-sep';
-    sep.innerHTML = `<span>${conf}</span><span class="conf-num">${byConf[conf].filter(c => owned.has(c.name)).length}/${byConf[conf].length}</span>`;
-    elCollectionGrid.appendChild(sep);
-    byConf[conf].forEach(c => {
-      const got = owned.has(c.name);
-      const slot = document.createElement('div');
-      slot.className = 'slot' + (got ? ' got' : '');
-      slot.innerHTML = `
-        <span class="slot-number">✓</span>
-        <img src="${flagUrl(c)}" alt="${got ? c.name : ''}" loading="lazy">
-        <div>${got ? c.name : '???'}</div>
-      `;
-      elCollectionGrid.appendChild(slot);
-    });
-  });
-}
-
-/* ============================================================
-   LEADERBOARD (best-effort on-chain — pas de fonction dédiée dans l'ABI)
-   ============================================================ */
-async function renderLeaderboard() {
-  if (demoMode) {
-    elLeaderList.innerHTML = '<div class="empty">Le classement on-chain n\'est pas disponible en mode démo. Connecte un wallet réel pour voir le top collectionneurs.</div>';
+/* ===================== Ouverture de pack (réel + démo) ===================== */
+async function openPack() {
+  if (isOpening) return;
+  if (!demoMode && !userAddress) {
+    showError("Connecte ton wallet ou lance le mode démo pour ouvrir un pack.");
     return;
   }
+  const addr = userAddress;
+  const dailyCount = getLocalDailyCount(addr);
+  if (dailyCount >= DAILY_LIMIT) {
+    showError(`Limite quotidienne atteinte (${DAILY_LIMIT} packs/jour). Reviens demain !`);
+    return;
+  }
+
+  isOpening = true;
+  elPack.classList.add('shaking');
+  elPackHint.textContent = demoMode ? 'Ouverture (démo)…' : 'Ouverture on-chain…';
+
+  try {
+    let country;
+    if (demoMode) {
+      await wait(650);
+      country = pickCountry();
+    } else {
+      country = await mintOnChain();
+    }
+    incrementLocalDailyCount(addr);
+
+    elPack.classList.remove('shaking');
+    elPack.classList.add('flashing');
+    spawnBurst();
+    await wait(350);
+    elPack.classList.add('flying');
+    await wait(380);
+    elPack.style.display = 'none';
+    elPack.classList.remove('flashing', 'flying');
+
+    const wasNew = !owned.has(country.name);
+    owned.set(country.name, (owned.get(country.name) || 0) + 1);
+    cacheSave(addr, owned);
+
+    renderReveal(country, wasNew);
+    renderAll();
+    if (wasNew) { try { elSfx.currentTime = 0; elSfx.play().catch(() => {}); } catch {} }
+    showToast(wasNew ? `Nouveau pays débloqué : ${country.name} ! 🎉` : `${country.name} (déjà possédé)`);
+  } catch (e) {
+    console.error(e);
+    elPack.classList.remove('shaking');
+    elPackHint.textContent = 'Cliquer pour ouvrir';
+    showError(e?.message?.toLowerCase().includes('reject') ? "Transaction annulée." : "Impossible d'ouvrir le pack pour le moment.");
+  } finally {
+    isOpening = false;
+  }
+}
+elPack.addEventListener('click', openPack);
+elResetPack.addEventListener('click', () => {
+  elReveal.classList.remove('show');
+  elPack.style.display = '';
+  elPackHint.textContent = 'Cliquer pour ouvrir';
+});
+
+/* ===================== Wallet ===================== */
+async function refreshNetworkAndBalance() {
+  const network = await provider.getNetwork();
+  const info = SUPPORTED[network.chainId];
+  if (info) {
+    elNetworkWarning.classList.remove('show');
+    elNetworkBadge.textContent = info.name;
+    elNetworkBadge.className = 'tag ok';
+    elScanLink.href = `${info.scan}/address/${CONTRACT_ADDRESS}`;
+    elChainValue.textContent = info.name.replace('Base ', '');
+  } else {
+    elNetworkWarning.classList.add('show');
+    elCurrentNetwork.textContent = `Chain ID ${network.chainId}`;
+    elNetworkBadge.textContent = 'Réseau non supporté';
+    elNetworkBadge.className = 'tag bad';
+  }
+  const bal = await provider.getBalance(userAddress);
+  elEthBalance.textContent = `${parseFloat(ethers.utils.formatEther(bal)).toFixed(4)} ETH`;
+}
+async function syncOwnedFromChain() {
+  try {
+    const latest = await provider.getBlockNumber();
+    const fromBlock = Math.max(0, latest - 400000);
+    const filter = contract.filters.Transfer(null, userAddress, null);
+    const events = await contract.queryFilter(filter, fromBlock, latest);
+    if (events.length === 0) return;
+    const counts = new Map();
+    for (const ev of events) {
+      try {
+        const idx = await contract.tokenToCountry(ev.args.tokenId);
+        const country = countries[idx.toNumber ? idx.toNumber() : Number(idx)];
+        if (country) counts.set(country.name, (counts.get(country.name) || 0) + 1);
+      } catch {}
+    }
+    if (counts.size > 0) { owned = counts; cacheSave(userAddress, owned); }
+  } catch (e) {
+    console.warn('Sync on-chain impossible, utilisation du cache local.', e);
+  }
+}
+function onAccountsChanged(accounts) {
+  if (!accounts || accounts.length === 0) { disconnectWallet(); return; }
+  location.reload();
+}
+function onChainChanged() { refreshNetworkAndBalance().catch(() => {}); }
+
+async function connectWallet() {
+  if (!window.ethereum) {
+    showError("Aucun wallet détecté. Installe MetaMask, Coinbase Wallet ou Rainbow, ou utilise le mode démo.");
+    return;
+  }
+  demoMode = false;
+  elBtn.disabled = true;
+  elBtn.classList.add('loading');
+  elBtn.textContent = 'Connexion…';
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+    const accounts = await provider.send('eth_requestAccounts', []);
+    userAddress = ethers.utils.getAddress(accounts[0]);
+    signer = provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+    if (window.ethereum.removeListener) {
+      window.ethereum.removeListener('accountsChanged', onAccountsChanged);
+      window.ethereum.removeListener('chainChanged', onChainChanged);
+    }
+    if (window.ethereum.on) {
+      window.ethereum.on('accountsChanged', onAccountsChanged);
+      window.ethereum.on('chainChanged', onChainChanged);
+    }
+
+    await refreshNetworkAndBalance();
+    owned = cacheLoad(userAddress);
+    await syncOwnedFromChain();
+
+    elWalletBar.classList.add('show');
+    elWalletAddress.textContent = shortAddr(userAddress);
+    elBtn.textContent = 'Ouvrir un pack';
+    setStatus('Wallet connecté');
+    showToast('Wallet connecté ✅');
+    renderAll();
+  } catch (e) {
+    console.error(e);
+    showError(e?.message?.toLowerCase().includes('reject') ? 'Connexion refusée.' : "Impossible de se connecter au wallet.");
+  } finally {
+    elBtn.disabled = false;
+    elBtn.classList.remove('loading');
+  }
+}
+function disconnectWallet() {
+  provider = signer = contract = null;
+  userAddress = null;
+  demoMode = false;
+  owned = new Map();
+  elWalletBar.classList.remove('show');
+  elBtn.textContent = 'Connecter le wallet';
+  setStatus('Drop live');
+  renderAll();
+}
+elDisconnect.addEventListener('click', disconnectWallet);
+
+function enterDemoMode() {
+  demoMode = true;
+  let demoId;
+  try { demoId = localStorage.getItem('footbase_demo_id'); } catch {}
+  if (!demoId) {
+    demoId = Math.random().toString(36).slice(2, 8);
+    try { localStorage.setItem('footbase_demo_id', demoId); } catch {}
+  }
+  userAddress = 'demo-' + demoId;
+  owned = cacheLoad(userAddress);
+  elWalletBar.classList.remove('show');
+  elBtn.textContent = 'Ouvrir un pack (démo)';
+  setStatus('Mode démo');
+  showToast('Mode démo activé — aucune transaction réelle 🎮');
+  renderAll();
+}
+elDemoBtn.addEventListener('click', enterDemoMode);
+
+elBtn.addEventListener('click', () => {
+  if (!userAddress && !demoMode) connectWallet();
+  else openPack();
+});
+
+/* ===================== Onglets ===================== */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === '1') renderCollectionGrid();
+    if (btn.dataset.tab === '2') renderLeaderboard();
+  });
+});
+
+/* ===================== Leaderboard ===================== */
+elRefreshLb.addEventListener('click', renderLeaderboard);
+async function renderLeaderboard() {
   elLeaderList.innerHTML = '<div class="loading-text">Lecture de la chaîne…</div>';
   try {
-    const c = getReadContract();
-    const next = await c.nextTokenId();
-    const total = Number(next);
-    if (!total || total <= 0) {
-      elLeaderList.innerHTML = '<div class="empty">Aucun pack minté pour l\'instant.</div>';
-      return;
-    }
-    const start = Math.max(0, total - LEADERBOARD_SCAN_CAP);
-    const ids = [];
-    for (let i = start; i < total; i++) ids.push(i);
-    const owners = await Promise.all(ids.map(id => c.ownerOf(id).catch(() => null)));
+    const readProvider = provider || new ethers.providers.JsonRpcProvider(RPC_FALLBACK);
+    const readContract = provider ? contract : new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+    const latest = await readProvider.getBlockNumber();
+    const fromBlock = Math.max(0, latest - 400000);
+    const filter = readContract.filters.Transfer(ethers.constants.AddressZero, null, null);
+    const events = await readContract.queryFilter(filter, fromBlock, latest);
     const tally = new Map();
-    owners.forEach(addr => {
-      if (!addr) return;
-      tally.set(addr, (tally.get(addr) || 0) + 1);
-    });
+    events.forEach(ev => tally.set(ev.args.to, (tally.get(ev.args.to) || 0) + 1));
     const ranked = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
     if (ranked.length === 0) {
-      elLeaderList.innerHTML = '<div class="empty">Impossible de lire le classement pour le moment.</div>';
+      elLeaderList.innerHTML = '<div class="empty">Aucun mint trouvé pour le moment.</div>';
       return;
     }
     elLeaderList.innerHTML = '';
-    if (start > 0) {
-      const note = document.createElement('div');
-      note.className = 'empty';
-      note.style.padding = '0 0 .6rem';
-      note.textContent = `Basé sur les ${LEADERBOARD_SCAN_CAP} derniers packs mintés.`;
-      elLeaderList.appendChild(note);
-    }
-    ranked.forEach(([addr, count], i) => {
+    ranked.forEach(([addr, score], i) => {
+      const isMe = userAddress && !demoMode && addr.toLowerCase() === userAddress.toLowerCase();
       const row = document.createElement('div');
-      const rankClass = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
-      const isMe = userAddress && addr.toLowerCase() === userAddress.toLowerCase();
       row.className = 'leader-row' + (isMe ? ' me' : '');
+      const rankClass = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
       row.innerHTML = `
         <div class="leader-left">
-          <div class="rank ${rankClass}">#${i + 1}</div>
+          <div class="rank ${rankClass}">${i + 1}</div>
           <div class="addr">${shortAddr(addr)}${isMe ? ' (toi)' : ''}</div>
         </div>
-        <div class="score">${count} pack${count > 1 ? 's' : ''}</div>
-      `;
+        <div class="score">${score} pack${score > 1 ? 's' : ''}</div>`;
       elLeaderList.appendChild(row);
     });
-  } catch (err) {
-    console.error(err);
-    elLeaderList.innerHTML = '<div class="empty">Lecture de la chaîne impossible (RPC indisponible). Réessaie plus tard.</div>';
+  } catch (e) {
+    console.error(e);
+    elLeaderList.innerHTML = '<div class="empty">Classement indisponible pour le moment (RPC limité). Réessaie plus tard.</div>';
   }
 }
-elRefreshLb.addEventListener('click', renderLeaderboard);
 
-/* ============================================================
-   INIT
-   ============================================================ */
+/* ===================== Initialisation ===================== */
+async function tryEagerConnect() {
+  if (!window.ethereum) return;
+  try {
+    const accs = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accs && accs.length > 0) await connectWallet();
+  } catch {}
+}
 function init() {
-  initAudio();
-  renderCollection();
-  refreshDailyCount();
-  if (window.ethereum && window.ethereum.selectedAddress) {
-    connectWallet();
-  }
+  elSfx.src = 'data:audio/mpeg;base64,' + SFX_KO_BASE64;
+  renderAll();
+  initMusic();
+  tryEagerConnect();
 }
+init();
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+</script>
+</body>
+</html>
