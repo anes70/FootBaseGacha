@@ -359,7 +359,7 @@ h1{margin:0;font-size:clamp(1.45rem,3.8vw,2.15rem);letter-spacing:0;line-height:
 </main>
 
 <script>
-const CONTRACT_ADDRESS = "0xfa0a2a71c0db19afb457648537eb45fb734a5c7a";
+const CONTRACT_ADDRESS = "0xe97a5d3c95989800dbec265f033e49d88f56f09e";
 const CONTRACT_ABI = [
   "function mintPack() external payable",
   "function tokenToCountry(uint256 tokenId) external view returns (uint256)",
@@ -702,81 +702,43 @@ function renderReveal(country, wasNew) {
 function extractErrorMessage(e) {
   return e?.error?.data?.message || e?.data?.message || e?.error?.message || e?.reason || e?.message || 'Erreur inconnue';
 }
-function markDropEndedIfRelevant(rawMsg) {
-  const m = rawMsg.toLowerCase();
-  if (m.includes('termin') || m.includes('ecoul') || m.includes('écoul') || m.includes('expired') || m.includes('ended')) {
-    try { localStorage.setItem('footbase_drop_ended', '1'); } catch {}
-    applyDropEndedUIIfFlagged();
-    return true;
-  }
-  return false;
-}
-function applyDropEndedUIIfFlagged() {
-  let dropEnded = false;
-  try { dropEnded = localStorage.getItem('footbase_drop_ended') === '1'; } catch {}
-  if (dropEnded && !demoMode) {
-    elBtn.disabled = true;
-    elPack.style.cursor = 'not-allowed';
-    elPackHint.textContent = 'Le drop on-chain est terminé — passe en mode démo';
-    setStatus('Drop terminé');
-  }
-}
 function friendlyErrorMessage(raw) {
   const m = raw.toLowerCase();
   if (m.includes('reject') || m.includes('denied')) return "Transaction annulée dans le wallet.";
-  if (m.includes('termin') || m.includes('ecoul') || m.includes('écoul') || m.includes('expired') || m.includes('ended')) {
-    return "Le drop officiel est terminé : la fenêtre de mint on-chain est dépassée. Passe en mode démo pour continuer à compléter ta collection (sans transaction réelle).";
-  }
-  if (m.includes('insufficient funds')) return "Solde ETH insuffisant pour couvrir le prix du mint et les frais de gas.";
-  if (m.includes('daily') || (m.includes('limit') && m.includes('mint'))) return "Limite quotidienne de mint atteinte sur le contrat lui-même.";
-  return `Impossible d'ouvrir le pack : ${raw}`;
+  if (m.includes('insufficient funds')) return "Solde ETH insuffisant pour couvrir les frais de gas.";
+  if (m.includes('quotidienne') || m.includes('daily') || m.includes('limit')) return "Limite quotidienne atteinte : 2 mints par jour. Reviens demain !";
+  return `Erreur : ${raw}`;
 }
 async function getMintPrice() {
-  const candidates = ['price', 'mintPrice', 'MINT_PRICE', 'cost', 'PRICE'];
-  for (const fn of candidates) {
-    try {
-      if (typeof contract[fn] === 'function') {
-        const val = await contract[fn]();
-        if (val && val.gt && val.gt(0)) return val;
-      }
-    } catch { /* cette fonction n'existe pas sur le contrat, on essaie la suivante */ }
-  }
+  try {
+    const val = await contract.mintPrice();
+    if (val && val.gt && val.gt(0)) return val;
+  } catch {}
   return ethers.BigNumber.from(0);
 }
 async function mintOnChain() {
   const network = await provider.getNetwork();
   if (!SUPPORTED[network.chainId]) {
-    throw new Error("Mauvais réseau : bascule sur Base avant de miner (bouton « Changer de réseau »).");
+    throw new Error("Mauvais réseau : bascule sur Base Mainnet dans ton wallet.");
   }
   const price = await getMintPrice();
   const overrides = price.gt(0) ? { value: price } : {};
-
-  // Simulation gratuite (aucun gas, aucune signature) avant la vraie transaction :
-  // évite de faire payer du gas au joueur pour un mint qui échouera de toute façon
-  // (drop terminé, limite atteinte, etc.) et permet d'afficher la vraie raison tout de suite.
-  try {
-    await contract.callStatic.mintPack(overrides);
-  } catch (simError) {
-    markDropEndedIfRelevant(extractErrorMessage(simError));
-    throw simError;
-  }
-
   elPackHint.textContent = price.gt(0)
-    ? `Confirme la transaction (${ethers.utils.formatEther(price)} ETH)…`
-    : 'Confirme la transaction dans ton wallet…';
+    ? `Confirme (${ethers.utils.formatEther(price)} ETH)…`
+    : 'Confirme dans ton wallet…';
   const tx = await contract.mintPack(overrides);
-  elPackHint.textContent = 'Confirmation de la transaction…';
+  elPackHint.textContent = 'Transaction en cours…';
   const receipt = await tx.wait();
   const transferTopic = ethers.utils.id("Transfer(address,address,uint256)");
   const log = receipt.logs.find(l =>
     l.address.toLowerCase() === CONTRACT_ADDRESS.toLowerCase() && l.topics[0] === transferTopic
   );
-  if (!log) throw new Error("Mint confirmé mais le pays minté n'a pas pu être déterminé.");
+  if (!log) throw new Error("Mint confirmé mais le pays minté n'a pas pu être lu.");
   const tokenId = ethers.BigNumber.from(log.topics[3]);
   const countryIndex = await contract.tokenToCountry(tokenId);
   const idx = countryIndex.toNumber ? countryIndex.toNumber() : Number(countryIndex);
   const country = countries[idx];
-  if (!country) throw new Error("Pays inconnu retourné par le contrat.");
+  if (!country) throw new Error(`Pays index ${idx} inconnu — vérifie le contrat.`);
   return country;
 }
 
@@ -786,14 +748,6 @@ async function openPack() {
   if (!demoMode && !userAddress) {
     showError("Connecte ton wallet ou lance le mode démo pour ouvrir un pack.");
     return;
-  }
-  if (!demoMode) {
-    let dropEnded = false;
-    try { dropEnded = localStorage.getItem('footbase_drop_ended') === '1'; } catch {}
-    if (dropEnded) {
-      showError("Le drop officiel est terminé : la fenêtre de mint on-chain est dépassée. Passe en mode démo pour continuer à compléter ta collection (sans transaction réelle).");
-      return;
-    }
   }
   const addr = userAddress;
   const dailyCount = await getDailyCount(addr);
@@ -836,9 +790,7 @@ async function openPack() {
   } catch (e) {
     console.error(e);
     elPack.classList.remove('shaking');
-    if (elPackHint.textContent !== 'Le drop on-chain est terminé — passe en mode démo') {
-      elPackHint.textContent = 'Cliquer pour ouvrir';
-    }
+    elPackHint.textContent = 'Cliquer pour ouvrir';
     showError(friendlyErrorMessage(extractErrorMessage(e)));
   } finally {
     isOpening = false;
@@ -957,7 +909,6 @@ async function connectWallet() {
     elBtn.textContent = 'Ouvrir un pack';
     setStatus('Wallet connecté');
     showToast('Wallet connecté ✅');
-    applyDropEndedUIIfFlagged();
     renderAll();
   } catch (e) {
     console.error(e);
